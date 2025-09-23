@@ -78,7 +78,4 @@ libc_hidden_builtin_def(memcmp)
 weak_alias (MEMCMP, bcmp)
 #endif
 
-#undef __memcmpeq
-strong_alias (MEMCMP, __memcmpeq)
 libc_hidden_builtin_def (MEMCMP)
-libc_hidden_def (__memcmpeq)
