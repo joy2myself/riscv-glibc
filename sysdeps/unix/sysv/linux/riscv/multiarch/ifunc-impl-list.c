@@ -133,5 +133,10 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 			      __strncpy_vector)
 	      IFUNC_IMPL_ADD (array, i, strncpy, 1, __strncpy_generic))
 
+  IFUNC_IMPL (i, name, strnlen,
+	      IFUNC_IMPL_ADD (array, i, strnlen, rvv_enabled,
+			      __strnlen_vector)
+	      IFUNC_IMPL_ADD (array, i, strnlen, 1, __strnlen_generic))
+
   return 0;
 }
