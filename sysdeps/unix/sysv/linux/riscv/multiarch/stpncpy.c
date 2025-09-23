@@ -22,14 +22,16 @@
    mismatch with the IFUNC selector in strong_alias, below.  */
 # undef stpncpy
 # define stpncpy __redirect_stpncpy
+# define __stpncpy __redirect___stpncpy
 # include <stdint.h>
 # include <string.h>
+# undef stpncpy
+# undef __stpncpy
 # include <ifunc-init.h>
 # include <riscv-ifunc.h>
 # include <sys/hwprobe.h>
 
-extern __typeof (__redirect_stpncpy) __libc_stpncpy;
-
+extern __typeof (__redirect_stpncpy) __stpncpy;
 extern __typeof (__redirect_stpncpy) __stpncpy_generic attribute_hidden;
 extern __typeof (__redirect_stpncpy) __stpncpy_vector attribute_hidden;
 
@@ -43,14 +45,13 @@ select_stpncpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
   return __stpncpy_generic;
 }
 
-riscv_libc_ifunc (__libc_stpncpy, select_stpncpy_ifunc);
+riscv_libc_ifunc (__stpncpy, select_stpncpy_ifunc);
 
 # undef stpncpy
-weak_alias (__libc_stpncpy, stpncpy);
-libc_hidden_def (__stpncpy);
+weak_alias (__stpncpy, stpncpy);
 # ifdef SHARED
-__hidden_ver1 (stpncpy, __GI_stpncpy, __redirect_stpncpy)
-  __attribute__ ((visibility ("hidden"))) __attribute_copy__ (stpncpy);
+__hidden_ver1 (__stpncpy, __GI___stpncpy, __redirect___stpncpy)
+  __attribute__ ((visibility ("hidden"))) __attribute_copy__ (__stpncpy);
 # endif
 #else
 # include <string/stpncpy.c>
