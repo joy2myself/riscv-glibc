@@ -21,8 +21,6 @@
 #include <stdbool.h>
 #include <sys/hwprobe.h>
 
-#define INIT_ARCH()
-
 static inline bool
 riscv_hwprobe_has_vector (__riscv_hwprobe_t hwprobe_func)
 {

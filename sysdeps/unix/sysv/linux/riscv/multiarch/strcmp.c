@@ -22,11 +22,9 @@
    mismatch with the IFUNC selector in strong_alias, below.  */
 # undef strcmp
 # define strcmp __redirect_strcmp
-# include <stdint.h>
 # include <string.h>
-# include <ifunc-init.h>
+# include <profile-ifunc-macros.h>
 # include <riscv-ifunc.h>
-# include <sys/hwprobe.h>
 
 extern __typeof (__redirect_strcmp) __libc_strcmp;
 
@@ -34,11 +32,11 @@ extern __typeof (__redirect_strcmp) __strcmp_generic attribute_hidden;
 extern __typeof (__redirect_strcmp) __strcmp_vector attribute_hidden;
 
 static inline __typeof (__redirect_strcmp) *
-select_strcmp_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
+select_strcmp_ifunc (void)
 {
-  unsigned long long int v;
-  if (__riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0, &v) == 0
-      && (v & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V)
+  INIT_ARCH ();
+
+  if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
     return __strcmp_vector;
   return __strcmp_generic;
 }
