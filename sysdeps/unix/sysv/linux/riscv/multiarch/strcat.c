@@ -22,11 +22,9 @@
    mismatch with the IFUNC selector in strong_alias, below.  */
 # undef strcat
 # define strcat __redirect_strcat
-# include <stdint.h>
 # include <string.h>
-# include <ifunc-init.h>
+# include <profile-ifunc-macros.h>
 # include <riscv-ifunc.h>
-# include <sys/hwprobe.h>
 
 extern __typeof (__redirect_strcat) __libc_strcat;
 
@@ -34,11 +32,11 @@ extern __typeof (__redirect_strcat) __strcat_generic attribute_hidden;
 extern __typeof (__redirect_strcat) __strcat_vector attribute_hidden;
 
 static inline __typeof (__redirect_strcat) *
-select_strcat_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
+select_strcat_ifunc (void)
 {
-  unsigned long long int v;
-  if (__riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0, &v) == 0
-      && (v & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V)
+  INIT_ARCH ();
+
+  if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
     return __strcat_vector;
   return __strcat_generic;
 }

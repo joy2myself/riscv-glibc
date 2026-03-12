@@ -1,6 +1,6 @@
-/* Common definition for ifunc resolvers.  Linux/RISC-V version.
+/* Define _dl_riscv_get_cpu_features.
+   Copyright (C) 2026 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Copyright (C) 2024-2026 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,19 +16,12 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 
-#include <sysdep.h>
-#include <ifunc-init.h>
-#include <sys/hwprobe.h>
-#include <init-arch.h>
+#include <ldsodefs.h>
 
-#define RISCV_IFUNC_INIT()						\
-  do									\
-    {									\
-      (void) hwcap;							\
-      (void) hwprobe;							\
-    }									\
-  while (0)
+#undef _dl_riscv_get_cpu_features
 
-#define riscv_libc_ifunc(name, expr)					\
-  __ifunc_args (name, name, expr(), RISCV_IFUNC_INIT,			\
-		uint64_t hwcap, __riscv_hwprobe_t hwprobe)
+const struct cpu_features *
+_dl_riscv_get_cpu_features (void)
+{
+  return &GLRO (dl_riscv_cpu_features);
+}

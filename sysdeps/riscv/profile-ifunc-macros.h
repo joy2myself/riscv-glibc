@@ -1,6 +1,7 @@
-/* Common definition for ifunc resolvers.  Linux/RISC-V version.
+/* Common ifunc selection utils
+   All versions must be listed in ifunc-impl-list.c.
+   Copyright (C) 2026 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Copyright (C) 2024-2026 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,19 +17,13 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 
-#include <sysdep.h>
-#include <ifunc-init.h>
-#include <sys/hwprobe.h>
-#include <init-arch.h>
+#ifndef _PROFILE_IFUNC_MACROS_H
+#define _PROFILE_IFUNC_MACROS_H
 
-#define RISCV_IFUNC_INIT()						\
-  do									\
-    {									\
-      (void) hwcap;							\
-      (void) hwprobe;							\
-    }									\
-  while (0)
+#include <profile-level.h>
 
-#define riscv_libc_ifunc(name, expr)					\
-  __ifunc_args (name, name, expr(), RISCV_IFUNC_INIT,			\
-		uint64_t hwcap, __riscv_hwprobe_t hwprobe)
+#define RISCV_PROFILE_COND(cond, name)                                    \
+  (((name##_RISCV_PROFILE_LEVEL) <= MINIMUM_RISCV_PROFILE_LEVEL)           \
+   || (cond))
+
+#endif

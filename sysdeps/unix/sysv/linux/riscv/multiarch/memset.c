@@ -22,11 +22,9 @@
    mismatch with the IFUNC selector in strong_alias, below.  */
 # undef memset
 # define memset __redirect_memset
-# include <stdint.h>
 # include <string.h>
-# include <ifunc-init.h>
 # include <riscv-ifunc.h>
-# include <sys/hwprobe.h>
+# include <profile-ifunc-macros.h>
 
 extern __typeof (__redirect_memset) __libc_memset;
 
@@ -34,12 +32,11 @@ extern __typeof (__redirect_memset) __memset_generic attribute_hidden;
 extern __typeof (__redirect_memset) __memset_vector attribute_hidden;
 
 static inline __typeof (__redirect_memset) *
-select_memset_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
+select_memset_ifunc (void)
 {
-  unsigned long long v;
+  INIT_ARCH ();
 
-  if (__riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0, &v) == 0
-      && (v & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V)
+  if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
     return __memset_vector;
 
   return __memset_generic;

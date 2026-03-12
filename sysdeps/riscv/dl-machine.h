@@ -29,6 +29,10 @@
 #include <dl-static-tls.h>
 #include <dl-machine-rel.h>
 
+#ifdef SHARED
+# include <cpu-features.c>
+#endif
+
 #ifndef _RTLD_PROLOGUE
 # define _RTLD_PROLOGUE(entry)						\
 	".globl\t" __STRING (entry) "\n\t"				\
@@ -73,6 +77,22 @@ elf_machine_matches_host (const ElfW(Ehdr) *ehdr)
 #endif
 
   return 1;
+}
+
+#define DL_PLATFORM_INIT dl_platform_init ()
+
+static inline void __attribute__ ((unused))
+dl_platform_init (void)
+{
+  if (GLRO(dl_platform) != NULL && *GLRO(dl_platform) == '\0')
+    /* Avoid an empty string which would disturb us.  */
+    GLRO(dl_platform) = NULL;
+
+#ifdef SHARED
+  /* init_cpu_features has been called early from __libc_start_main in
+     static executable.  */
+  init_cpu_features (&GLRO(dl_riscv_cpu_features));
+#endif
 }
 
 /* Return the run-time load address of the shared object.  */

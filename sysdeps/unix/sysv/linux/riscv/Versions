@@ -1,5 +1,6 @@
 ld {
   GLIBC_PRIVATE {
+    _dl_riscv_get_cpu_features;
     # used for loading by static libraries
     _dl_var_init;
   }
