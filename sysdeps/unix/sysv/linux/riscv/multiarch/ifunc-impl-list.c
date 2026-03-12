@@ -21,6 +21,7 @@
 #include <cpu-features.h>
 #include <ldsodefs.h>
 #include <profile-detection.h>
+#include <profile-ifunc-macros.h>
 
 size_t
 __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
@@ -37,44 +38,51 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
     (cpu_features->tune_flags & RISCV_CPU_TUNE_SPACEMIT_X60) != 0;
 
   IFUNC_IMPL (i, name, memcpy,
-	      IFUNC_IMPL_ADD (array, i, memcpy, rvv_enabled,
-			      __memcpy_vector)
-	      IFUNC_IMPL_ADD (array, i, memcpy, fast_unaligned,
-			      __memcpy_noalignment)
-	      IFUNC_IMPL_ADD (array, i, memcpy, 1, __memcpy_generic))
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, memcpy, rvv_enabled,
+					  __memcpy_vector)
+	      RISCV_IFUNC_IMPL_ADD_RVA22 (array, i, memcpy, fast_unaligned,
+					  __memcpy_noalignment)
+	      RISCV_IFUNC_IMPL_ADD_INIT (array, i, memcpy, 1,
+					 __memcpy_generic))
 
   IFUNC_IMPL (i, name, memset,
-	      IFUNC_IMPL_ADD (array, i, memset, rvv_enabled,
-			      __memset_vector)
-	      IFUNC_IMPL_ADD (array, i, memset, 1, __memset_generic))
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, memset, rvv_enabled,
+					  __memset_vector)
+	      RISCV_IFUNC_IMPL_ADD_RVA22 (array, i, memset, 1,
+					  __memset_generic))
 
   IFUNC_IMPL (i, name, strcat,
-	      IFUNC_IMPL_ADD (array, i, strcat, rvv_enabled,
-			      __strcat_vector)
-	      IFUNC_IMPL_ADD (array, i, strcat, 1, __strcat_generic))
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, strcat, rvv_enabled,
+					  __strcat_vector)
+	      RISCV_IFUNC_IMPL_ADD_RVA22 (array, i, strcat, 1,
+					  __strcat_generic))
 
   IFUNC_IMPL (i, name, strcpy,
-	      IFUNC_IMPL_ADD (array, i, strcpy,
-			      rvv_enabled && spacemit_x60_tuned,
-			      __strcpy_spacemit_x60)
-	      IFUNC_IMPL_ADD (array, i, strcpy, rvv_enabled,
-			      __strcpy_vector)
-	      IFUNC_IMPL_ADD (array, i, strcpy, 1, __strcpy_generic))
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, strcpy,
+					  rvv_enabled && spacemit_x60_tuned,
+					  __strcpy_spacemit_x60)
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, strcpy, rvv_enabled,
+					  __strcpy_vector)
+	      RISCV_IFUNC_IMPL_ADD_RVA22 (array, i, strcpy, 1,
+					  __strcpy_generic))
 
   IFUNC_IMPL (i, name, strlen,
-	      IFUNC_IMPL_ADD (array, i, strlen, rvv_enabled,
-			      __strlen_vector)
-	      IFUNC_IMPL_ADD (array, i, strlen, 1, __strlen_generic))
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, strlen, rvv_enabled,
+					  __strlen_vector)
+	      RISCV_IFUNC_IMPL_ADD_RVA22 (array, i, strlen, 1,
+					  __strlen_generic))
 
   IFUNC_IMPL (i, name, strcmp,
-	      IFUNC_IMPL_ADD (array, i, strcmp, rvv_enabled,
-			      __strcmp_vector)
-	      IFUNC_IMPL_ADD (array, i, strcmp, 1, __strcmp_generic))
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, strcmp, rvv_enabled,
+					  __strcmp_vector)
+	      RISCV_IFUNC_IMPL_ADD_RVA22 (array, i, strcmp, 1,
+					  __strcmp_generic))
 
   IFUNC_IMPL (i, name, strncmp,
-	      IFUNC_IMPL_ADD (array, i, strncmp, rvv_enabled,
-			      __strncmp_vector)
-	      IFUNC_IMPL_ADD (array, i, strncmp, 1, __strncmp_generic))
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, strncmp, rvv_enabled,
+					  __strncmp_vector)
+	      RISCV_IFUNC_IMPL_ADD_RVA22 (array, i, strncmp, 1,
+					  __strncmp_generic))
 
   return 0;
 }
