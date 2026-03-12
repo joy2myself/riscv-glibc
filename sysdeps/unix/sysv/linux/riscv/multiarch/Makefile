@@ -15,6 +15,7 @@ sysdep_routines += \
   strcmp-vector \
   strcpy \
   strcpy-generic \
+  strcpy-spacemit-x60 \
   strcpy-vector \
   strlen \
   strlen-generic \

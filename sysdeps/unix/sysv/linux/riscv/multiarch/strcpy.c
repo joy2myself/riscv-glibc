@@ -22,24 +22,27 @@
    mismatch with the IFUNC selector in strong_alias, below.  */
 # undef strcpy
 # define strcpy __redirect_strcpy
-# include <stdint.h>
 # include <string.h>
-# include <ifunc-init.h>
+# include <profile-ifunc-macros.h>
 # include <riscv-ifunc.h>
-# include <sys/hwprobe.h>
 
 extern __typeof (__redirect_strcpy) __libc_strcpy;
 
 extern __typeof (__redirect_strcpy) __strcpy_generic attribute_hidden;
 extern __typeof (__redirect_strcpy) __strcpy_vector attribute_hidden;
+extern __typeof (__redirect_strcpy) __strcpy_spacemit_x60 attribute_hidden;
 
 static inline __typeof (__redirect_strcpy) *
-select_strcpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
+select_strcpy_ifunc (void)
 {
-  unsigned long long int v;
-  if (__riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0, &v) == 0
-      && (v & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V)
-    return __strcpy_vector;
+  INIT_ARCH ();
+
+  if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
+    {
+      if (tune_flags & RISCV_CPU_TUNE_SPACEMIT_X60)
+	return __strcpy_spacemit_x60;
+      return __strcpy_vector;
+    }
   return __strcpy_generic;
 }
 

@@ -18,7 +18,9 @@
 
 #include <ifunc-impl-list.h>
 #include <string.h>
-#include <sys/hwprobe.h>
+#include <cpu-features.h>
+#include <ldsodefs.h>
+#include <profile-detection.h>
 
 size_t
 __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
@@ -26,22 +28,13 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 {
   size_t i = max;
 
-  bool fast_unaligned = false;
-  bool rvv_enabled = false;
-
-  struct riscv_hwprobe pairs[2] = {
-    {.key = RISCV_HWPROBE_KEY_CPUPERF_0},
-    {.key = RISCV_HWPROBE_KEY_IMA_EXT_0}
-  };
-
-  if (__riscv_hwprobe (pairs, 2, 0, NULL, 0) == 0) {
-    if ((pairs[0].value & RISCV_HWPROBE_MISALIGNED_MASK)
-          == RISCV_HWPROBE_MISALIGNED_FAST)
-      fast_unaligned = true;
-
-    if (pairs[1].value & RISCV_HWPROBE_IMA_V)
-      rvv_enabled = true;
-  }
+  const struct cpu_features *cpu_features = &GLRO (dl_riscv_cpu_features);
+  bool __attribute__ ((unused)) fast_unaligned =
+    riscv_hwprobe_fast_unaligned (cpu_features->cpuperf);
+  bool __attribute__ ((unused)) rvv_enabled =
+    (cpu_features->extensions & RISCV_HWPROBE_IMA_V) != 0;
+  bool __attribute__ ((unused)) spacemit_x60_tuned =
+    (cpu_features->tune_flags & RISCV_CPU_TUNE_SPACEMIT_X60) != 0;
 
   IFUNC_IMPL (i, name, memcpy,
 	      IFUNC_IMPL_ADD (array, i, memcpy, rvv_enabled,
@@ -61,6 +54,9 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 	      IFUNC_IMPL_ADD (array, i, strcat, 1, __strcat_generic))
 
   IFUNC_IMPL (i, name, strcpy,
+	      IFUNC_IMPL_ADD (array, i, strcpy,
+			      rvv_enabled && spacemit_x60_tuned,
+			      __strcpy_spacemit_x60)
 	      IFUNC_IMPL_ADD (array, i, strcpy, rvv_enabled,
 			      __strcpy_vector)
 	      IFUNC_IMPL_ADD (array, i, strcpy, 1, __strcpy_generic))
