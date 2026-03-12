@@ -33,8 +33,10 @@ extern __typeof (__redirect_memcpy) __memcpy_noalignment attribute_hidden;
 extern __typeof (__redirect_memcpy) __memcpy_vector attribute_hidden;
 
 static inline __typeof (__redirect_memcpy) *
-select_memcpy_ifunc (void)
+select_memcpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
 {
+  (void) dl_hwcap;
+  (void) hwprobe_func;
   INIT_ARCH ();
 
   if (RISCV_PROFILE_COND (HAS_VECTOR (), V))

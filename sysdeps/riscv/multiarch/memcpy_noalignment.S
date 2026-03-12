@@ -18,8 +18,9 @@
 
 #include <sysdep.h>
 #include <sys/asm.h>
+#include <profile-level.h>
 
-#if IS_IN(libc)
+#if PROFILE_SHOULD_BUILD (RVA22)
 /* memcpy optimization for CPUs with fast unaligned support
    (RISCV_HWPROBE_MISALIGNED_FAST).
 

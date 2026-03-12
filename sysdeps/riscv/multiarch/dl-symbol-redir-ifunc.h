@@ -19,12 +19,25 @@
 #ifndef _DL_IFUNC_GENERIC_H
 #define _DL_IFUNC_GENERIC_H
 
-#ifndef SHARED
-asm ("memcmp = __memcmp_generic");
-asm ("memcpy = __memcpy_generic");
-asm ("memmove = __memmove_generic");
+# include <profile-level.h>
+
+# ifndef SHARED
+#  if MINIMUM_RISCV_PROFILE_LEVEL >= 23
+asm ("memset = __memset_vector");
+asm ("memcpy = __memcpy_vector");
+asm ("strlen = __strlen_vector");
+#  elif MINIMUM_RISCV_PROFILE_LEVEL >= 20
 asm ("memset = __memset_generic");
+asm ("memcpy = __memcpy_noalignment");
 asm ("strlen = __strlen_generic");
-#endif
+#  else
+asm ("memset = __memset_generic");
+asm ("memcpy = __memcpy_generic");
+asm ("strlen = __strlen_generic");
+#  endif
+asm ("memcmp = __memcmp_generic");
+asm ("memmove = __memmove_generic");
+
+# endif
 
 #endif

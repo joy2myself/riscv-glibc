@@ -18,8 +18,9 @@
 
 #include <sysdep.h>
 #include <sys/asm.h>
+#include <profile-level.h>
 
-#if IS_IN (libc)
+#if PROFILE_SHOULD_BUILD (RVA23)
 # define pDst		a0
 # define pSrc		a1
 # define pDstPtr		a2

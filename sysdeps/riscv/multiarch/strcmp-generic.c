@@ -17,8 +17,9 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <string.h>
+#include <profile-level.h>
 
-#if IS_IN(libc)
+#if PROFILE_SHOULD_BUILD (RVA22)
 # define STRCMP __strcmp_generic
 # include <string/strcmp.c>
 #endif

@@ -33,8 +33,10 @@ extern __typeof (__redirect_strcpy) __strcpy_vector attribute_hidden;
 extern __typeof (__redirect_strcpy) __strcpy_spacemit_x60 attribute_hidden;
 
 static inline __typeof (__redirect_strcpy) *
-select_strcpy_ifunc (void)
+select_strcpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
 {
+  (void) dl_hwcap;
+  (void) hwprobe_func;
   INIT_ARCH ();
 
   if (RISCV_PROFILE_COND (HAS_VECTOR (), V))

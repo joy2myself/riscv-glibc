@@ -22,6 +22,36 @@
 
 #include <profile-level.h>
 
+/* Only list implementations at the level of the minimum build profile or
+   higher. I.e if built with profile lower than RVA20, then include all
+   implementations. On the other hand if built with profile=RVA22/RVA23 only
+   include RVA22/RVA23 implementations. If there is no implementation at or
+   above the minimum build profile level, then include the highest profile
+   level implementation.  */
+#if MINIMUM_RISCV_PROFILE_LEVEL <= 23
+# define RISCV_IFUNC_IMPL_ADD_RVA23(...) IFUNC_IMPL_ADD (__VA_ARGS__)
+#else
+# define RISCV_IFUNC_IMPL_ADD_RVA23(...)
+#endif
+
+#if MINIMUM_RISCV_PROFILE_LEVEL <= 22
+# define RISCV_IFUNC_IMPL_ADD_RVA22(...) IFUNC_IMPL_ADD (__VA_ARGS__)
+#else
+# define RISCV_IFUNC_IMPL_ADD_RVA22(...)
+#endif
+
+#if MINIMUM_RISCV_PROFILE_LEVEL <= 20
+# define RISCV_IFUNC_IMPL_ADD_RVA20(...) IFUNC_IMPL_ADD (__VA_ARGS__)
+#else
+# define RISCV_IFUNC_IMPL_ADD_RVA20(...)
+#endif
+
+#if MINIMUM_RISCV_PROFILE_LEVEL <= 0
+# define RISCV_IFUNC_IMPL_ADD_INIT(...) IFUNC_IMPL_ADD (__VA_ARGS__)
+#else
+# define RISCV_IFUNC_IMPL_ADD_INIT(...)
+#endif
+
 #define RISCV_PROFILE_COND(cond, name)                                    \
   (((name##_RISCV_PROFILE_LEVEL) <= MINIMUM_RISCV_PROFILE_LEVEL)           \
    || (cond))

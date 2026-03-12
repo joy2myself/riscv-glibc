@@ -17,8 +17,9 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <string.h>
+#include <profile-level.h>
 
-#if IS_IN(libc)
+#if PROFILE_SHOULD_BUILD (RVA22)
 # define STRNCMP __strncmp_generic
 # undef libc_hidden_builtin_def
 # define libc_hidden_builtin_def(x)

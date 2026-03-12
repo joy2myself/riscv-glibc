@@ -32,8 +32,10 @@ extern __typeof (__redirect_strcmp) __strcmp_generic attribute_hidden;
 extern __typeof (__redirect_strcmp) __strcmp_vector attribute_hidden;
 
 static inline __typeof (__redirect_strcmp) *
-select_strcmp_ifunc (void)
+select_strcmp_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
 {
+  (void) dl_hwcap;
+  (void) hwprobe_func;
   INIT_ARCH ();
 
   if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
