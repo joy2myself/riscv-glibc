@@ -34,6 +34,10 @@ sysdep_routines += \
   stpncpy \
   stpncpy-generic \
   stpncpy-vector \
+  strcasecmp \
+  strcasecmp-ascii-vector \
+  strcasecmp-generic \
+  strcasecmp-vector \
   strcat \
   strcat-generic \
   strcat-vector \
