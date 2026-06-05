@@ -71,6 +71,9 @@ sysdep_routines += \
   strncase-ascii-vector \
   strncase-generic \
   strncase-vector \
+  strncase_l \
+  strncase_l-generic \
+  strncase_l-vector \
   strncpy \
   strncpy-generic \
   strncpy-vector \
