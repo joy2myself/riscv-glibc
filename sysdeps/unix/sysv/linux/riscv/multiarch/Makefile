@@ -38,6 +38,9 @@ sysdep_routines += \
   strcasecmp-ascii-vector \
   strcasecmp-generic \
   strcasecmp-vector \
+  strcasecmp_l \
+  strcasecmp_l-generic \
+  strcasecmp_l-vector \
   strcat \
   strcat-generic \
   strcat-vector \

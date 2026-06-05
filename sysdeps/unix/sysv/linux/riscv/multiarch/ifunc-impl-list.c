@@ -126,6 +126,11 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 			      __strcasecmp_vector)
 	      IFUNC_IMPL_ADD (array, i, strcasecmp, 1,
 			      __strcasecmp_generic))
+  IFUNC_IMPL (i, name, strcasecmp_l,
+	      IFUNC_IMPL_ADD (array, i, strcasecmp_l, rvv_enabled,
+			      __strcasecmp_l_vector)
+	      IFUNC_IMPL_ADD (array, i, strcasecmp_l, 1,
+			      __strcasecmp_l_generic))
   IFUNC_IMPL (i, name, memchr,
 	      IFUNC_IMPL_ADD (array, i, memchr, rvv_enabled,
 			      __memchr_vector)
