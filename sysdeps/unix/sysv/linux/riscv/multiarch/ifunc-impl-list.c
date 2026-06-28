@@ -130,6 +130,11 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 			      __strchr_vector)
 	      IFUNC_IMPL_ADD (array, i, strchr, 1, __strchr_generic))
 
+  IFUNC_IMPL (i, name, strcspn,
+	      IFUNC_IMPL_ADD (array, i, strcspn, rvv_enabled,
+			      __strcspn_vector)
+	      IFUNC_IMPL_ADD (array, i, strcspn, 1, __strcspn_generic))
+
   IFUNC_IMPL (i, name, strrchr,
 	      IFUNC_IMPL_ADD (array, i, strrchr, rvv_enabled,
 			      __strrchr_vector)
