@@ -80,6 +80,9 @@ sysdep_routines += \
   strrchr \
   strrchr-generic \
   strrchr-vector \
+  strspn \
+  strspn-generic \
+  strspn-vector \
   strstr-generic \
   # sysdep_routines
 
