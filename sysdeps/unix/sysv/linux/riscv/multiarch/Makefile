@@ -50,6 +50,8 @@ sysdep_routines += \
   strcpy \
   strcpy-generic \
   strcpy-vector \
+  strstr \
+  strstr-vector \
   strlen \
   strlen-generic \
   strlen-vector \
@@ -68,6 +70,7 @@ sysdep_routines += \
   strrchr \
   strrchr-generic \
   strrchr-vector \
+  strstr-generic \
   # sysdep_routines
 
 CFLAGS-memcpy_noalignment.c += -mno-strict-align
