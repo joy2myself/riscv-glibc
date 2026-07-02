@@ -1,4 +1,4 @@
-/* RISC-V RVV based memcmp.
+/* RISC-V RVV based memcmpeq.
    Copyright (C) 2026 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -19,8 +19,8 @@
 #include <sysdep.h>
 #include <sys/asm.h>
 
-#ifndef MEMCMP
-# define MEMCMP memcmp
+#ifndef MEMCMPEQ
+# define MEMCMPEQ __memcmpeq
 #endif
 
 #define result a0
@@ -32,14 +32,12 @@
 #define ivl a3
 #define temp a4
 
-#define ELEM_LMUL_SETTING m8
+#define ELEM_LMUL_SETTING m1
 #define vdata1 v0
 #define vdata2 v8
 #define vmask v16
-#define vtemp1 v16
-#define vtemp2 v24
 
-ENTRY (MEMCMP)
+ENTRY (MEMCMPEQ)
 .option push
 .option arch, +v
 L(loop):
@@ -52,6 +50,7 @@ L(loop):
     sub num, num, ivl
     vfirst.m temp, vmask
 
+    /* Skip the loop if we find the different value between src1 and src2. */
     bgez temp, L(found)
 
     add src1, src1, ivl
@@ -62,20 +61,8 @@ L(loop):
     li result, 0
     ret
 L(found):
-    vrgather.vx vtemp1, vdata1, temp
-    vrgather.vx vtemp2, vdata2, temp
-    vmv.x.s result, vtemp1
-    vmv.x.s temp, vtemp2
-    andi result, result, 0xff
-    andi temp, temp, 0xff
-    sub result, result, temp
+    mv result, ivl
     ret
 .option pop
-END (MEMCMP)
-libc_hidden_builtin_def(memcmp)
-#ifdef weak_alias
-#undef bcmp
-weak_alias (MEMCMP, bcmp)
-#endif
-
-libc_hidden_builtin_def (MEMCMP)
+END (MEMCMPEQ)
+libc_hidden_def (MEMCMPEQ)

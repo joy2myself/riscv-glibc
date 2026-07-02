@@ -9,6 +9,9 @@ sysdep_routines += \
   memcmp \
   memcmp-generic \
   memcmp-vector \
+  memcmpeq \
+  memcmpeq-generic \
+  memcmpeq-vector \
   memcpy \
   memcpy-generic \
   memcpy-vector \
