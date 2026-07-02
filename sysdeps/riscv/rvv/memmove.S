@@ -27,52 +27,46 @@
 #define src a1
 #define num a2
 
+#define delta t0
 #define ivl a3
 #define dst_ptr a4
-#define diff a5
-
-#define ELEM_LMUL_SETTING m8
+#define src_backward_ptr a5
+#define dst_backward_ptr a6
 #define vdata v0
 
 ENTRY (MEMMOVE)
 .option push
 .option arch, +v
-    /* There is nothing to do if we are copying zero bytes or DST == SRC.  */
-    beqz num, L(done)
-    sub diff, dst, src
-    beqz diff, L(done)
-
-    /* If (unsigned)(dst - src) < num, then we have an overlap scenario that
-       requires a backward copy loop.  Otherwise, we can use a faster forward
-       copy loop.  */
-    bltu diff, num, L(do_backward_loop)
-
-    mv dst_ptr, dst
+	sub	delta, dst, src
+	beqz	delta, L(done)
+	mv	dst_ptr, dst
+	bltu	delta, num, L(prepare_backward)
 
 L(forward_copy_loop):
-    vsetvli ivl, num, e8, ELEM_LMUL_SETTING, ta, ma
-    vle8.v vdata, (src)
-    sub num, num, ivl
-    add src, src, ivl
-    vse8.v vdata, (dst_ptr)
-    add dst_ptr, dst_ptr, ivl
-    bnez num, L(forward_copy_loop)
-L(done):
-    ret
+	vsetvli	ivl, num, e8, m8, ta, ma
+	vle8.v	vdata, (src)
+	sub	num, num, ivl
+	add	src, src, ivl
+	vse8.v	vdata, (dst_ptr)
+	add	dst_ptr, dst_ptr, ivl
+	bnez	num, L(forward_copy_loop)
+	j	L(done)
 
-L(do_backward_loop):
-    add src, src, num
-    add dst_ptr, dst, num
+L(prepare_backward):
+	add	src_backward_ptr, src, num
+	add	dst_backward_ptr, dst, num
 
 L(backward_copy_loop):
-    vsetvli ivl, num, e8, ELEM_LMUL_SETTING, ta, ma
-    sub src, src, ivl
-    sub dst_ptr, dst_ptr, ivl
-    vle8.v vdata, (src)
-    sub num, num, ivl
-    vse8.v vdata, (dst_ptr)
-    bnez num, L(backward_copy_loop)
-    ret
+	vsetvli	ivl, num, e8, m8, ta, ma
+	sub	src_backward_ptr, src_backward_ptr, ivl
+	vle8.v	vdata, (src_backward_ptr)
+	sub	num, num, ivl
+	sub	dst_backward_ptr, dst_backward_ptr, ivl
+	vse8.v	vdata, (dst_backward_ptr)
+	bnez	num, L(backward_copy_loop)
+
+L(done):
+	ret
 
 .option pop
 END (MEMMOVE)
