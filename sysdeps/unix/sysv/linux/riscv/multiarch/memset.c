@@ -29,8 +29,9 @@
 extern __typeof (__redirect_memset) __libc_memset;
 
 extern __typeof (__redirect_memset) __memset_generic attribute_hidden;
-extern __typeof (__redirect_memset) __memset_vector attribute_hidden;
+extern __typeof (__redirect_memset) __memset_c908 attribute_hidden;
 extern __typeof (__redirect_memset) __memset_spacemit_x60 attribute_hidden;
+extern __typeof (__redirect_memset) __memset_vector attribute_hidden;
 
 static inline __typeof (__redirect_memset) *
 select_memset_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
@@ -43,6 +44,8 @@ select_memset_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
     {
       if (tune == RISCV_CPU_TUNE_SPACEMIT_X60)
 	return __memset_spacemit_x60;
+      if (tune == RISCV_CPU_TUNE_C908)
+	return __memset_c908;
       return __memset_vector;
     }
 

@@ -17,10 +17,12 @@ sysdep_routines += \
   mempcpy-vector \
   memcpy \
   memcpy-generic \
+  memcpy-c908 \
   memcpy-spacemit-x60 \
   memcpy-vector \
   memcpy_noalignment \
   memmove \
+  memmove-c908 \
   memmove-spacemit-x60 \
   memmove-generic \
   memmove-vector \
@@ -32,6 +34,7 @@ sysdep_routines += \
   memrchr-vector \
   memset \
   memset-generic \
+  memset-c908 \
   memset-spacemit-x60 \
   memset-vector \
   stpncpy \
@@ -53,6 +56,7 @@ sysdep_routines += \
   strcpy \
   strcpy-generic \
   strcpy-spacemit-x60 \
+  strcpy-c908 \
   strcpy-vector \
   strstr \
   strstr-vector \

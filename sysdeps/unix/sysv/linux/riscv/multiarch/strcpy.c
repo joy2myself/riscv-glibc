@@ -31,6 +31,7 @@ extern __typeof (__redirect_strcpy) __libc_strcpy;
 extern __typeof (__redirect_strcpy) __strcpy_generic attribute_hidden;
 extern __typeof (__redirect_strcpy) __strcpy_vector attribute_hidden;
 extern __typeof (__redirect_strcpy) __strcpy_spacemit_x60 attribute_hidden;
+extern __typeof (__redirect_strcpy) __strcpy_c908 attribute_hidden;
 
 static inline __typeof (__redirect_strcpy) *
 select_strcpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
@@ -43,6 +44,8 @@ select_strcpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
     {
       if (tune == RISCV_CPU_TUNE_SPACEMIT_X60)
 	return __strcpy_spacemit_x60;
+      if (tune == RISCV_CPU_TUNE_C908)
+	return __strcpy_c908;
       return __strcpy_vector;
     }
 

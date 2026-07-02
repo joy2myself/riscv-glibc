@@ -30,8 +30,9 @@ extern __typeof (__redirect_memcpy) __libc_memcpy;
 
 extern __typeof (__redirect_memcpy) __memcpy_generic attribute_hidden;
 extern __typeof (__redirect_memcpy) __memcpy_noalignment attribute_hidden;
-extern __typeof (__redirect_memcpy) __memcpy_vector attribute_hidden;
+extern __typeof (__redirect_memcpy) __memcpy_c908 attribute_hidden;
 extern __typeof (__redirect_memcpy) __memcpy_spacemit_x60 attribute_hidden;
+extern __typeof (__redirect_memcpy) __memcpy_vector attribute_hidden;
 
 static inline __typeof (__redirect_memcpy) *
 select_memcpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
@@ -44,6 +45,8 @@ select_memcpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
     {
       if (tune == RISCV_CPU_TUNE_SPACEMIT_X60)
 	return __memcpy_spacemit_x60;
+      if (tune == RISCV_CPU_TUNE_C908)
+	return __memcpy_c908;
       return __memcpy_vector;
     }
 
