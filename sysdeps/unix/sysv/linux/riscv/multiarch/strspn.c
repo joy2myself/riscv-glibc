@@ -24,9 +24,8 @@
 # include <stdint.h>
 # include <string.h>
 # undef strspn
-# include <ifunc-init.h>
+# include <profile-ifunc-macros.h>
 # include <riscv-ifunc.h>
-# include <sys/hwprobe.h>
 
 extern __typeof (__redirect_strspn) strspn;
 extern __typeof (__redirect_strspn) __strspn_generic attribute_hidden;
@@ -35,8 +34,13 @@ extern __typeof (__redirect_strspn) __strspn_vector attribute_hidden;
 static inline __typeof (__redirect_strspn) *
 select_strspn_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
 {
-  if (riscv_hwprobe_has_vector (hwprobe_func))
+  (void) dl_hwcap;
+  (void) hwprobe_func;
+  INIT_ARCH ();
+
+  if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
     return __strspn_vector;
+
   return __strspn_generic;
 }
 

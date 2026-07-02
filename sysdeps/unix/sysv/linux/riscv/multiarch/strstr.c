@@ -30,17 +30,19 @@ extern __typeof (__redirect_strstr) __strstr_generic attribute_hidden;
 extern __typeof (__redirect_strstr) __strstr_vector attribute_hidden;
 extern __typeof (__redirect_strstr) __libc_strstr;
 
-# include <ifunc-init.h>
+# include <profile-ifunc-macros.h>
 # include <riscv-ifunc.h>
-# include <sys/hwprobe.h>
 
 static inline __typeof (__redirect_strstr) *
 select_strstr_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
 {
-  unsigned long long int v;
-  if (__riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0, &v) == 0
-      && (v & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V)
+  (void) dl_hwcap;
+  (void) hwprobe_func;
+  INIT_ARCH ();
+
+  if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
     return __strstr_vector;
+
   return __strstr_generic;
 }
 

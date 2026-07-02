@@ -22,11 +22,9 @@
    mismatch with the IFUNC selector in strong_alias, below.  */
 # undef memcpy
 # define memcpy __redirect_memcpy
-# include <stdint.h>
 # include <string.h>
-# include <ifunc-init.h>
+# include <profile-ifunc-macros.h>
 # include <riscv-ifunc.h>
-# include <sys/hwprobe.h>
 
 extern __typeof (__redirect_memcpy) __libc_memcpy;
 
@@ -37,13 +35,14 @@ extern __typeof (__redirect_memcpy) __memcpy_vector attribute_hidden;
 static inline __typeof (__redirect_memcpy) *
 select_memcpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
 {
-  unsigned long long int v;
-  if (__riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0, &v) == 0
-      && (v & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V)
+  (void) dl_hwcap;
+  (void) hwprobe_func;
+  INIT_ARCH ();
+
+  if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
     return __memcpy_vector;
 
-  if (__riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_CPUPERF_0, &v) == 0
-      && (v & RISCV_HWPROBE_MISALIGNED_MASK) == RISCV_HWPROBE_MISALIGNED_FAST)
+  if (RISCV_PROFILE_COND (fast_unaligned, RVA20))
     return __memcpy_noalignment;
 
   return __memcpy_generic;

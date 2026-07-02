@@ -17,8 +17,9 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <string.h>
+#include <profile-level.h>
 
-#if IS_IN(libc)
+#if PROFILE_SHOULD_BUILD (RVA22)
 # define STRLEN __strlen_generic
 # include <string/strlen.c>
 #endif

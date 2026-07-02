@@ -16,7 +16,9 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 
-#if IS_IN (libc)
+#include <profile-level.h>
+
+#if PROFILE_SHOULD_BUILD (RVA23)
 # define STRCASECMP __strcasecmp_vector
 # define STRCASECMP_GENERIC __strcasecmp_generic
 # define STRCASECMP_CHECK_LOCALE 1

@@ -26,9 +26,8 @@
 # include <string.h>
 # undef strncasecmp
 # undef __strncasecmp
-# include <ifunc-init.h>
+# include <profile-ifunc-macros.h>
 # include <riscv-ifunc.h>
-# include <sys/hwprobe.h>
 
 extern __typeof (__redirect_strncasecmp) __strncasecmp;
 extern __typeof (__redirect_strncasecmp) __strncasecmp_generic
@@ -39,8 +38,13 @@ extern __typeof (__redirect_strncasecmp) __strncasecmp_vector
 static inline __typeof (__redirect_strncasecmp) *
 select_strncasecmp_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
 {
-  if (riscv_hwprobe_has_vector (hwprobe_func))
+  (void) dl_hwcap;
+  (void) hwprobe_func;
+  INIT_ARCH ();
+
+  if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
     return __strncasecmp_vector;
+
   return __strncasecmp_generic;
 }
 

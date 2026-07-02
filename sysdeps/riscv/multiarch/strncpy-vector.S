@@ -16,7 +16,9 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 
-#if IS_IN(libc)
+#include <profile-level.h>
+
+#if PROFILE_SHOULD_BUILD (RVA23)
 # define STRNCPY __strncpy_vector
 # undef libc_hidden_builtin_def
 # define libc_hidden_builtin_def(x)

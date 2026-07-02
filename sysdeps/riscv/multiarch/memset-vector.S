@@ -17,7 +17,8 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#if IS_IN(libc)
+#include <profile-level.h>
+#if PROFILE_SHOULD_BUILD (RVA23)
 # define MEMSET __memset_vector
 # undef libc_hidden_builtin_def
 # define libc_hidden_builtin_def(name)

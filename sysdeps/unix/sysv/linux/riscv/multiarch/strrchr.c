@@ -24,9 +24,8 @@
 # define strrchr __redirect_strrchr
 # include <stdint.h>
 # include <string.h>
-# include <ifunc-init.h>
+# include <profile-ifunc-macros.h>
 # include <riscv-ifunc.h>
-# include <sys/hwprobe.h>
 
 extern __typeof (__redirect_strrchr) __libc_strrchr;
 
@@ -36,11 +35,13 @@ extern __typeof (__redirect_strrchr) __strrchr_vector attribute_hidden;
 static inline __typeof (__redirect_strrchr) *
 select_strrchr_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
 {
-  unsigned long long v;
+  (void) dl_hwcap;
+  (void) hwprobe_func;
+  INIT_ARCH ();
 
-  if (__riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0, &v) == 0
-      && (v & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V)
+  if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
     return __strrchr_vector;
+
   return __strrchr_generic;
 }
 

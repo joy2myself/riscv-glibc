@@ -16,7 +16,9 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 
-#if IS_IN (libc)
+#include <profile-level.h>
+
+#if PROFILE_SHOULD_BUILD (RVA23)
 # define STRSTR __strstr_vector
 # define STRSTR_NO_ALIAS 1
 # include <sysdeps/riscv/rvv/strstr.S>
