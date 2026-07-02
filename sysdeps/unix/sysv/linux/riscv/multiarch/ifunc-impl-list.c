@@ -123,5 +123,10 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 			      __memmove_vector)
 	      IFUNC_IMPL_ADD (array, i, memmove, 1, __memmove_generic))
 
+  IFUNC_IMPL (i, name, strncat,
+	      IFUNC_IMPL_ADD (array, i, strncat, rvv_enabled,
+			      __strncat_vector)
+	      IFUNC_IMPL_ADD (array, i, strncat, 1, __strncat_generic))
+
   return 0;
 }

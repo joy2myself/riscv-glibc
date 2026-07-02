@@ -43,6 +43,9 @@ sysdep_routines += \
   strlen \
   strlen-generic \
   strlen-vector \
+  strncat \
+  strncat-generic \
+  strncat-vector \
   strncmp \
   strncmp-generic \
   strncmp-vector \
