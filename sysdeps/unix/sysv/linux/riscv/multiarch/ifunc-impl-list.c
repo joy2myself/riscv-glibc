@@ -166,5 +166,9 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 			      __strnlen_vector)
 	      IFUNC_IMPL_ADD (array, i, strnlen, 1, __strnlen_generic))
 
+  IFUNC_IMPL (i, name, strpbrk,
+	      IFUNC_IMPL_ADD (array, i, strpbrk, rvv_enabled,
+			      __strpbrk_vector)
+	      IFUNC_IMPL_ADD (array, i, strpbrk, 1, __strpbrk_generic))
   return 0;
 }

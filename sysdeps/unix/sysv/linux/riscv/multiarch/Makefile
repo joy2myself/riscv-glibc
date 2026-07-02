@@ -71,6 +71,9 @@ sysdep_routines += \
   strnlen \
   strnlen-generic \
   strnlen-vector \
+  strpbrk \
+  strpbrk-generic \
+  strpbrk-vector \
   strrchr \
   strrchr-generic \
   strrchr-vector \
