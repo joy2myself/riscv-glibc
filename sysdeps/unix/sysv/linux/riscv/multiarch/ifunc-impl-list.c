@@ -17,6 +17,7 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <ifunc-impl-list.h>
+#include <riscv-ifunc.h>
 #include <string.h>
 #include <sys/hwprobe.h>
 
@@ -31,7 +32,7 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 
   struct riscv_hwprobe pairs[2] = {
     {.key = RISCV_HWPROBE_KEY_CPUPERF_0},
-    {.key = RISCV_HWPROBE_KEY_IMA_EXT_0}
+    {.key = RISCV_HWPROBE_KEY_IMA_EXT_0},
   };
 
   if (__riscv_hwprobe (pairs, 2, 0, NULL, 0) == 0) {
@@ -49,6 +50,11 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 	      IFUNC_IMPL_ADD (array, i, memcpy, fast_unaligned,
 			      __memcpy_noalignment)
 	      IFUNC_IMPL_ADD (array, i, memcpy, 1, __memcpy_generic))
+
+  IFUNC_IMPL (i, name, mempcpy,
+	      IFUNC_IMPL_ADD (array, i, mempcpy, rvv_enabled,
+			      __mempcpy_vector)
+	      IFUNC_IMPL_ADD (array, i, mempcpy, 1, __mempcpy_generic))
 
   IFUNC_IMPL (i, name, memset,
 	      IFUNC_IMPL_ADD (array, i, memset, rvv_enabled,

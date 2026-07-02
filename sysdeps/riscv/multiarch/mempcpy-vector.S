@@ -1,6 +1,6 @@
-/* Common definition for ifunc resolvers.  Linux/RISC-V version.
+/* Re-include the RISC-V RVV based mempcpy implementation.
+   Copyright (C) 2026 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Copyright (C) 2024-2026 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,23 +16,8 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 
-#include <sysdep.h>
-#include <ifunc-init.h>
-#include <stdbool.h>
-#include <sys/hwprobe.h>
-
-#define INIT_ARCH()
-
-static inline bool
-riscv_hwprobe_has_vector (__riscv_hwprobe_t hwprobe_func)
-{
-  unsigned long long int value;
-
-  return __riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0,
-			      &value) == 0
-	 && (value & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V;
-}
-
-#define riscv_libc_ifunc(name, expr)				\
-  __ifunc_args (name, name, expr(hwcap, hwprobe), INIT_ARCH,	\
-                uint64_t hwcap, __riscv_hwprobe_t hwprobe)
+#if IS_IN (libc)
+# define MEMPCPY __mempcpy_vector
+# define MEMPCPY_NO_ALIAS 1
+# include <sysdeps/riscv/rvv/mempcpy.S>
+#endif

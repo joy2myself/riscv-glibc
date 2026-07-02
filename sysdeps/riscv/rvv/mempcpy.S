@@ -1,6 +1,6 @@
-/* Common definition for ifunc resolvers.  Linux/RISC-V version.
+/* RISC-V RVV based mempcpy.
+   Copyright (C) 2026 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Copyright (C) 2024-2026 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -17,22 +17,42 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-#include <ifunc-init.h>
-#include <stdbool.h>
-#include <sys/hwprobe.h>
+#include <sys/asm.h>
 
-#define INIT_ARCH()
+#ifndef MEMPCPY
+# define MEMPCPY __mempcpy
+#endif
 
-static inline bool
-riscv_hwprobe_has_vector (__riscv_hwprobe_t hwprobe_func)
-{
-  unsigned long long int value;
+#define dst a0
+#define src a1
+#define num a2
 
-  return __riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0,
-			      &value) == 0
-	 && (value & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V;
-}
+#define ivl a3
 
-#define riscv_libc_ifunc(name, expr)				\
-  __ifunc_args (name, name, expr(hwcap, hwprobe), INIT_ARCH,	\
-                uint64_t hwcap, __riscv_hwprobe_t hwprobe)
+#ifndef ELEM_LMUL_SETTING
+# define ELEM_LMUL_SETTING m4
+#endif
+#define vdata v0
+
+ENTRY (MEMPCPY)
+.option push
+.option arch, +v
+
+L(loop):
+	vsetvli	ivl, num, e8, ELEM_LMUL_SETTING, ta, ma
+	vle8.v	vdata, (src)
+	sub	num, num, ivl
+	add	src, src, ivl
+	vse8.v	vdata, (dst)
+	add	dst, dst, ivl
+	bnez	num, L(loop)
+
+	ret
+.option pop
+END (MEMPCPY)
+
+#ifndef MEMPCPY_NO_ALIAS
+libc_hidden_def (__mempcpy)
+weak_alias (__mempcpy, mempcpy)
+libc_hidden_builtin_def (mempcpy)
+#endif
