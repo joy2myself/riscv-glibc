@@ -2,6 +2,10 @@ ifeq ($(subdir),misc)
 sysdep_headers += sys/asm.h
 endif
 
+ifeq ($(subdir),string)
+gen-as-const-headers += locale-defines.sym
+endif
+
 ifeq ($(subdir),elf)
 gen-as-const-headers += dl-link.sym
 endif
