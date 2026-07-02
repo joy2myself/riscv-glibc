@@ -25,6 +25,7 @@
 # include <stdint.h>
 # include <string.h>
 # include <ifunc-init.h>
+# include <profile-ifunc-macros.h>
 # include <riscv-ifunc.h>
 # include <sys/hwprobe.h>
 
@@ -32,14 +33,21 @@ extern __typeof (__redirect_memmove) __libc_memmove;
 
 extern __typeof (__redirect_memmove) __memmove_generic attribute_hidden;
 extern __typeof (__redirect_memmove) __memmove_vector attribute_hidden;
+extern __typeof (__redirect_memmove) __memmove_spacemit_x60 attribute_hidden;
 
 static inline __typeof (__redirect_memmove) *
 select_memmove_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
 {
-  unsigned long long int v;
-  if (__riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0, &v) == 0
-      && (v & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V)
-    return __memmove_vector;
+  (void) dl_hwcap;
+  (void) hwprobe_func;
+  INIT_ARCH ();
+
+  if (RISCV_PROFILE_COND (HAS_VECTOR (), V))
+    {
+      if (tune_flags & RISCV_CPU_TUNE_SPACEMIT_X60)
+	return __memmove_spacemit_x60;
+      return __memmove_vector;
+    }
   return __memmove_generic;
 }
 
