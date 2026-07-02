@@ -52,6 +52,9 @@ sysdep_routines += \
   strncpy \
   strncpy-generic \
   strncpy-vector \
+  strnlen \
+  strnlen-generic \
+  strnlen-vector \
   strrchr \
   strrchr-generic \
   strrchr-vector \
