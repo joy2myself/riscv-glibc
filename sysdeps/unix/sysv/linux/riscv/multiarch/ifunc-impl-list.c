@@ -101,6 +101,11 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 			      ____memcmpeq_vector)
 	      IFUNC_IMPL_ADD (array, i, __memcmpeq, 1, ____memcmpeq_generic))
 
+  IFUNC_IMPL (i, name, rawmemchr,
+	      IFUNC_IMPL_ADD (array, i, rawmemchr, rvv_enabled,
+			      __rawmemchr_vector)
+	      IFUNC_IMPL_ADD (array, i, rawmemchr, 1,
+			      __rawmemchr_generic))
   IFUNC_IMPL (i, name, memrchr,
 	      IFUNC_IMPL_ADD (array, i, memrchr, rvv_enabled,
 			      __memrchr_vector)

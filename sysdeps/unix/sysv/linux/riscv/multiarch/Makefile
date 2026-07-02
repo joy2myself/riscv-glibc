@@ -22,6 +22,9 @@ sysdep_routines += \
   memmove \
   memmove-generic \
   memmove-vector \
+  rawmemchr \
+  rawmemchr-generic \
+  rawmemchr-vector \
   memrchr \
   memrchr-generic \
   memrchr-vector \
