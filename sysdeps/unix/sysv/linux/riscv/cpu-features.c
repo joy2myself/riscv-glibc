@@ -77,6 +77,11 @@ init_cpu_features (struct cpu_features *cpu_features)
 
   cpu_features->tune = riscv_get_tune (cpu_features);
 
+  /* Local test-board workaround: the old kernel there does not expose
+     usable hwprobe vendor/marchid data.  Force C908 tuning only so local
+     validation can reach these routines; this is not an upstream policy.  */
+  cpu_features->tune = RISCV_CPU_TUNE_C908;
+
   TUNABLE_GET (glibc, cpu, hwcaps, tunable_val_t *,
 	       TUNABLE_CALLBACK (set_hwcaps));
 
