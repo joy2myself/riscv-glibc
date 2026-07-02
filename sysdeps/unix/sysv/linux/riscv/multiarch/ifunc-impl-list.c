@@ -19,6 +19,8 @@
 #include <ifunc-impl-list.h>
 #include <riscv-ifunc.h>
 #include <string.h>
+#include <cpu-features.h>
+#include <ldsodefs.h>
 #include <sys/hwprobe.h>
 
 size_t
@@ -67,6 +69,11 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 	      IFUNC_IMPL_ADD (array, i, strcat, 1, __strcat_generic))
 
   IFUNC_IMPL (i, name, strcpy,
+	      IFUNC_IMPL_ADD (array, i, strcpy,
+			      rvv_enabled
+			      && GLRO (dl_riscv_cpu_features).tune
+				 == RISCV_CPU_TUNE_SPACEMIT_X60,
+			      __strcpy_spacemit_x60)
 	      IFUNC_IMPL_ADD (array, i, strcpy, rvv_enabled,
 			      __strcpy_vector)
 	      IFUNC_IMPL_ADD (array, i, strcpy, 1, __strcpy_generic))

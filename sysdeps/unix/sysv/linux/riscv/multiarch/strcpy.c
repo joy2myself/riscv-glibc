@@ -27,11 +27,14 @@
 # include <ifunc-init.h>
 # include <riscv-ifunc.h>
 # include <sys/hwprobe.h>
+# include <cpu-features.h>
+# include <ldsodefs.h>
 
 extern __typeof (__redirect_strcpy) __libc_strcpy;
 
 extern __typeof (__redirect_strcpy) __strcpy_generic attribute_hidden;
 extern __typeof (__redirect_strcpy) __strcpy_vector attribute_hidden;
+extern __typeof (__redirect_strcpy) __strcpy_spacemit_x60 attribute_hidden;
 
 static inline __typeof (__redirect_strcpy) *
 select_strcpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
@@ -39,7 +42,12 @@ select_strcpy_ifunc (uint64_t dl_hwcap, __riscv_hwprobe_t hwprobe_func)
   unsigned long long int v;
   if (__riscv_hwprobe_one (hwprobe_func, RISCV_HWPROBE_KEY_IMA_EXT_0, &v) == 0
       && (v & RISCV_HWPROBE_IMA_V) == RISCV_HWPROBE_IMA_V)
-    return __strcpy_vector;
+    {
+      const struct cpu_features *cpu_features = &GLRO (dl_riscv_cpu_features);
+      if (cpu_features->tune == RISCV_CPU_TUNE_SPACEMIT_X60)
+	return __strcpy_spacemit_x60;
+      return __strcpy_vector;
+    }
   return __strcpy_generic;
 }
 
