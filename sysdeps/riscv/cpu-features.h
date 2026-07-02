@@ -24,15 +24,19 @@
 #include <sys/hwprobe.h>
 
 #define RISCV_VENDOR_SIFIVE    0x489
+#define RISCV_VENDOR_SPACEMIT  0x710
 #define RISCV_VENDOR_THEAD     0x5b7
 
 #define RISCV_MARCHID_SPACEMIT_X60 0x8000000058000001ULL
+#define RISCV_MARCHID_SPACEMIT_C908 RISCV_MARCHID_SPACEMIT_X60
 
 enum riscv_cpu_tune_flags
 {
   RISCV_CPU_TUNE_NONE = 0,
   /* Use the SpaceMiT X60 tuned implementations.  */
   RISCV_CPU_TUNE_SPACEMIT_X60 = 1u << 0,
+  /* Use the C908 tuned implementations.  */
+  RISCV_CPU_TUNE_C908 = 1u << 1,
 };
 
 struct cpu_features

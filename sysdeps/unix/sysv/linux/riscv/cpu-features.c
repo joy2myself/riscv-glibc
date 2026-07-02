@@ -37,6 +37,11 @@ riscv_get_tune_flags (const struct cpu_features *cpu_features)
     tune_flags |= RISCV_CPU_TUNE_SPACEMIT_X60;
 #endif
 
+  if ((cpu_features->extensions & RISCV_HWPROBE_IMA_V) != 0
+      && cpu_features->mvendorid == RISCV_VENDOR_THEAD
+      && cpu_features->marchid == RISCV_MARCHID_SPACEMIT_C908)
+    tune_flags |= RISCV_CPU_TUNE_C908;
+
   return tune_flags;
 }
 
