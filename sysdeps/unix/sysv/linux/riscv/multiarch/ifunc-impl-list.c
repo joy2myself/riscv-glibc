@@ -39,6 +39,9 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
     cpu_features->tune == RISCV_CPU_TUNE_SPACEMIT_X60;
 
   IFUNC_IMPL (i, name, memcpy,
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, memcpy,
+					  rvv_enabled && spacemit_x60_tuned,
+					  __memcpy_spacemit_x60)
 	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, memcpy, rvv_enabled,
 					  __memcpy_vector)
 	      RISCV_IFUNC_IMPL_ADD_RVA22 (array, i, memcpy, fast_unaligned,
@@ -53,6 +56,9 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 					  __mempcpy_generic))
 
   IFUNC_IMPL (i, name, memset,
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, memset,
+					  rvv_enabled && spacemit_x60_tuned,
+					  __memset_spacemit_x60)
 	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, memset, rvv_enabled,
 					  __memset_vector)
 	      RISCV_IFUNC_IMPL_ADD_RVA22 (array, i, memset, 1,
@@ -161,6 +167,9 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 					  __strrchr_generic))
 
   IFUNC_IMPL (i, name, memmove,
+	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, memmove,
+					  rvv_enabled && spacemit_x60_tuned,
+					  __memmove_spacemit_x60)
 	      RISCV_IFUNC_IMPL_ADD_RVA23 (array, i, memmove, rvv_enabled,
 					  __memmove_vector)
 	      RISCV_IFUNC_IMPL_ADD_RVA22 (array, i, memmove, 1,
