@@ -86,6 +86,12 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 			      __strncmp_vector)
 	      IFUNC_IMPL_ADD (array, i, strncmp, 1, __strncmp_generic))
 
+  IFUNC_IMPL (i, name, strncasecmp,
+	      IFUNC_IMPL_ADD (array, i, strncasecmp, rvv_enabled,
+			      __strncasecmp_vector)
+	      IFUNC_IMPL_ADD (array, i, strncasecmp, 1,
+			      __strncasecmp_generic))
+
   IFUNC_IMPL (i, name, memccpy,
 	      IFUNC_IMPL_ADD (array, i, memccpy, rvv_enabled,
 			      __memccpy_vector)

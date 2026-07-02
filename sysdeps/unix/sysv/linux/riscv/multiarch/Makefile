@@ -61,6 +61,10 @@ sysdep_routines += \
   strncmp \
   strncmp-generic \
   strncmp-vector \
+  strncase \
+  strncase-ascii-vector \
+  strncase-generic \
+  strncase-vector \
   strncpy \
   strncpy-generic \
   strncpy-vector \
