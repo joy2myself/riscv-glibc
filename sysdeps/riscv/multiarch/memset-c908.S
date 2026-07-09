@@ -1,4 +1,4 @@
-/* C908 tuned memset without XThead pair stores.
+/* C908 tuned memset with XThead pair front paths.
    Copyright (C) 2026 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -32,99 +32,26 @@
 #define fill2		a6
 #define tmp		a7
 #define tmp2		t0
+#define tmp3		t1
 #define vdata		v0
+
+#define ELEM_LMUL_SETTING m8
 
 	.attribute unaligned_access, 1
 ENTRY (__memset_c908)
 	beqz	num, L(ret)
 
-	li	tmp, 15
-	bleu	num, tmp, L(copy_1_15)
-
-	li	tmp, 31
-	bleu	num, tmp, L(vector_m2_once)
-
-	li	tmp, 63
-	bleu	num, tmp, L(copy_32_63_scalar)
-
-	li	tmp, 255
-	bleu	num, tmp, L(vector_m4_once)
-
-	li	tmp, 2048
-	bleu	num, tmp, L(vector_m4_fixed)
-
-	j	L(vector_m8_fixed)
-
-L(copy_1_15):
 	li	tmp, 3
 	bleu	num, tmp, L(copy_1_3_raw)
 
-.option push
-.option arch,+v
-L(vector_m1_once):
-	vsetvli	ivl, num, e8, m1, ta, ma
-	vmv.v.x	vdata, value
-	vse8.v	vdata, (dst)
-	.option pop
-	ret
+	li	tmp, 256
+	bgtu	num, tmp, L(vector_prepare)
 
-.option push
-.option arch,+v
-L(vector_m2_once):
-	vsetvli	ivl, num, e8, m2, ta, ma
-	vmv.v.x	vdata, value
-	vse8.v	vdata, (dst)
-	.option pop
-	ret
+L(scalar_entry):
+	li	tmp, 8
+	bleu	num, tmp, L(copy_1_8_prep)
 
-.option push
-.option arch,+v
-L(vector_m4_once):
-	vsetvli	ivl, num, e8, m4, ta, ma
-	vmv.v.x	vdata, value
-	vse8.v	vdata, (dst)
-	.option pop
-	ret
-
-L(vector_m4_fixed):
-	mv	dst_ptr, dst
-.option push
-.option arch,+v
-	vsetvli	ivl, zero, e8, m4, ta, ma
-	vmv.v.x	vdata, value
-	li	tmp2, 64
-L(loop_m4_fixed):
-	vse8.v	vdata, (dst_ptr)
-	addi	num, num, -64
-	addi	dst_ptr, dst_ptr, 64
-	bgtu	num, tmp2, L(loop_m4_fixed)
-	beqz	num, L(vector_ret)
-	beq	num, tmp2, L(vector_m4_store)
-	vsetvli	ivl, num, e8, m4, ta, ma
-L(vector_m4_store):
-	vse8.v	vdata, (dst_ptr)
-	j	L(vector_ret)
-
-L(vector_m8_fixed):
-	mv	dst_ptr, dst
-	vsetvli	ivl, zero, e8, m8, ta, ma
-	vmv.v.x	vdata, value
-	li	tmp2, 128
-L(loop_m8_fixed):
-	vse8.v	vdata, (dst_ptr)
-	addi	num, num, -128
-	addi	dst_ptr, dst_ptr, 128
-	bgtu	num, tmp2, L(loop_m8_fixed)
-	beqz	num, L(vector_ret)
-	beq	num, tmp2, L(vector_m8_store)
-	vsetvli	ivl, num, e8, m8, ta, ma
-L(vector_m8_store):
-	vse8.v	vdata, (dst_ptr)
-L(vector_ret):
-	.option pop
-	ret
-
-L(copy_32_63_scalar):
+	/* Build the repeated-byte word once for the mid/long paths.  */
 	andi	fill, value, 0xff
 	slli	fill2, fill, 8
 	or	fill, fill, fill2
@@ -132,16 +59,159 @@ L(copy_32_63_scalar):
 	or	fill, fill, fill2
 	slli	fill2, fill, 32
 	or	fill, fill, fill2
+	mv	fill2, fill
 
-	add	dst_ptr, dst, num
+	li	tmp, 32
+	bleu	num, tmp, L(copy_9_32)
+
+	li	tmp, 64
+	bleu	num, tmp, L(copy_33_64_pair)
+
+	li	tmp, 128
+	bleu	num, tmp, L(copy_65_128_pair)
+
+	j	L(copy_129_256_pair)
+
+L(vector_prepare):
+	mv	dst_ptr, dst
+
+.option push
+.option arch,+v
+L(vector_fixed_entry):
+	vsetvli	ivl, zero, e8, ELEM_LMUL_SETTING, ta, ma
+	vmv.v.x	vdata, value
+	li	tmp2, 128
+L(loop_fixed):
+	vse8.v	vdata, (dst_ptr)
+	addi	num, num, -128
+	addi	dst_ptr, dst_ptr, 128
+	bgtu	num, tmp2, L(loop_fixed)
+	beqz	num, L(vector_fixed_ret)
+	beq	num, tmp2, L(vector_fixed_store)
+	vsetvli	ivl, num, e8, ELEM_LMUL_SETTING, ta, ma
+L(vector_fixed_store):
+	vse8.v	vdata, (dst_ptr)
+L(vector_fixed_ret):
+	.option pop
+L(ret):
+	ret
+
+L(copy_1_8):
+	li	tmp, 4
+	bltu	num, tmp, L(copy_1_3)
+
+L(copy_4_8):
+	sw	fill, 0(dst)
+	add	tmp2, dst, num
+	sw	fill, -4(tmp2)
+	ret
+
+L(copy_1_3):
+	li	tmp, 1
+	beq	num, tmp, L(copy_1)
+	li	tmp, 2
+	beq	num, tmp, L(copy_2)
+	sh	fill, 0(dst)
+	sb	fill, 2(dst)
+	ret
+
+L(copy_1_8_prep):
+	andi	fill, value, 0xff
+	slli	fill2, fill, 8
+	or	fill, fill, fill2
+	slli	fill2, fill, 16
+	or	fill, fill, fill2
+	j	L(copy_1_8)
+
+L(copy_2):
+	sh	fill, 0(dst)
+	ret
+
+L(copy_1):
+	sb	fill, 0(dst)
+	ret
+
+L(copy_9_32):
+	li	tmp, 16
+	bleu	num, tmp, L(copy_9_16)
+
+	li	tmp, 32
+	beq	num, tmp, L(copy_32_pair)
+
+L(copy_17_32):
 	sd	fill, 0(dst)
 	sd	fill, 8(dst)
-	sd	fill, 16(dst)
-	sd	fill, 24(dst)
-	sd	fill, -32(dst_ptr)
-	sd	fill, -24(dst_ptr)
-	sd	fill, -16(dst_ptr)
-	sd	fill, -8(dst_ptr)
+	add	tmp2, dst, num
+	sd	fill, -16(tmp2)
+	sd	fill, -8(tmp2)
+	ret
+
+L(copy_32_pair):
+.option push
+.option arch,+xtheadmempair
+	th.sdd	fill, fill2, (dst), 0, 4
+	th.sdd	fill, fill2, (dst), 1, 4
+.option pop
+	ret
+
+L(copy_33_64_pair):
+	add	tmp2, dst, num
+	addi	tmp2, tmp2, -32
+.option push
+.option arch,+xtheadmempair
+	th.sdd	fill, fill2, (dst), 0, 4
+	th.sdd	fill, fill2, (dst), 1, 4
+	th.sdd	fill, fill2, (tmp2), 0, 4
+	th.sdd	fill, fill2, (tmp2), 1, 4
+.option pop
+	ret
+
+L(copy_65_128_pair):
+	add	tmp2, dst, num
+	addi	tmp2, tmp2, -64
+.option push
+.option arch,+xtheadmempair
+	th.sdd	fill, fill2, (dst), 0, 4
+	th.sdd	fill, fill2, (dst), 1, 4
+	th.sdd	fill, fill2, (dst), 2, 4
+	th.sdd	fill, fill2, (dst), 3, 4
+	th.sdd	fill, fill2, (tmp2), 0, 4
+	th.sdd	fill, fill2, (tmp2), 1, 4
+	th.sdd	fill, fill2, (tmp2), 2, 4
+	th.sdd	fill, fill2, (tmp2), 3, 4
+.option pop
+	ret
+
+L(copy_129_256_pair):
+	add	tmp2, dst, num
+	addi	tmp2, tmp2, -128
+	addi	tmp3, dst, 64
+.option push
+.option arch,+xtheadmempair
+	th.sdd	fill, fill2, (dst), 0, 4
+	th.sdd	fill, fill2, (dst), 1, 4
+	th.sdd	fill, fill2, (dst), 2, 4
+	th.sdd	fill, fill2, (dst), 3, 4
+	th.sdd	fill, fill2, (tmp3), 0, 4
+	th.sdd	fill, fill2, (tmp3), 1, 4
+	th.sdd	fill, fill2, (tmp3), 2, 4
+	th.sdd	fill, fill2, (tmp3), 3, 4
+	addi	tmp3, tmp2, 64
+	th.sdd	fill, fill2, (tmp2), 0, 4
+	th.sdd	fill, fill2, (tmp2), 1, 4
+	th.sdd	fill, fill2, (tmp2), 2, 4
+	th.sdd	fill, fill2, (tmp2), 3, 4
+	th.sdd	fill, fill2, (tmp3), 0, 4
+	th.sdd	fill, fill2, (tmp3), 1, 4
+	th.sdd	fill, fill2, (tmp3), 2, 4
+	th.sdd	fill, fill2, (tmp3), 3, 4
+.option pop
+	ret
+
+L(copy_9_16):
+	sd	fill, 0(dst)
+	add	tmp2, dst, num
+	sd	fill, -8(tmp2)
 	ret
 
 L(copy_1_3_raw):
@@ -161,7 +231,6 @@ L(copy_2_raw):
 
 L(copy_1_raw):
 	sb	value, 0(dst)
-L(ret):
 	ret
 END (__memset_c908)
 #endif
