@@ -4,6 +4,7 @@ endif
 
 ifeq ($(subdir),string)
 gen-as-const-headers += locale-defines.sym
+endif
 
 ifeq ($(subdir),resolv)
 CFLAGS-ns_rr_cursor_next.c += -fno-tree-vectorize
