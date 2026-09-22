@@ -651,6 +651,32 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_SLEEF_LOG_U1_POLY2_F 0.6666694880e+0f
 #define RVV_LOG1PF_LN2_HI_F RVV_SLEEF_LOG_U1_LN2_HI_F
 #define RVV_LOG1PF_LN2_LO_F RVV_SLEEF_LOG_U1_LN2_LO_F
+#define RVV_EXP10F_CLEAN_LOG10_2_F 0x1.a934f0p+1f
+#define RVV_EXP10F_CLEAN_L10U_F 0x1.344000p-2f
+#define RVV_EXP10F_CLEAN_L10L_F 0x1.3509f8p-18f
+#define RVV_EXP10F_CLEAN_LN10_HI_F 2.3025851249694824219f
+#define RVV_EXP10F_CLEAN_LN10_LO_F -3.1705172516493593157e-08f
+#define RVV_EXP10F_CLEAN_MAX_INPUT_F 38.5318394191036238941387f
+#define RVV_EXP10F_CLEAN_MIN_INPUT_F -50.0f
+#define RVV_EXP10F_SOURCE_LOG10_2 3.3219280948873623478703194294893901759
+#define RVV_EXP10F_SOURCE_L10U_F 0.301025390625f
+#define RVV_EXP10F_SOURCE_L10L_F 4.605038981e-06f
+#define RVV_EXP10F_SOURCE_LN10_HI 2.3025851249694824219
+#define RVV_EXP10F_SOURCE_LN10_LO -3.1705172516493593157e-08
+#define RVV_EXP10F_SOURCE_MAX_INPUT_F 38.5318394191036238941387f
+#define RVV_EXP10F_SOURCE_MIN_INPUT_F -50.0f
+#define RVV_EXP10F_CLEAN_POLY0_F 0.6802555919e-1f
+#define RVV_EXP10F_CLEAN_POLY1_F 0.2078080326e+0f
+#define RVV_EXP10F_CLEAN_POLY2_F 0.5393903852e+0f
+#define RVV_EXP10F_CLEAN_POLY3_F 0.1171245337e+1f
+#define RVV_EXP10F_CLEAN_POLY4_F 0.2034678698e+1f
+#define RVV_EXP10F_CLEAN_POLY5_F 0.2650949001e+1f
+#define RVV_EXP10F_SOURCE_POLY0_D +0.6802555919e-1
+#define RVV_EXP10F_SOURCE_POLY1_D +0.2078080326e+0
+#define RVV_EXP10F_SOURCE_POLY2_D +0.5393903852e+0
+#define RVV_EXP10F_SOURCE_POLY3_D +0.1171245337e+1
+#define RVV_EXP10F_SOURCE_POLY4_D +0.2034678698e+1
+#define RVV_EXP10F_SOURCE_POLY5_D +0.2650949001e+1
 #define RVV_COSPIF_TINY_EXPONENT 99u
 #define RVV_COSPIF_LARGE_EXPONENT 151u
 #define RVV_COSPIF_TRIG_RANGE_MAX4_F 8.0e6f
@@ -893,6 +919,27 @@ static const scalar_t fp_posInf = __builtin_inff ();
   RVV_SLEEF_ORIG_ERFF_HELPER_NAME2 (name, lmul, simdlen)
 #define RVV_SLEEF_ORIG_ERFF_HELPER(name) \
   RVV_SLEEF_ORIG_ERFF_HELPER_NAME (name, LMUL, SIMDLEN)
+
+/* Shared importer-qualified helper names for the single-precision exp10f
+   source-shaped and clean finite graphs.  The helper bodies remain in their
+   respective skeletons; only LMUL naming and source RNE spelling are shared
+   here.  */
+#undef RVV_LIBMVEC_EXP10F_VPOW2I
+#undef RVV_LIBMVEC_EXP10F_VLDEXP2
+#define RVV_LIBMVEC_EXP10F_VPOW2I \
+  __PASTE2 (rvv_libmvec_exp10f_vpow2i_m, LMUL)
+#define RVV_LIBMVEC_EXP10F_VLDEXP2 \
+  __PASTE2 (rvv_libmvec_exp10f_vldexp2_m, LMUL)
+
+#undef RVV_SLEEF_ORIG_EXP10F_VFCVT_X_RNE
+#undef RVV_SLEEF_ORIG_EXP10F_VPOW2I
+#undef RVV_SLEEF_ORIG_EXP10F_VLDEXP2
+#define RVV_SLEEF_ORIG_EXP10F_VFCVT_X_RNE(value, vlen) \
+  RVV_VFCVT_X_F_RNE ((value), (vlen))
+#define RVV_SLEEF_ORIG_EXP10F_VPOW2I \
+  __PASTE2 (rvv_sleef_orig_exp10f_vpow2i_m, LMUL)
+#define RVV_SLEEF_ORIG_EXP10F_VLDEXP2 \
+  __PASTE2 (rvv_sleef_orig_exp10f_vldexp2_m, LMUL)
 
 /* Source-shaped single-precision erff uses the uncompensated scalar-plus
    double-float addition spelling from SLEEF.  Keep it separate from the
@@ -1489,6 +1536,20 @@ static const scalar_t fp_posInf = __builtin_inff ();
       (r_lo) = VFADD_VV (                                                     \
           VFADD_VV (VFSUB_VV (_a_hi, _s, (vlen)), _b_hi, (vlen)),              \
           VFADD_VV (_a_lo, _b_lo, (vlen)), (vlen));                            \
+    }                                                                         \
+  while (0)
+
+# define DFADD_VF2_VF2_VF(a_hi, a_lo, b, r_hi, r_lo, vlen)                    \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _a_hi = (a_hi);                                                  \
+      VFLOAT _a_lo = (a_lo);                                                  \
+      VFLOAT _b = (b);                                                        \
+      VFLOAT _s = VFADD_VV (_a_hi, _b, (vlen));                              \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (                                                     \
+          VFADD_VV (VFSUB_VV (_a_hi, _s, (vlen)), _b, (vlen)), _a_lo,         \
+          (vlen));                                                            \
     }                                                                         \
   while (0)
 
