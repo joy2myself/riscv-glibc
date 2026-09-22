@@ -91,6 +91,10 @@ __BEGIN_DECLS
 #define VFMACC_VV_M(mask, op1, op2, op3, vlen) \
   __MAKE_VFMACC_VV_M ((mask), (op1), (op2), (op3), (vlen))
 
+#define RVV_VLUXEI32_F(base, index, vlen) \
+  __VCFG_PASTE4 (__riscv_vluxei32_v_f, BIT_WIDTH, m, LMUL) \
+    ((base), (index), (vlen))
+
 #define VMOR(op1, op2, vlen) \
   __riscv_vmor ((op1), (op2), (vlen))
 
@@ -193,6 +197,13 @@ extern const struct v_log_data
 {
   const int64_t table[1 << V_LOG_TABLE_BITS];
 } __v_log_data attribute_hidden;
+
+/* Shared SLEEF rempif table for the single-precision trigonometric paths.  */
+#define V_SLEEF_REMPITABSP_LEN 416
+extern const struct v_sleef_trig_data
+{
+  const float rempitabsp[V_SLEEF_REMPITABSP_LEN];
+} __v_sleef_trig_data attribute_hidden;
 
 /* Large-argument reduction table for the double-precision cos
    implementation.  */

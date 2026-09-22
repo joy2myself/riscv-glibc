@@ -63,6 +63,33 @@ static const uint64_t class_finite_pos = 0x60;
    indexed data.  */
 #define RVV_SLEEF_TRIG_ONE_OVER_PI 0x1.45f306p-2f
 #define RVV_SLEEF_TRIG_PI_F 0x1.921fb6p+1f
+#define RVV_SLEEF_TRIG_RANGE_MAX2 125.0f
+#define RVV_SLEEF_TRIG_REMPI_TWO23 8388608.0f
+#define RVV_SLEEF_TRIG_REMPI_FOUR 4.0f
+#define RVV_SLEEF_TRIG_REMPI_NEG_QUARTER -0.25f
+#define RVV_SLEEF_TRIG_REMPI_NEG_FOUR -4.0f
+#define RVV_SLEEF_TRIG_REMPI_TWO_PI_HI \
+  (3.1415927410125732422f * 2.0f)
+#define RVV_SLEEF_TRIG_REMPI_TWO_PI_LO \
+  (-8.7422776573475857731e-08f * 2.0f)
+#define RVV_SLEEF_TRIG_REMPI_SMALL 0.7f
+
+#define RVV_SLEEF_COSF_NEG_PI_A2_HALF \
+  (-3.1414794921875f * 0.5f)
+#define RVV_SLEEF_COSF_NEG_PI_B2_HALF \
+  (-0.00011315941810607910156f * 0.5f)
+#define RVV_SLEEF_COSF_NEG_PI_C2_HALF \
+  (-1.9841872589410058936e-09f * 0.5f)
+#define RVV_SLEEF_COSF_REMPI_HALF_PI_HI \
+  (-3.1415927410125732422f * 0.5f)
+#define RVV_SLEEF_COSF_REMPI_HALF_PI_LO \
+  (-8.7422776573475857731e-08f * -0.5f)
+#define RVV_SLEEF_COSF_REDUCE_NEG_HALF -0.5f
+#define RVV_SLEEF_COSF_REDUCE_TWO 2.0f
+#define RVV_SLEEF_COSF_POLY_0 2.6083159809786593541503e-06f
+#define RVV_SLEEF_COSF_POLY_1 -0.0001981069071916863322258f
+#define RVV_SLEEF_COSF_POLY_2 0.00833307858556509017944336f
+#define RVV_SLEEF_COSF_POLY_3 -0.166666597127914428710938f
 
 /* Scalar constants for the SLEEF single-precision cbrtf graph.  */
 #define RVV_SLEEF_CBRTF_VILOGBK_THRESH 5.421010862427522e-20f
@@ -138,18 +165,29 @@ RVV_SLEEF_ORIG_F64_TO_F32 (double value)
 #undef VUINT
 #undef VBOOL
 #undef F_AS_I
+#undef F_AS_I_F
 #undef F_AS_U
+#undef F_AS_U_F
 #undef I_AS_F
+#undef I_AS_F_F
 #undef U_AS_F
+#undef U_AS_F_F
 #undef I_AS_U
+#undef I_AS_U_F
 #undef U_AS_I
+#undef U_AS_I_F
 #undef VMVI_VX
+#undef VMVI_VX_F
 #undef VMVU_VX
+#undef VMVU_VX_F
 #undef VFMV_VF
+#undef VFMV_VF_F
 #undef EXP_BIAS
 #undef MAN_LEN
 #undef EXP_BIAS_F
 #undef MAN_LEN_F
+#undef fp_negOne_f
+#undef fp_sNaN_f
 
 #define MAKE_VTYPE(A) __PASTE3 (A, BIT_WIDTH, __PASTE3 (m, LMUL, _t))
 #define MAKE_TYPE(A) __PASTE3 (A, BIT_WIDTH, _t)
@@ -166,6 +204,7 @@ static const scalar_t fp_negInf = -__builtin_inf ();
 static const scalar_t fp_negZero = -0.;
 static const scalar_t fp_posZero = 0.0;
 static const scalar_t fp_posOne = 0x1.0p0;
+static const scalar_t fp_negOne = -0x1.0p0;
 static const scalar_t fp_posHalf = 0x1.0p-1;
 static const scalar_t fp_posInf = __builtin_inf ();
 # endif
@@ -180,6 +219,7 @@ static const scalar_t fp_negInf = -__builtin_inff ();
 static const scalar_t fp_negZero = -0.f;
 static const scalar_t fp_posZero = 0.0f;
 static const scalar_t fp_posOne = 0x1.0p0f;
+static const scalar_t fp_negOne = -0x1.0p0f;
 static const scalar_t fp_posHalf = 0x1.0p-1f;
 static const scalar_t fp_posInf = __builtin_inff ();
 # endif
@@ -192,6 +232,8 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define fp_posOne_f fp_posOne
 #define fp_posZero_f fp_posZero
 #define fp_posInf_f fp_posInf
+#define fp_negOne_f fp_negOne
+#define fp_sNaN_f fp_sNaN
 
 /* For MAKE_VBOOL, the value is BIT_WIDTH/LMUL for the current element size. */
 #if (BIT_WIDTH == 64)
@@ -245,6 +287,19 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define VMVI_VX MAKE_FUNC (__riscv_vmv_v_x_i)
 #define VMVU_VX MAKE_FUNC (__riscv_vmv_v_x_u)
 #define VFMV_VF MAKE_FUNC (__riscv_vfmv_v_f_f)
+
+/* Float-qualified spellings used by source-shaped SLEEF adapters.  The
+   importer already selects the element width, so these are aliases rather
+   than a second intrinsic family.  */
+#define F_AS_I_F F_AS_I
+#define F_AS_U_F F_AS_U
+#define I_AS_F_F I_AS_F
+#define U_AS_F_F U_AS_F
+#define I_AS_U_F I_AS_U
+#define U_AS_I_F U_AS_I
+#define VMVI_VX_F VMVI_VX
+#define VMVU_VX_F VMVU_VX
+#define VFMV_VF_F VFMV_VF
 
 #define IDENTIFY_F IDENTIFY
 
@@ -531,6 +586,18 @@ static const scalar_t fp_posInf = __builtin_inff ();
   RVV_MATH_IS_ASINF_HELPERS_ONLY_##name
 # define RVV_MATH_IS_ASINF_HELPERS_ONLY(name) \
   RVV_MATH_IS_ASINF_HELPERS_ONLY_INNER (name)
+#endif
+
+/* The source-shaped cosf helper is embedded by the fastcosf comparator and
+   by the clean fastcosf implementation.  Select its public body from the
+   importer function name so nested skeletons need no control defines.  */
+#ifndef RVV_MATH_IS_COSF_HELPERS_ONLY_fastcosf
+# define RVV_MATH_IS_COSF_HELPERS_ONLY_fastcosf 1
+# define RVV_MATH_IS_COSF_HELPERS_ONLY_fastcosf_original 1
+# define RVV_MATH_IS_COSF_HELPERS_ONLY_INNER(name) \
+  RVV_MATH_IS_COSF_HELPERS_ONLY_##name
+# define RVV_MATH_IS_COSF_HELPERS_ONLY(name) \
+  RVV_MATH_IS_COSF_HELPERS_ONLY_INNER (name)
 #endif
 
 /* Shared source-shaped acosf names and constants.  The clean finite kernel
@@ -839,6 +906,22 @@ static const scalar_t fp_posInf = __builtin_inff ();
       VFLOAT _cross_hi = VFMADD_VV (_x_lo, _y_hi, _residual, (vlen));         \
       (r_hi) = _s;                                                            \
       (r_lo) = VFMADD_VV (_x_hi, _y_lo, _cross_hi, (vlen));                   \
+    }                                                                         \
+  while (0)
+
+/* Source dfmul_vf_vf2_vf2: return the collapsed scalar product of two
+   double-float pairs with the source's nested FMA association.  */
+#define RVV_SLEEF_ORIG_DFMUL_VF2_VF2_SCALAR(x_hi, x_lo, y_hi, y_lo, result,   \
+                                            vlen)                              \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x_hi = (x_hi);                                                  \
+      VFLOAT _x_lo = (x_lo);                                                  \
+      VFLOAT _y_hi = (y_hi);                                                  \
+      VFLOAT _y_lo = (y_lo);                                                  \
+      VFLOAT _low = VFMADD_VV (_x_lo, _y_hi,                                 \
+                               VFMUL_VV (_x_hi, _y_lo, (vlen)), (vlen));      \
+      (result) = VFMADD_VV (_x_hi, _y_hi, _low, (vlen));                      \
     }                                                                         \
   while (0)
 
@@ -1167,6 +1250,64 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #ifndef RVV_COSF_CLEAN_DF_HELPERS
 # define RVV_COSF_CLEAN_DF_HELPERS
 
+# define DFADD2_VF2_VF_VF(a, b, r_hi, r_lo, vlen)                            \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _a = (a);                                                        \
+      VFLOAT _b = (b);                                                        \
+      VFLOAT _s = VFADD_VV (_a, _b, (vlen));                                 \
+      VFLOAT _v = VFSUB_VV (_s, _a, (vlen));                                 \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (                                                      \
+          VFSUB_VV (_a, VFSUB_VV (_s, _v, (vlen)), (vlen)),                  \
+          VFSUB_VV (_b, _v, (vlen)), (vlen));                                \
+    }                                                                         \
+  while (0)
+
+# define DFADD2_VF2_VF2_VF(a_hi, a_lo, b, r_hi, r_lo, vlen)                  \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _a_hi = (a_hi);                                                  \
+      VFLOAT _a_lo = (a_lo);                                                  \
+      VFLOAT _b = (b);                                                        \
+      VFLOAT _s = VFADD_VV (_a_hi, _b, (vlen));                              \
+      VFLOAT _v = VFSUB_VV (_s, _a_hi, (vlen));                              \
+      VFLOAT _t = VFADD_VV (                                                   \
+          VFSUB_VV (_a_hi, VFSUB_VV (_s, _v, (vlen)), (vlen)),                \
+          VFSUB_VV (_b, _v, (vlen)), (vlen));                                 \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (_t, _a_lo, (vlen));                                 \
+    }                                                                         \
+  while (0)
+
+# define DFADD2_VF2_VF2_VF2(a_hi, a_lo, b_hi, b_lo, r_hi, r_lo, vlen)       \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _a_hi = (a_hi);                                                  \
+      VFLOAT _a_lo = (a_lo);                                                  \
+      VFLOAT _b_hi = (b_hi);                                                  \
+      VFLOAT _b_lo = (b_lo);                                                  \
+      VFLOAT _s = VFADD_VV (_a_hi, _b_hi, (vlen));                           \
+      VFLOAT _v = VFSUB_VV (_s, _a_hi, (vlen));                              \
+      VFLOAT _t = VFADD_VV (                                                   \
+          VFSUB_VV (_a_hi, VFSUB_VV (_s, _v, (vlen)), (vlen)),                \
+          VFSUB_VV (_b_hi, _v, (vlen)), (vlen));                              \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (_t, VFADD_VV (_a_lo, _b_lo, (vlen)), (vlen));       \
+    }                                                                         \
+  while (0)
+
+# define DFMUL_VF2_VF_VF(a, b, r_hi, r_lo, vlen)                              \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _a = (a);                                                        \
+      VFLOAT _b = (b);                                                        \
+      VFLOAT _s = VFMUL_VV (_a, _b, (vlen));                                  \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFMSUB_VV (_a, _b, _s, (vlen));                                \
+    }                                                                         \
+  while (0)
+
 # define DFMUL_VF2_VF2_VF(a_hi, a_lo, b, r_hi, r_lo, vlen)                   \
   do                                                                          \
     {                                                                         \
@@ -1178,6 +1319,30 @@ static const scalar_t fp_posInf = __builtin_inff ();
       _t = VFMACC_VV (_t, _a_lo, _b, (vlen));                                \
       (r_hi) = _s;                                                            \
       (r_lo) = _t;                                                            \
+    }                                                                         \
+  while (0)
+
+# define DFMUL_VF_VF2_VF2(x_hi, x_lo, y_hi, y_lo, r, vlen)                   \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x_hi = (x_hi);                                                 \
+      VFLOAT _x_lo = (x_lo);                                                 \
+      VFLOAT _y_hi = (y_hi);                                                 \
+      VFLOAT _y_lo = (y_lo);                                                 \
+      VFLOAT _t = VFMUL_VV (_x_hi, _y_lo, (vlen));                           \
+      _t = VFMACC_VV (_t, _x_lo, _y_hi, (vlen));                             \
+      (r) = VFMACC_VV (_t, _x_hi, _y_hi, (vlen));                            \
+    }                                                                         \
+  while (0)
+
+# define DFNORMALIZE_VF2_VF2(a_hi, a_lo, r_hi, r_lo, vlen)                  \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _a_hi = (a_hi);                                                  \
+      VFLOAT _a_lo = (a_lo);                                                  \
+      VFLOAT _s = VFADD_VV (_a_hi, _a_lo, (vlen));                            \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (VFSUB_VV (_a_hi, _s, (vlen)), _a_lo, (vlen));       \
     }                                                                         \
   while (0)
 

@@ -6,6 +6,11 @@ libmvec-sysdep_routines = \
 	$(addprefix v_f_, $(libmvec-float-funcs)) \
 	$(addsuffix _data, $(addprefix v_f_, $(libmvec-float-funcs-with-data))) \
 
+libmvec-support-routines = \
+  v_f_sleef_trig_data
+
+libmvec-sysdep_routines += $(libmvec-support-routines)
+
 libmvec-source-original-routines = \
   v_f_acosf_original \
   v_f_asinf_original \
@@ -18,7 +23,8 @@ libmvec-source-original-routines = \
   v_f_atan2pif_original \
   v_d_exp2_original \
   v_f_exp2f_original \
-  v_f_cbrtf_original
+  v_f_cbrtf_original \
+  v_f_cosf_original
 
 libmvec-sysdep_routines += $(libmvec-source-original-routines)
 

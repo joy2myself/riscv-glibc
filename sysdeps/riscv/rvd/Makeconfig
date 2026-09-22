@@ -33,6 +33,7 @@ libmvec-float-funcs-bare = \
   atan2pif \
   exp2f \
   cbrtf \
+  cosf \
 
 libmvec-float-funcs-with-data = \
 
@@ -129,6 +130,7 @@ libmvec-float-bench-funcs = \
   atan2pif \
   exp2f \
   cbrtf \
+  cosf \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \
