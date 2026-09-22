@@ -1111,5 +1111,16 @@ libmvec {
     _ZGVr8N8v_logp1;
     _ZGVr8N16v_logp1;
     _ZGVr8N32v_logp1;
+    _ZGVr1N4v_logp1f;
+    _ZGVr1N8v_logp1f;
+    _ZGVr2N4v_logp1f;
+    _ZGVr2N8v_logp1f;
+    _ZGVr2N16v_logp1f;
+    _ZGVr4N8v_logp1f;
+    _ZGVr4N16v_logp1f;
+    _ZGVr4N32v_logp1f;
+    _ZGVr8N16v_logp1f;
+    _ZGVr8N32v_logp1f;
+    _ZGVr8N64v_logp1f;
   }
 }
