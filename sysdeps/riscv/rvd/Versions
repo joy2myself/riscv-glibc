@@ -22,5 +22,16 @@ libmvec {
     _ZGVr8N16v_logf;
     _ZGVr8N32v_logf;
     _ZGVr8N64v_logf;
+    _ZGVr1N2v_acos;
+    _ZGVr1N4v_acos;
+    _ZGVr2N2v_acos;
+    _ZGVr2N4v_acos;
+    _ZGVr2N8v_acos;
+    _ZGVr4N4v_acos;
+    _ZGVr4N8v_acos;
+    _ZGVr4N16v_acos;
+    _ZGVr8N8v_acos;
+    _ZGVr8N16v_acos;
+    _ZGVr8N32v_acos;
   }
 }

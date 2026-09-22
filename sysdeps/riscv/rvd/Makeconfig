@@ -21,14 +21,15 @@
 postclean-generated += libmvec.mk
 
 libmvec-float-funcs-bare = \
-	logf       \
+  logf \
 
 libmvec-float-funcs-with-data = \
 
 libmvec-double-funcs-bare = \
+  acos \
 
 libmvec-double-funcs-with-data = \
-  log        \
+  log \
 
 libmvec-float-funcs = $(libmvec-float-funcs-bare) $(libmvec-float-funcs-with-data)
 libmvec-double-funcs = $(libmvec-double-funcs-bare) $(libmvec-double-funcs-with-data)
@@ -69,10 +70,11 @@ $(common-objpfx)libmvec.mk: $(common-objpfx)config.make
 
 # Define libmvec function for benchtests directory.
 libmvec-double-bench-funcs = \
-  log        \
+  log \
+  acos \
 
 libmvec-float-bench-funcs = \
-  logf        \
+  logf \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \

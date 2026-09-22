@@ -47,15 +47,6 @@ static const uint64_t class_posZero = 0x10;
 static const uint64_t class_posDenorm = 0x20;
 static const uint64_t class_negative = 0x7;
 
-#define RVV_LN2_HI_D 0x1.62e42fefa39efp-1
-#define RVV_LN2_LO_D 0x1.abc9e3b39803fp-56
-
-#define RVV_SLEEF_LOG_U1_LN2_HI_F 0.69314718246459960938f
-#define RVV_SLEEF_LOG_U1_LN2_LO_F -1.904654323148236017e-09f
-#define RVV_SLEEF_LOG_U1_POLY0_F 0.3027294874e+0f
-#define RVV_SLEEF_LOG_U1_POLY1_F 0.3996108174e+0f
-#define RVV_SLEEF_LOG_U1_POLY2_F 0.6666694880e+0f
-
 #ifdef _NEED_UNDEF_GNU_SOURCE_V_MATH
 #undef _GNU_SOURCE
 #undef _NEED_UNDEF_GNU_SOURCE_V_MATH
@@ -176,3 +167,19 @@ static const scalar_t fp_posOne = 0x1.0p0f;
 
 #define VMVI_VX MAKE_FUNC (__riscv_vmv_v_x_i)
 #define VFMV_VF MAKE_FUNC (__riscv_vfmv_v_f_f)
+
+#ifndef RVV_LIBMVEC_TRIG_DOUBLE_HELPERS
+#define RVV_LIBMVEC_TRIG_DOUBLE_HELPERS
+#define PIBY2_HI 0x1.921fb54442d18p+0
+#define PIBY2_MID 0x1.1a62633145c07p-54
+#define RVV_PI_Q60 0x3243f6a8885a308dLL
+#define RVV_PIBY2_Q60 0x1921fb54442d1847LL
+#define RVV_LN2_HI_D 0x1.62e42fefa39efp-1
+#define RVV_LN2_LO_D 0x1.abc9e3b39803fp-56
+#define RVV_SLEEF_LOG_U1_LN2_HI_F 0.69314718246459960938f
+#define RVV_SLEEF_LOG_U1_LN2_LO_F -1.904654323148236017e-09f
+#define RVV_SLEEF_LOG_U1_POLY0_F 0.3027294874e+0f
+#define RVV_SLEEF_LOG_U1_POLY1_F 0.3996108174e+0f
+#define RVV_SLEEF_LOG_U1_POLY2_F 0.6666694880e+0f
+
+#endif /* RVV_LIBMVEC_TRIG_DOUBLE_HELPERS */

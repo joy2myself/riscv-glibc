@@ -94,11 +94,15 @@ __BEGIN_DECLS
 #define PSTEP(coeff_j, x, poly, vlen)                                         \
   __riscv_vfmadd ((poly), (x), VFMV_VF ((coeff_j), (vlen)), (vlen))
 
+#define PSTEP_I(coeff_j, x, poly, vlen)                                       \
+  __riscv_vsadd (__riscv_vsmul ((poly), (x), 1, (vlen)), (coeff_j), (vlen))
+
 #define IDENTIFY(vclass, stencil, identity_mask, vlen)                        \
   identity_mask = __riscv_vmsgtu (__riscv_vand ((vclass), (stencil), (vlen)), \
                                   0, (vlen))
 
-/* Define the table for table-driven implementations. */
+/* Define the table for table-driven implementations.  Scalar constants live
+   in v_math.h.  */
 #define V_LOG_TABLE_BITS 7
 extern const struct v_log_data
 {
