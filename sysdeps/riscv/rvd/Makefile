@@ -34,7 +34,8 @@ libmvec-source-original-routines = \
   v_f_exp10m1f_original \
   v_f_log2f_original \
   v_f_log2p1f_original \
-  v_f_exp2m1f_original
+  v_f_exp2m1f_original \
+  v_f_expm1f_original
 
 libmvec-sysdep_routines += $(libmvec-source-original-routines)
 
