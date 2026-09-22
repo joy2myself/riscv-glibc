@@ -24,6 +24,7 @@ libmvec-float-funcs-bare = \
   logf \
   acosf \
   asinf \
+  asinhf \
 
 libmvec-float-funcs-with-data = \
 
@@ -93,6 +94,7 @@ libmvec-float-bench-funcs = \
   logf \
   acosf \
   asinf \
+  asinhf \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \

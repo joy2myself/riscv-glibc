@@ -43,11 +43,15 @@ __BEGIN_DECLS
   __VCFG_PASTE4 (__riscv_vfsub_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMADD_VV \
   __VCFG_PASTE4 (__riscv_vfmadd_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFMACC_VV \
+  __VCFG_PASTE4 (__riscv_vfmacc_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMUL_VV \
   __VCFG_PASTE4 (__riscv_vfmul_vv_f, BIT_WIDTH, m, LMUL)
 
 #define VMERGE_VVM_F(op1, op2, mask, vlen) \
   __MAKE_VMERGE_VVM (f) ((op1), (op2), (mask), (vlen))
+#define VMERGE_VVM_I(op1, op2, mask, vlen) \
+  __MAKE_VMERGE_VVM (i) ((op1), (op2), (mask), (vlen))
 #define VMERGE_VXM_I(op1, scalar, mask, vlen) \
   __MAKE_VMERGE_VXM (i) ((op1), (scalar), (mask), (vlen))
 #define VFMERGE_VFM(op1, scalar, mask, vlen) \
@@ -62,6 +66,8 @@ __BEGIN_DECLS
   __MAKE_VFSUB_VV ((op1), (op2), (vlen))
 #define VFMADD_VV(op1, op2, op3, vlen) \
   __MAKE_VFMADD_VV ((op1), (op2), (op3), (vlen))
+#define VFMACC_VV(op1, op2, op3, vlen) \
+  __MAKE_VFMACC_VV ((op1), (op2), (op3), (vlen))
 #define VFMUL_VV(op1, op2, vlen) \
   __MAKE_VFMUL_VV ((op1), (op2), (vlen))
 
@@ -206,15 +212,23 @@ extern const struct v_cos_data
   __VCFG_PASTE4 (__riscv_vfdiv_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMADD_VV \
   __VCFG_PASTE4 (__riscv_vfmadd_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFRSUB_VF \
+  __VCFG_PASTE4 (__riscv_vfrsub_vf_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMUL_VF \
   __VCFG_PASTE4 (__riscv_vfmul_vf_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMSUB_VV \
   __VCFG_PASTE4 (__riscv_vfmsub_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFMACC_VV \
+  __VCFG_PASTE4 (__riscv_vfmacc_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFNMSUB_VV \
   __VCFG_PASTE4 (__riscv_vfnmsub_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFNMSAC_VV \
+  __VCFG_PASTE4 (__riscv_vfnmsac_vv_f, BIT_WIDTH, m, LMUL)
 
 #define VFADD_VV(op1, op2, vlen) \
   __MAKE_VFADD_VV ((op1), (op2), (vlen))
+#define VFRSUB_VF(op1, scalar, vlen) \
+  __MAKE_VFRSUB_VF ((op1), (scalar), (vlen))
 #define VFSUB_VV(op1, op2, vlen) \
   __MAKE_VFSUB_VV ((op1), (op2), (vlen))
 #define VFMUL_VV(op1, op2, vlen) \
@@ -225,10 +239,14 @@ extern const struct v_cos_data
   __MAKE_VFDIV_VV ((op1), (op2), (vlen))
 #define VFMADD_VV(op1, op2, op3, vlen) \
   __MAKE_VFMADD_VV ((op1), (op2), (op3), (vlen))
+#define VFMACC_VV(op1, op2, op3, vlen) \
+  __MAKE_VFMACC_VV ((op1), (op2), (op3), (vlen))
 #define VFMSUB_VV(op1, op2, op3, vlen) \
   __MAKE_VFMSUB_VV ((op1), (op2), (op3), (vlen))
 #define VFNMSUB_VV(op1, op2, op3, vlen) \
   __MAKE_VFNMSUB_VV ((op1), (op2), (op3), (vlen))
+#define VFNMSAC_VV(op1, op2, op3, vlen) \
+  __MAKE_VFNMSAC_VV ((op1), (op2), (op3), (vlen))
 
 __END_DECLS
 
