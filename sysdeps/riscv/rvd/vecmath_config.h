@@ -49,6 +49,14 @@ __BEGIN_DECLS
   __VCFG_PASTE4 (__riscv_vfmacc_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMUL_VV \
   __VCFG_PASTE4 (__riscv_vfmul_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFMUL_VV_M \
+  __VCFG_PASTE5 (__riscv_vfmul_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFMADD_VV_M \
+  __VCFG_PASTE5 (__riscv_vfmadd_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFNMSUB_VV_M \
+  __VCFG_PASTE5 (__riscv_vfnmsub_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFMACC_VV_M \
+  __VCFG_PASTE5 (__riscv_vfmacc_vv_f, BIT_WIDTH, m, LMUL, _m)
 
 #define VMERGE_VVM_F(op1, op2, mask, vlen) \
   __MAKE_VMERGE_VVM (f) ((op1), (op2), (mask), (vlen))
@@ -74,6 +82,14 @@ __BEGIN_DECLS
   __MAKE_VFMACC_VV ((op1), (op2), (op3), (vlen))
 #define VFMUL_VV(op1, op2, vlen) \
   __MAKE_VFMUL_VV ((op1), (op2), (vlen))
+#define VFMUL_VV_M(mask, op1, op2, vlen) \
+  __MAKE_VFMUL_VV_M ((mask), (op1), (op2), (vlen))
+#define VFMADD_VV_M(mask, op1, op2, op3, vlen) \
+  __MAKE_VFMADD_VV_M ((mask), (op1), (op2), (op3), (vlen))
+#define VFNMSUB_VV_M(mask, op1, op2, op3, vlen) \
+  __MAKE_VFNMSUB_VV_M ((mask), (op1), (op2), (op3), (vlen))
+#define VFMACC_VV_M(mask, op1, op2, op3, vlen) \
+  __MAKE_VFMACC_VV_M ((mask), (op1), (op2), (op3), (vlen))
 
 #define VMOR(op1, op2, vlen) \
   __riscv_vmor ((op1), (op2), (vlen))

@@ -258,6 +258,11 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_LOG2_BY2_HI_D 0x1.62e42fefa4000p-2
 #define RVV_LOG2_BY2_LO_D -0x1.8432a1b0e2634p-44
 #define RVV_ONE_Q60 0x1000000000000000LL
+#define RVV_ONE_OVER_3_D 0x1.5555555555555p-2
+#define RVV_THIRD_Q62 0x1555555555555555LL
+#define RVV_ONE_Q62 0x4000000000000000LL
+#define RVV_CBRT_2_Q62 0x50a28be635ca2b89LL
+#define RVV_CBRT_4_Q62 0x6597fa94f5b8f20bLL
 #define RVV_COSPI_POLY_RIGHT_SEED_A -0x1.8f5dd75850673p-37
 #define RVV_COSPI_POLY_RIGHT_SEED_B 0x1.5d8b5ae12066ap-33
 #define RVV_COSPI_POLY_RIGHT_OUTER_A -0x1.27e4f72551e3dp-22
@@ -1447,4 +1452,48 @@ RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_atan2kf_u1_m, LMUL)
 }
 #  undef RVV_SLEEF_ATAN_HELPERS_THIS_LMUL
 # endif
+#endif
+/* The double-precision cbrt importer keeps its source EH envelope in this
+   shared helper so the skeleton contains only the operation graph and its
+   data reference.  */
+#ifndef RVV_MATH_IS_CBRT_cbrt
+# define RVV_MATH_IS_CBRT_cbrt 1
+# define RVV_MATH_IS_CBRT_INNER(name) RVV_MATH_IS_CBRT_##name
+# define RVV_MATH_IS_CBRT(name) RVV_MATH_IS_CBRT_INNER (name)
+#endif
+
+#if RVV_MATH_IS_CBRT (V_MATH_FUNC)
+static inline void
+RVV_LIBMVEC_IMPL_NAME (rvv_cbrt_exception_handling, LMUL)
+  (VFLOAT *vx, VBOOL *special_args, VFLOAT *vy_special, VINT *n_adjust,
+   size_t vlen)
+{
+  VUINT vclass = __riscv_vfclass (*vx, vlen);
+  IDENTIFY (vclass, 0x399, *special_args, vlen);
+  VBOOL denorm;
+  IDENTIFY (vclass, 0x24, denorm, vlen);
+  VBOOL special_n_denorm = __riscv_vmor (*special_args, denorm, vlen);
+  *n_adjust = __riscv_vxor (*n_adjust, *n_adjust, vlen);
+  if (__riscv_vcpop (special_n_denorm, vlen) > 0)
+    {
+      VFLOAT vx_normal = __riscv_vfmul
+        (denorm, *vx, VFMV_VF (0x1.0p60, vlen), vlen);
+      *vx = __riscv_vmerge (*vx, vx_normal, denorm, vlen);
+      *n_adjust = __riscv_vmerge (*n_adjust, -20, denorm, vlen);
+      *vy_special = __riscv_vfadd (*special_args, *vx, *vx, vlen);
+      *vx = __riscv_vfmerge (*vx, fp_posOne, *special_args, vlen);
+    }
+}
+
+/* Keep the cbrt polynomial operation graph unchanged for active finite lanes
+   while preventing sanitized exceptional lanes from executing the FMA.  The
+   initial scalar polynomial constants are materialized by the caller so this
+   helper uses the same vector-vector fused operation as the common PSTEP
+   spelling.  */
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (rvv_cbrt_pstep_masked, LMUL)
+  (VBOOL active, double coeff, VFLOAT x, VFLOAT poly, size_t vlen)
+{
+  return VFMADD_VV_M (active, poly, x, VFMV_VF (coeff, vlen), vlen);
+}
 #endif
