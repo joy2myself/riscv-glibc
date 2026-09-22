@@ -23,6 +23,7 @@ postclean-generated += libmvec.mk
 libmvec-float-funcs-bare = \
   logf \
   acosf \
+  asinf \
 
 libmvec-float-funcs-with-data = \
 
@@ -89,6 +90,7 @@ libmvec-double-bench-funcs = \
 libmvec-float-bench-funcs = \
   logf \
   acosf \
+  asinf \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \

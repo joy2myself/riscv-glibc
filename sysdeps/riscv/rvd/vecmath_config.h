@@ -195,6 +195,8 @@ extern const struct v_cos_data
   __VCFG_PASTE4 (__riscv_vfdiv_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMADD_VV \
   __VCFG_PASTE4 (__riscv_vfmadd_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFMUL_VF \
+  __VCFG_PASTE4 (__riscv_vfmul_vf_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMSUB_VV \
   __VCFG_PASTE4 (__riscv_vfmsub_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFNMSUB_VV \
@@ -206,6 +208,8 @@ extern const struct v_cos_data
   __MAKE_VFSUB_VV ((op1), (op2), (vlen))
 #define VFMUL_VV(op1, op2, vlen) \
   __MAKE_VFMUL_VV ((op1), (op2), (vlen))
+#define VFMUL_VF(op1, scalar, vlen) \
+  __MAKE_VFMUL_VF ((op1), (scalar), (vlen))
 #define VFDIV_VV(op1, op2, vlen) \
   __MAKE_VFDIV_VV ((op1), (op2), (vlen))
 #define VFMADD_VV(op1, op2, op3, vlen) \

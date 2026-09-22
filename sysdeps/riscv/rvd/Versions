@@ -121,5 +121,27 @@ libmvec {
     _ZGVr8N8v_asin;
     _ZGVr8N16v_asin;
     _ZGVr8N32v_asin;
+    _ZGVr1N4v_asinf;
+    _ZGVr1N8v_asinf;
+    _ZGVr2N4v_asinf;
+    _ZGVr2N8v_asinf;
+    _ZGVr2N16v_asinf;
+    _ZGVr4N8v_asinf;
+    _ZGVr4N16v_asinf;
+    _ZGVr4N32v_asinf;
+    _ZGVr8N16v_asinf;
+    _ZGVr8N32v_asinf;
+    _ZGVr8N64v_asinf;
+    _ZGVr1N4v_asinf_original;
+    _ZGVr1N8v_asinf_original;
+    _ZGVr2N4v_asinf_original;
+    _ZGVr2N8v_asinf_original;
+    _ZGVr2N16v_asinf_original;
+    _ZGVr4N8v_asinf_original;
+    _ZGVr4N16v_asinf_original;
+    _ZGVr4N32v_asinf_original;
+    _ZGVr8N16v_asinf_original;
+    _ZGVr8N32v_asinf_original;
+    _ZGVr8N64v_asinf_original;
   }
 }

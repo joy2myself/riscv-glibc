@@ -48,6 +48,7 @@ static const uint64_t class_Inf = 0x81;
 static const uint64_t class_Zero = 0x18;
 static const uint64_t class_posZero = 0x10;
 static const uint64_t class_posDenorm = 0x20;
+static const uint64_t class_Subnormal = 0x24;
 static const uint64_t class_negative = 0x7;
 #define RVV_SLEEF_TRIG_PI_F 0x1.921fb6p+1f
 
@@ -377,6 +378,17 @@ static const scalar_t fp_posOne = 0x1.0p0f;
 
 #endif /* RVV_LIBMVEC_TRIG_DOUBLE_HELPERS */
 
+/* The source-shaped asinf helper is embedded by the asinpif comparator.
+   Select its public body from the importer function name so the helper
+   skeleton has no routine-local enable/disable macro.  */
+#ifndef RVV_MATH_IS_ASINF_HELPERS_ONLY_asinpif_original
+# define RVV_MATH_IS_ASINF_HELPERS_ONLY_asinpif_original 1
+# define RVV_MATH_IS_ASINF_HELPERS_ONLY_INNER(name) \
+  RVV_MATH_IS_ASINF_HELPERS_ONLY_##name
+# define RVV_MATH_IS_ASINF_HELPERS_ONLY(name) \
+  RVV_MATH_IS_ASINF_HELPERS_ONLY_INNER (name)
+#endif
+
 /* Shared source-shaped acosf names and constants.  The clean finite kernel
    and the independent SLEEF comparator use distinct prefixes, but both
    source operation graphs are instantiated by the same importer LMUL.  */
@@ -408,6 +420,35 @@ static const scalar_t fp_posOne = 0x1.0p0f;
 # define RVV_SLEEF_ORIG_ACOSF_PI2_LO -8.7422776573475857731e-08f / 2
 # define RVV_SLEEF_ORIG_ACOSF_PI_HI 3.1415927410125732422f
 # define RVV_SLEEF_ORIG_ACOSF_PI_LO -8.7422776573475857731e-08f
+#endif
+
+/* Shared source-shaped asinf names and constants.  The clean importer and
+   the independent SLEEF comparator use separate prefixes for their helper
+   symbols, while both mangle through the current importer LMUL.  The
+   `_original` polynomial literals intentionally remain unsuffixed: pinned
+   SLEEF passes them as double expressions to vcast_vf_f(float), so their
+   conversion remains source-shaped under a non-RNE caller FRM.  */
+#ifndef RVV_ASINF_COMMON_DEFINITIONS
+# define RVV_ASINF_COMMON_DEFINITIONS
+# define RVV_ASINF_SOURCE_MANGLE(base) \
+  RVV_SLEEF_ORIG_MANGLE (base, LMUL)
+# define RVV_ASINF_PIBY4_HI 3.1415927410125732422f / 4.0f
+# define RVV_ASINF_PIBY4_LO -8.7422776573475857731e-08f / 4.0f
+# define RVV_ASINF_C0 0.1666677296e+0f
+# define RVV_ASINF_C1 0.7495029271e-1f
+# define RVV_ASINF_C2 0.4547423869e-1f
+# define RVV_ASINF_C3 0.2424046025e-1f
+# define RVV_ASINF_C4 0.4197454825e-1f
+# define RVV_SLEEF_ORIG_ASINF_MANGLE(base) \
+  RVV_SLEEF_ORIG_MANGLE (base, LMUL)
+# define RVV_SLEEF_ORIG_ASINF_C0 0.1666677296e+0
+# define RVV_SLEEF_ORIG_ASINF_C1 0.7495029271e-1
+# define RVV_SLEEF_ORIG_ASINF_C2 0.4547423869e-1
+# define RVV_SLEEF_ORIG_ASINF_C3 0.2424046025e-1
+# define RVV_SLEEF_ORIG_ASINF_C4 0.4197454825e-1
+# define RVV_SLEEF_ORIG_ASINF_PI4_HI 3.1415927410125732422f / 4.0f
+# define RVV_SLEEF_ORIG_ASINF_PI4_LO \
+  -8.7422776573475857731e-08f / 4.0f
 #endif
 
 /* Target-owned source-shaped SLEEF DF/FMA helpers.  These macros are
@@ -515,6 +556,19 @@ static const scalar_t fp_posOne = 0x1.0p0f;
       VFLOAT _cross_hi = VFMADD_VV (_x_lo, _y_hi, _residual, (vlen));         \
       (r_hi) = _s;                                                            \
       (r_lo) = VFMADD_VV (_x_hi, _y_lo, _cross_hi, (vlen));                   \
+    }                                                                         \
+  while (0)
+
+/* Source dfrec_vf2_vf in the FMA branch: reciprocal correction for a scalar
+   high part retains the source's nested negative-product sequence.  */
+#define RVV_SLEEF_ORIG_DFREC_VF2_VF(x, r_hi, r_lo, vlen)                     \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x = (x);                                                        \
+      VFLOAT _t = VFDIV_VV (VFMV_VF (1.0f, (vlen)), _x, (vlen));              \
+      VFLOAT _u = VFNMSUB_VV (_x, _t, VFMV_VF (1.0f, (vlen)), (vlen));         \
+      (r_hi) = _t;                                                            \
+      (r_lo) = VFMUL_VV (_t, _u, (vlen));                                     \
     }                                                                         \
   while (0)
 

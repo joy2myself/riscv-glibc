@@ -7,7 +7,8 @@ libmvec-sysdep_routines = \
 	$(addsuffix _data, $(addprefix v_f_, $(libmvec-float-funcs-with-data))) \
 
 libmvec-source-original-routines = \
-  v_f_acosf_original
+  v_f_acosf_original \
+  v_f_asinf_original
 
 libmvec-sysdep_routines += $(libmvec-source-original-routines)
 
