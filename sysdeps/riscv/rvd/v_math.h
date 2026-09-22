@@ -44,6 +44,39 @@ _Static_assert (0, "NaN not available on this architecture");
 #define __PASTE5_BASE(A, B, C, D, E) A##B##C##D##E
 #define __PASTE5(A, B, C, D, E) __PASTE5_BASE (A, B, C, D, E)
 
+/* The source-shaped log2f comparator has a separate importer entry.  */
+#ifndef RVV_MATH_IS_LOG2F_ORIGINAL_log2f_original
+# define RVV_MATH_IS_LOG2F_ORIGINAL_log2f_original 1
+# define RVV_MATH_IS_LOG2F_ORIGINAL_INNER(name) \
+  RVV_MATH_IS_LOG2F_ORIGINAL_##name
+# define RVV_MATH_IS_LOG2F_ORIGINAL(name) \
+  RVV_MATH_IS_LOG2F_ORIGINAL_INNER (name)
+#endif
+
+#ifndef RVV_MATH_IS_LOG2F_FAMILY_log2f
+# define RVV_MATH_IS_LOG2F_FAMILY_log2f 1
+# define RVV_MATH_IS_LOG2F_FAMILY_log2f_clean_assert 1
+# define RVV_MATH_IS_LOG2F_FAMILY_log2f_original 1
+# define RVV_MATH_IS_LOG2F_FAMILY_log2p1f 1
+# define RVV_MATH_IS_LOG2F_FAMILY_log2p1f_clean_assert 1
+# define RVV_MATH_IS_LOG2F_FAMILY_log2p1f_original 1
+# define RVV_MATH_IS_LOG2F_FAMILY_INNER(name) \
+  RVV_MATH_IS_LOG2F_FAMILY_##name
+# define RVV_MATH_IS_LOG2F_FAMILY(name) \
+  RVV_MATH_IS_LOG2F_FAMILY_INNER (name)
+#endif
+
+/* The log2f-original skeleton is also shared by the later log2p1f clean
+   entry, whose masked scale operation needs a compile-time selector.  */
+#ifndef RVV_MATH_IS_LOG2P1F_CLEAN_log2p1f
+# define RVV_MATH_IS_LOG2P1F_CLEAN_log2p1f 1
+# define RVV_MATH_IS_LOG2P1F_CLEAN_log2p1f_clean_assert 1
+# define RVV_MATH_IS_LOG2P1F_CLEAN_INNER(name) \
+  RVV_MATH_IS_LOG2P1F_CLEAN_##name
+# define RVV_MATH_IS_LOG2P1F_CLEAN(name) \
+  RVV_MATH_IS_LOG2P1F_CLEAN_INNER (name)
+#endif
+
 static const uint64_t class_sNaN = 0x100;
 static const uint64_t class_NaN = 0x300;
 static const uint64_t class_negInf = 0x1;
@@ -363,6 +396,7 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define fp_posOne_f fp_posOne
 #define fp_posZero_f fp_posZero
 #define fp_posInf_f fp_posInf
+#define fp_negInf_f fp_negInf
 #define fp_negZero_f fp_negZero
 #define fp_negOne_f fp_negOne
 #define fp_sNaN_f fp_sNaN
@@ -710,6 +744,9 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_EXPF_SOURCE_POLY3_D +0.0416664853692054748535156
 #define RVV_EXPF_SOURCE_POLY4_D +0.166666671633720397949219
 #define RVV_EXPF_SOURCE_POLY5_D +0.5
+#define RVV_LOG1PF_BOUND_F 0x1.2ced32p+126f
+#define RVV_LOG1PF_SCALE_F 0x1.0p64f
+#define RVV_LOG1PF_FLT_MIN_F 0x1.0p-126f
 #define RVV_SLEEF_LOG_U1_LN2_HI_F 0.69314718246459960938f
 #define RVV_SLEEF_LOG_U1_LN2_LO_F -1.904654323148236017e-09f
 #define RVV_SLEEF_LOG_U1_POLY0_F 0.3027294874e+0f
@@ -717,6 +754,19 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_SLEEF_LOG_U1_POLY2_F 0.6666694880e+0f
 #define RVV_LOG1PF_LN2_HI_F RVV_SLEEF_LOG_U1_LN2_HI_F
 #define RVV_LOG1PF_LN2_LO_F RVV_SLEEF_LOG_U1_LN2_LO_F
+#define RVV_LOGP1F_SCALE_DOWN_F 0x1.0p-4f
+#define RVV_LOG2F_CLEAN_BOUND_F RVV_LOG1PF_BOUND_F
+#define RVV_LOG2F_CLEAN_SCALE_DOWN_F RVV_LOGP1F_SCALE_DOWN_F
+#define RVV_LOG2F_CLEAN_LARGE_EXP_ADJUST 4
+#define RVV_LOG2F_FLT_MIN_F RVV_LOG1PF_FLT_MIN_F
+#define RVV_LOG2F_SCALE_F RVV_LOG1PF_SCALE_F
+#define RVV_LOG2F_INV_075_F 1.3333333333333333333333333333333333f
+#define RVV_LOG2F_SUBNORMAL_EXP_ADJUST 64
+#define RVV_LOG2F_X_HI_F 2.8853900432586669922f
+#define RVV_LOG2F_X_LO_F 3.2734474483568488616e-08f
+#define RVV_LOG2F_POLY0_F 0.4374550283e+0f
+#define RVV_LOG2F_POLY1_F 0.5764790177e+0f
+#define RVV_LOG2F_POLY2_F 0.9618012905120f
 #define RVV_EXP10F_CLEAN_LOG10_2_F 0x1.a934f0p+1f
 #define RVV_EXP10F_CLEAN_L10U_F 0x1.344000p-2f
 #define RVV_EXP10F_CLEAN_L10L_F 0x1.3509f8p-18f
@@ -1476,6 +1526,53 @@ static const scalar_t fp_posInf = __builtin_inff ();
   while (0)
 
 #endif /* RVV_SLEEF_ORIGINAL_DF_HELPERS */
+
+/* Target-owned source-shaped log2f exponent helpers.  The clean log2f path,
+   the log2f comparator, and the log2p1f component composites share these
+   exact bit-level adapters.  This part of v_math.h is intentionally
+   re-entered for each importer LMUL, so guard the TU-level helper definitions
+   explicitly and emit all four LMUL spellings only once.  */
+#ifndef RVV_LOG2F_COMMON_HELPERS
+#define RVV_LOG2F_COMMON_HELPERS
+#define RVV_LOG2F_VTYPE(kind, lmul) \
+  __PASTE3 (kind, __PASTE3 (32, m, lmul), _t)
+#define RVV_LOG2F_REINTERPRET(a, b, lmul) \
+  __PASTE5 (__riscv_vreinterpret_v_, a, \
+            __PASTE4 (32, m, lmul, _), b, __PASTE3 (32, m, lmul))
+#define RVV_LOG2F_DEFINE_HELPERS(lmul)                                      \
+static inline RVV_LOG2F_VTYPE (vint, lmul)                                  \
+__PASTE2 (rvv_sleef_orig_log2f_vilogb2k_m, lmul)                             \
+  (RVV_LOG2F_VTYPE (vfloat, lmul) d, size_t vlen)                            \
+{                                                                            \
+  /* SLEEF vilogb2k extracts the unbiased exponent of a normalized float.  */ \
+  RVV_LOG2F_VTYPE (vuint, lmul) q =                                        \
+    __riscv_vsrl (RVV_LOG2F_REINTERPRET (f, u, lmul) (d), 23, vlen);         \
+  q = __riscv_vand (q, 0xff, vlen);                                         \
+  return __riscv_vsub (RVV_LOG2F_REINTERPRET (u, i, lmul) (q), 127, vlen);    \
+}                                                                            \
+                                                                             \
+static inline RVV_LOG2F_VTYPE (vfloat, lmul)                                 \
+__PASTE2 (rvv_sleef_orig_log2f_vldexp3_m, lmul)                              \
+  (RVV_LOG2F_VTYPE (vfloat, lmul) d, RVV_LOG2F_VTYPE (vint, lmul) q,         \
+   size_t vlen)                                                              \
+{                                                                            \
+  /* SLEEF vldexp3 adds q to the exponent field of a normalized float.  */    \
+  return RVV_LOG2F_REINTERPRET (i, f, lmul)                                 \
+    (__riscv_vadd (RVV_LOG2F_REINTERPRET (f, i, lmul) (d),                   \
+                   __riscv_vsll (q, 23, vlen), vlen));                      \
+}
+
+#if (BIT_WIDTH == 32) && RVV_MATH_IS_LOG2F_FAMILY (V_MATH_FUNC)
+RVV_LOG2F_DEFINE_HELPERS (1)
+RVV_LOG2F_DEFINE_HELPERS (2)
+RVV_LOG2F_DEFINE_HELPERS (4)
+RVV_LOG2F_DEFINE_HELPERS (8)
+#endif
+
+#undef RVV_LOG2F_DEFINE_HELPERS
+#undef RVV_LOG2F_REINTERPRET
+#undef RVV_LOG2F_VTYPE
+#endif /* RVV_LOG2F_COMMON_HELPERS */
 
 /* Shared asinhf constants and importer mangles.  Keep the clean and
    source-original operation graphs independently named while placing their
