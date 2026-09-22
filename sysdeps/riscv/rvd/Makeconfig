@@ -70,6 +70,7 @@ libmvec-double-funcs-bare = \
   exp10 \
   log2 \
   log2p1 \
+  rsqrt \
 
 libmvec-double-funcs-with-data = \
   log \
@@ -141,6 +142,7 @@ libmvec-double-bench-funcs = \
   exp10m1 \
   log2 \
   log2p1 \
+  rsqrt \
 
 libmvec-float-bench-funcs = \
   logf \
