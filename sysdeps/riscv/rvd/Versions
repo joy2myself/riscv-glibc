@@ -1,0 +1,15 @@
+libmvec {
+  GLIBC_2.43 {
+    _ZGVr1N2v_log;
+    _ZGVr1N4v_log;
+    _ZGVr2N2v_log;
+    _ZGVr2N4v_log;
+    _ZGVr2N8v_log;
+    _ZGVr4N4v_log;
+    _ZGVr4N8v_log;
+    _ZGVr4N16v_log;
+    _ZGVr8N8v_log;
+    _ZGVr8N16v_log;
+    _ZGVr8N32v_log;
+  }
+}

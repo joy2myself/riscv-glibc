@@ -200,4 +200,13 @@ extern double __sin (double __x);
 extern double __cos (double __x);
 extern int __branred (double __x, double *__a, double *__aa);
 
+/* Return ptr but hide its value from the compiler so accesses through it
+   cannot be optimized based on the contents.  */
+#define ptr_barrier(ptr)                                                      \
+  ({                                                                          \
+    __typeof (ptr) __ptr = (ptr);                                             \
+    __asm("" : "+r"(__ptr));                                                  \
+    __ptr;                                                                    \
+  })
+
 #endif /* _MATH_PRIVATE_H_ */
