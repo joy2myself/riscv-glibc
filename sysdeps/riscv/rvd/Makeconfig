@@ -31,6 +31,7 @@ libmvec-double-funcs-bare = \
   acosh \
   sin \
   tan \
+  acospi \
 
 libmvec-double-funcs-with-data = \
   log \
@@ -79,6 +80,7 @@ libmvec-double-bench-funcs = \
   acosh \
   sin \
   tan \
+  acospi \
 
 libmvec-float-bench-funcs = \
   logf \
