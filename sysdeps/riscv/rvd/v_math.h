@@ -115,6 +115,65 @@ static const uint64_t class_finite_pos = 0x60;
 #define RVV_SLEEF_COSF_REMPI_HALF_PI_LO \
   (-8.7422776573475857731e-08f * -0.5f)
 #define RVV_SLEEF_COSF_REDUCE_NEG_HALF -0.5f
+
+/* Fixed coefficients shared by the erff clean and source-original paths.  */
+#ifndef RVV_ERFF_CONSTANTS
+# define RVV_ERFF_CONSTANTS
+# define RVV_ERFF_R_LN2_F RVV_SLEEF_EXPM1F_R_LN2
+# define RVV_ERFF_L2U_F RVV_SLEEF_EXPM1F_L2U
+# define RVV_ERFF_L2L_F RVV_SLEEF_EXPM1F_L2L
+#endif
+
+/* Fixed coefficients shared by the erfcf clean and source-original paths.  */
+#ifndef RVV_ERFCF_CONSTANTS
+# define RVV_ERFCF_CONSTANTS
+# define RVV_ERFCF_EXP_POLY_0_F RVV_SLEEF_EXPM1F_POLY0
+# define RVV_ERFCF_EXP_POLY_1_F RVV_SLEEF_EXPM1F_POLY1
+# define RVV_ERFCF_EXP_POLY_2_F RVV_SLEEF_EXPM1F_POLY2
+# define RVV_ERFCF_EXP_POLY_3_F RVV_SLEEF_EXPM1F_POLY3
+# define RVV_ERFCF_INTERVAL_0_F 1.0f
+# define RVV_ERFCF_INTERVAL_1_F 2.2f
+# define RVV_ERFCF_INTERVAL_2_F 4.3f
+# define RVV_ERFCF_INTERVAL_3_F 10.1f
+# define RVV_ERFCF_POLY_0_0_F -0.8638041618e-4f
+# define RVV_ERFCF_POLY_0_1_F -0.6236977242e-5f
+# define RVV_ERFCF_POLY_0_2_F -0.3869504035e+0f
+# define RVV_ERFCF_POLY_0_3_F +0.1115344167e+1f
+# define RVV_ERFCF_POLY_1_0_F +0.6000166177e-3f
+# define RVV_ERFCF_POLY_1_1_F +0.5749821503e-4f
+# define RVV_ERFCF_POLY_1_2_F +0.1288077235e+1f
+# define RVV_ERFCF_POLY_1_3_F -0.9454904199e+0f
+# define RVV_ERFCF_POLY_2_0_F -0.1665703603e-2f
+# define RVV_ERFCF_POLY_2_1_F +0.6002851478e-5f
+# define RVV_ERFCF_POLY_2_2_F -0.1816803217e+1f
+# define RVV_ERFCF_POLY_2_3_F -0.3667259514e+0f
+# define RVV_ERFCF_POLY_3_0_F +0.1795156277e-3f
+# define RVV_ERFCF_POLY_3_1_F -0.2851036377e-2f
+# define RVV_ERFCF_POLY_3_2_F +0.1249150872e+1f
+# define RVV_ERFCF_POLY_3_3_F +0.7155663371e+0f
+# define RVV_ERFCF_POLY_4_0_F +0.1914106123e-1f
+# define RVV_ERFCF_POLY_4_1_F +0.2260518074e-1f
+# define RVV_ERFCF_POLY_4_2_F -0.1328857988e+0f
+# define RVV_ERFCF_POLY_4_3_F -0.1262947265e-1f
+# define RVV_ERFCF_DF_0_0_D -0.102775359343930288081655368891e+0
+# define RVV_ERFCF_DF_0_1_D -0.105247583459338632253369014063e+0
+# define RVV_ERFCF_DF_0_2_D -0.482365310333045318680618892669e+0
+# define RVV_ERFCF_DF_0_3_D -0.498961546254537647970305302739e+0
+# define RVV_ERFCF_DF_1_0_D -0.636619483208481931303752546439e+0
+# define RVV_ERFCF_DF_1_1_D -0.635609463574589034216723775292e+0
+# define RVV_ERFCF_DF_1_2_D -0.134450203224533979217859332703e-2
+# define RVV_ERFCF_DF_1_3_D -0.471199543422848492080722832666e-4
+# define RVV_ERFCF_DF_2_0_D -0.112837917790537404939545770596e+1
+# define RVV_ERFCF_DF_2_1_D -0.112855987376668622084547028949e+1
+# define RVV_ERFCF_DF_2_2_D -0.572319781150472949561786101080e+0
+# define RVV_ERFCF_DF_2_3_D -0.572364030327966044425932623525e+0
+# define RVV_ERFCF_R_LN2_F RVV_ERFF_R_LN2_F
+# define RVV_ERFCF_NEG_L2U_F (-RVV_ERFF_L2U_F)
+# define RVV_ERFCF_NEG_L2L_F (-RVV_ERFF_L2L_F)
+# define RVV_ERFCF_EXP_TAYLOR_C_F RVV_SLEEF_EXPM1F_TAYLOR_C
+# define RVV_ERFCF_EXP_HALF_F RVV_SLEEF_EXPM1F_HALF
+# define RVV_ERFCF_SOURCE_UNDERFLOW_F RVV_SLEEF_EXPM1F_UNDERFLOW
+#endif
 #define RVV_SLEEF_COSF_REDUCE_TWO 2.0f
 #define RVV_SLEEF_COSF_POLY_0 2.6083159809786593541503e-06f
 #define RVV_SLEEF_COSF_POLY_1 -0.0001981069071916863322258f
@@ -219,6 +278,7 @@ RVV_SLEEF_ORIG_F64_TO_F32 (double value)
 #undef BIT_WIDTH_F
 #undef fp_negOne_f
 #undef fp_sNaN_f
+#undef fp_qNaN_f
 
 #define MAKE_VTYPE(A) __PASTE3 (A, BIT_WIDTH, __PASTE3 (m, LMUL, _t))
 #define MAKE_TYPE(A) __PASTE3 (A, BIT_WIDTH, _t)
@@ -231,6 +291,7 @@ RVV_SLEEF_ORIG_F64_TO_F32 (double value)
 #  define _V_MATH_SCALAR_64
 typedef double scalar_t;
 static const scalar_t fp_sNaN = __builtin_nans ("");
+static const scalar_t fp_qNaN = __builtin_nan ("");
 static const scalar_t fp_negInf = -__builtin_inf ();
 static const scalar_t fp_negZero = -0.;
 static const scalar_t fp_posZero = 0.0;
@@ -246,6 +307,7 @@ static const scalar_t fp_posInf = __builtin_inf ();
 #  define _V_MATH_SCALAR_32
 typedef float scalar_t;
 static const scalar_t fp_sNaN = __builtin_nansf ("");
+static const scalar_t fp_qNaN = __builtin_nanf ("");
 static const scalar_t fp_negInf = -__builtin_inff ();
 static const scalar_t fp_negZero = -0.f;
 static const scalar_t fp_posZero = 0.0f;
@@ -266,6 +328,7 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define fp_posInf_f fp_posInf
 #define fp_negOne_f fp_negOne
 #define fp_sNaN_f fp_sNaN
+#define fp_qNaN_f fp_qNaN
 
 /* For MAKE_VBOOL, the value is BIT_WIDTH/LMUL for the current element size. */
 #if (BIT_WIDTH == 64)
@@ -715,6 +778,33 @@ static const scalar_t fp_posInf = __builtin_inff ();
   while (0)
 
 #endif /* RVV_LIBMVEC_TRIG_DOUBLE_HELPERS */
+
+/* Shared importer-qualified helper names for the single-precision erfcf
+   source-shaped finite graphs.  The helper bodies stay in the two erfcf
+   skeletons; only their LMUL/SIMDLEN naming and the source RNE conversion
+   spelling are common here.  */
+#undef RVV_ERFCF_HELPER_NAME2
+#undef RVV_ERFCF_HELPER_NAME
+#undef RVV_ERFCF_HELPER
+#define RVV_ERFCF_HELPER_NAME2(name, lmul, simdlen) \
+  rvv_erfcf_##name##_##lmul##_##simdlen
+#define RVV_ERFCF_HELPER_NAME(name, lmul, simdlen) \
+  RVV_ERFCF_HELPER_NAME2 (name, lmul, simdlen)
+#define RVV_ERFCF_HELPER(name) \
+  RVV_ERFCF_HELPER_NAME (name, LMUL, SIMDLEN)
+
+#undef RVV_SLEEF_ORIG_ERFCF_VFCVT_X_RNE
+#undef RVV_SLEEF_ORIG_ERFCF_HELPER_NAME2
+#undef RVV_SLEEF_ORIG_ERFCF_HELPER_NAME
+#undef RVV_SLEEF_ORIG_ERFCF_HELPER
+#define RVV_SLEEF_ORIG_ERFCF_VFCVT_X_RNE(value, vlen) \
+  RVV_VFCVT_X_F_RNE ((value), (vlen))
+#define RVV_SLEEF_ORIG_ERFCF_HELPER_NAME2(name, lmul, simdlen) \
+  rvv_sleef_orig_erfcf_##name##_##lmul##_##simdlen
+#define RVV_SLEEF_ORIG_ERFCF_HELPER_NAME(name, lmul, simdlen) \
+  RVV_SLEEF_ORIG_ERFCF_HELPER_NAME2 (name, lmul, simdlen)
+#define RVV_SLEEF_ORIG_ERFCF_HELPER(name) \
+  RVV_SLEEF_ORIG_ERFCF_HELPER_NAME (name, LMUL, SIMDLEN)
 
 /* The source-shaped asinf helper is embedded by the asinpif comparator.
    Select its public body from the importer function name so the helper
