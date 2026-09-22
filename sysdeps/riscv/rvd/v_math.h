@@ -119,9 +119,44 @@ static const uint64_t class_finite_pos = 0x60;
 /* Fixed coefficients shared by the erff clean and source-original paths.  */
 #ifndef RVV_ERFF_CONSTANTS
 # define RVV_ERFF_CONSTANTS
+# define RVV_ERFF_POLY25_0_F -0.4360447008e-6f
+# define RVV_ERFF_POLY25_1_F +0.6867515367e-5f
+# define RVV_ERFF_POLY25_2_F -0.3045156700e-4f
+# define RVV_ERFF_POLY25_3_F +0.9808536561e-4f
+# define RVV_ERFF_POLY25_4_F +0.2395523916e-3f
+# define RVV_ERFF_POLY25_5_F +0.1459901541e-3f
+# define RVV_ERFF_POLY_GT_0_F -0.1130012848e-6f
+# define RVV_ERFF_POLY_GT_1_F +0.4115272986e-5f
+# define RVV_ERFF_POLY_GT_2_F -0.6928304356e-4f
+# define RVV_ERFF_POLY_GT_3_F +0.7172692567e-3f
+# define RVV_ERFF_POLY_GT_4_F -0.5131045356e-2f
+# define RVV_ERFF_POLY_GT_5_F +0.2708637156e-1f
+# define RVV_ERFF_DF25_0_0_F 0.0092883445322513580322f
+# define RVV_ERFF_DF25_0_1_F -2.7863745897025330755e-11f
+# define RVV_ERFF_DF25_1_0_F 0.042275499552488327026f
+# define RVV_ERFF_DF25_1_1_F 1.3461399289988106057e-09f
+# define RVV_ERFF_DF25_2_0_F 0.070523701608180999756f
+# define RVV_ERFF_DF25_2_1_F -3.6616309318707365163e-09f
+# define RVV_ERFF_DF_GT_0_0_F -0.11064319312572479248f
+# define RVV_ERFF_DF_GT_0_1_F 3.7050452777225283007e-09f
+# define RVV_ERFF_DF_GT_1_0_F -0.63192230463027954102f
+# define RVV_ERFF_DF_GT_1_1_F -2.0200432585073177859e-08f
+# define RVV_ERFF_DF_GT_2_0_F -1.1296638250350952148f
+# define RVV_ERFF_DF_GT_2_1_F 2.5515120196453259252e-08f
+# define RVV_ERFF_EXP_POLY_0_F 0.00136324646882712841033936f
+# define RVV_ERFF_EXP_POLY_1_F 0.00836596917361021041870117f
+# define RVV_ERFF_EXP_POLY_2_F 0.0416710823774337768554688f
+# define RVV_ERFF_EXP_POLY_3_F 0.166665524244308471679688f
+# define RVV_ERFF_EXP_POLY_4_F 0.499999850988388061523438f
 # define RVV_ERFF_R_LN2_F RVV_SLEEF_EXPM1F_R_LN2
 # define RVV_ERFF_L2U_F RVV_SLEEF_EXPM1F_L2U
 # define RVV_ERFF_L2L_F RVV_SLEEF_EXPM1F_L2L
+# define RVV_ERFF_TWO_OVER_SQRT_PI_F -1.1283792257308959961f
+# define RVV_ERFF_TWO_OVER_SQRT_PI_LO_F 5.8635383422197591097e-08f
+# define RVV_ERFF_RANGE_SPLIT_F 2.5f
+# define RVV_ERFF_SATURATION_THRESHOLD_F 6.0f
+# define RVV_ERFF_TINY_THRESHOLD_F 1e-4f
+# define RVV_ERFF_EXP_UNDERFLOW_F RVV_SLEEF_EXPM1F_UNDERFLOW
 #endif
 
 /* Fixed coefficients shared by the erfcf clean and source-original paths.  */
@@ -805,6 +840,58 @@ static const scalar_t fp_posInf = __builtin_inff ();
   RVV_SLEEF_ORIG_ERFCF_HELPER_NAME2 (name, lmul, simdlen)
 #define RVV_SLEEF_ORIG_ERFCF_HELPER(name) \
   RVV_SLEEF_ORIG_ERFCF_HELPER_NAME (name, LMUL, SIMDLEN)
+
+/* Shared importer-qualified helper names for the single-precision erff
+   source-shaped finite graphs.  The helper bodies remain in the two erff
+   skeletons; only their LMUL/SIMDLEN naming and source RNE conversion are
+   common here.  */
+#undef RVV_ERFF_POLY2DF_VF2
+#undef RVV_ERFF_POLY2DF_B_VF2
+#undef RVV_ERFF_POLY4DF_VF2
+#undef RVV_ERFF_EXPKF_VF2
+#undef RVV_ERFF_VLDEXP_VF
+#define RVV_ERFF_POLY2DF_VF2 \
+  __PASTE4 (erff_poly2df_vf2_, LMUL, _, SIMDLEN)
+#define RVV_ERFF_POLY2DF_B_VF2 \
+  __PASTE4 (erff_poly2df_b_vf2_, LMUL, _, SIMDLEN)
+#define RVV_ERFF_POLY4DF_VF2 \
+  __PASTE4 (erff_poly4df_vf2_, LMUL, _, SIMDLEN)
+#define RVV_ERFF_EXPKF_VF2 \
+  __PASTE4 (erff_expkf_vf2_, LMUL, _, SIMDLEN)
+#define RVV_ERFF_VLDEXP_VF \
+  __PASTE4 (erff_vldexp_vf_, LMUL, _, SIMDLEN)
+
+#undef RVV_SLEEF_ORIG_ERFF_VFCVT_X_RNE
+#undef RVV_SLEEF_ORIG_ERFF_HELPER_NAME2
+#undef RVV_SLEEF_ORIG_ERFF_HELPER_NAME
+#undef RVV_SLEEF_ORIG_ERFF_HELPER
+#define RVV_SLEEF_ORIG_ERFF_VFCVT_X_RNE(value, vlen) \
+  RVV_VFCVT_X_F_RNE ((value), (vlen))
+#define RVV_SLEEF_ORIG_ERFF_HELPER_NAME2(name, lmul, simdlen) \
+  rvv_sleef_orig_erff_##name##_##lmul##_##simdlen
+#define RVV_SLEEF_ORIG_ERFF_HELPER_NAME(name, lmul, simdlen) \
+  RVV_SLEEF_ORIG_ERFF_HELPER_NAME2 (name, lmul, simdlen)
+#define RVV_SLEEF_ORIG_ERFF_HELPER(name) \
+  RVV_SLEEF_ORIG_ERFF_HELPER_NAME (name, LMUL, SIMDLEN)
+
+/* Source-shaped single-precision erff uses the uncompensated scalar-plus
+   double-float addition spelling from SLEEF.  Keep it separate from the
+   compensated clean DFADD2 helper.  */
+#ifndef RVV_ERFF_SOURCE_DF_HELPERS
+# define RVV_ERFF_SOURCE_DF_HELPERS
+# define DFADD_VF2_VF_VF2(a, b_hi, b_lo, r_hi, r_lo, vlen)                   \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _a = (a);                                                        \
+      VFLOAT _b_hi = (b_hi);                                                  \
+      VFLOAT _b_lo = (b_lo);                                                  \
+      VFLOAT _s = VFADD_VV (_a, _b_hi, (vlen));                               \
+      VFLOAT _v = VFSUB_VV (_s, _a, (vlen));                                  \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (VFSUB_VV (_b_hi, _v, (vlen)), _b_lo, (vlen));        \
+    }                                                                         \
+  while (0)
+#endif
 
 /* The source-shaped asinf helper is embedded by the asinpif comparator.
    Select its public body from the importer function name so the helper

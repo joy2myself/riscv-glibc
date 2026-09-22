@@ -583,5 +583,27 @@ libmvec {
     _ZGVr8N16v_erfcf_original;
     _ZGVr8N32v_erfcf_original;
     _ZGVr8N64v_erfcf_original;
+    _ZGVr1N4v_erff;
+    _ZGVr1N8v_erff;
+    _ZGVr2N4v_erff;
+    _ZGVr2N8v_erff;
+    _ZGVr2N16v_erff;
+    _ZGVr4N8v_erff;
+    _ZGVr4N16v_erff;
+    _ZGVr4N32v_erff;
+    _ZGVr8N16v_erff;
+    _ZGVr8N32v_erff;
+    _ZGVr8N64v_erff;
+    _ZGVr1N4v_erff_original;
+    _ZGVr1N8v_erff_original;
+    _ZGVr2N4v_erff_original;
+    _ZGVr2N8v_erff_original;
+    _ZGVr2N16v_erff_original;
+    _ZGVr4N8v_erff_original;
+    _ZGVr4N16v_erff_original;
+    _ZGVr4N32v_erff_original;
+    _ZGVr8N16v_erff_original;
+    _ZGVr8N32v_erff_original;
+    _ZGVr8N64v_erff_original;
   }
 }
