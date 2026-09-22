@@ -1503,6 +1503,18 @@ static const scalar_t fp_posInf = __builtin_inff ();
   RVV_MATH_IS_FASTCOSF_HELPERS_ONLY_INNER (name)
 #endif
 
+/* The source-shaped log1pf skeleton is embedded by clean log1pf.  Select
+   only its finite helper bodies for that importer; the source-original
+   importer receives the public comparison body.  */
+#ifndef RVV_MATH_IS_LOG1PF_HELPERS_ONLY_log1pf
+# define RVV_MATH_IS_LOG1PF_HELPERS_ONLY_log1pf 1
+# define RVV_MATH_IS_LOG1PF_HELPERS_ONLY_log1pf_original 0
+# define RVV_MATH_IS_LOG1PF_HELPERS_ONLY_INNER(name) \
+  RVV_MATH_IS_LOG1PF_HELPERS_ONLY_##name
+# define RVV_MATH_IS_LOG1PF_HELPERS_ONLY(name) \
+  RVV_MATH_IS_LOG1PF_HELPERS_ONLY_INNER (name)
+#endif
+
 /* The private xcosf fallback needs the clean quarantine only when it is used
    as a provider by clean fastcosf.  The source-original fastcosf retains the
    source's late conversion and special-value ordering.  */
@@ -2954,6 +2966,158 @@ RVV_LOG2F_DEFINE_HELPERS (8)
   RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG_##name
 # define RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG(name)                        \
   RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG_INNER (name)
+#endif
+
+/* Masked double-float helpers for the source-shaped log1pf finite graph.
+   These are used only by clean log1pf when finite and EH-special lanes are
+   mixed.  Keep the active-lane operation order identical to the unmasked
+   source helpers above.  */
+#ifndef RVV_SLEEF_LOG1PF_MASKED_DF
+# define RVV_SLEEF_LOG1PF_MASKED_DF
+# define RVV_SLEEF_LOG1PF_ADD_VV_M(mask, a, b, vlen) \
+  __riscv_vfadd ((mask), (a), (b), (vlen))
+# define RVV_SLEEF_LOG1PF_ADD_VF_M(mask, a, b, vlen) \
+  __riscv_vfadd ((mask), (a), (b), (vlen))
+# define RVV_SLEEF_LOG1PF_SUB_VV_M(mask, a, b, vlen) \
+  __riscv_vfsub ((mask), (a), (b), (vlen))
+# define RVV_SLEEF_LOG1PF_SUB_VF_M(mask, a, b, vlen) \
+  __riscv_vfsub ((mask), (a), (b), (vlen))
+# define RVV_SLEEF_LOG1PF_MUL_VV_M(mask, a, b, vlen) \
+  __riscv_vfmul ((mask), (a), (b), (vlen))
+# define RVV_SLEEF_LOG1PF_MUL_VF_M(mask, a, b, vlen) \
+  __riscv_vfmul ((mask), (a), (b), (vlen))
+# define RVV_SLEEF_LOG1PF_MADD_VV_M(mask, a, b, c, vlen) \
+  __riscv_vfmadd ((mask), (a), (b), (c), (vlen))
+# define RVV_SLEEF_LOG1PF_MSUB_VV_M(mask, a, b, c, vlen) \
+  __riscv_vfmsub ((mask), (a), (b), (c), (vlen))
+# define RVV_SLEEF_LOG1PF_NMSUB_VV_M(mask, a, b, c, vlen) \
+  __riscv_vfnmsub ((mask), (a), (b), (c), (vlen))
+# define RVV_SLEEF_LOG1PF_DIV_VV_M(mask, a, b, vlen) \
+  __riscv_vfdiv ((mask), (a), (b), (vlen))
+
+# define RVV_SLEEF_LOG1PF_DFMUL_VF2_VF_M(mask, x_hi, x_lo, y, r_hi, r_lo, \
+                                         vlen)                                \
+  do                                                                         \
+    {                                                                        \
+      VFLOAT _x_hi = (x_hi);                                                 \
+      VFLOAT _x_lo = (x_lo);                                                 \
+      VFLOAT _y = (y);                                                       \
+      VFLOAT _s = RVV_SLEEF_LOG1PF_MUL_VV_M ((mask), _x_hi, _y, (vlen));     \
+      (r_hi) = _s;                                                           \
+      (r_lo) = RVV_SLEEF_LOG1PF_MADD_VV_M                                  \
+        ((mask), _x_lo, _y,                                                   \
+         RVV_SLEEF_LOG1PF_MSUB_VV_M ((mask), _x_hi, _y, _s, (vlen)),         \
+         (vlen));                                                            \
+    }                                                                        \
+  while (0)
+
+# define RVV_SLEEF_LOG1PF_DFADD2_VF_VF_M(mask, x, y, r_hi, r_lo, vlen)       \
+  do                                                                         \
+    {                                                                        \
+      VFLOAT _x = (x);                                                       \
+      VFLOAT _y = (y);                                                       \
+      VFLOAT _s = RVV_SLEEF_LOG1PF_ADD_VV_M ((mask), _x, _y, (vlen));       \
+      VFLOAT _v = RVV_SLEEF_LOG1PF_SUB_VV_M ((mask), _s, _x, (vlen));       \
+      (r_hi) = _s;                                                           \
+      (r_lo) = RVV_SLEEF_LOG1PF_ADD_VV_M                                   \
+        ((mask),                                                              \
+         RVV_SLEEF_LOG1PF_SUB_VV_M                                          \
+           ((mask), _x,                                                      \
+            RVV_SLEEF_LOG1PF_SUB_VV_M ((mask), _s, _v, (vlen)), (vlen)),      \
+         RVV_SLEEF_LOG1PF_SUB_VV_M ((mask), _y, _v, (vlen)), (vlen));        \
+    }                                                                        \
+  while (0)
+
+# define RVV_SLEEF_LOG1PF_DFADD_VF_VF_M(mask, x, y, r_hi, r_lo, vlen)        \
+  do                                                                         \
+    {                                                                        \
+      VFLOAT _x = (x);                                                       \
+      VFLOAT _y = (y);                                                       \
+      VFLOAT _s = RVV_SLEEF_LOG1PF_ADD_VV_M ((mask), _x, _y, (vlen));       \
+      (r_hi) = _s;                                                           \
+      (r_lo) = RVV_SLEEF_LOG1PF_ADD_VV_M                                   \
+        ((mask), RVV_SLEEF_LOG1PF_SUB_VV_M ((mask), _x, _s, (vlen)), _y,    \
+         (vlen));                                                            \
+    }                                                                        \
+  while (0)
+
+# define RVV_SLEEF_LOG1PF_DFADD_VF2_VF2_M(mask, x_hi, x_lo, y_hi, y_lo,     \
+                                          r_hi, r_lo, vlen)                  \
+  do                                                                         \
+    {                                                                        \
+      VFLOAT _x_hi = (x_hi);                                                 \
+      VFLOAT _x_lo = (x_lo);                                                 \
+      VFLOAT _y_hi = (y_hi);                                                 \
+      VFLOAT _y_lo = (y_lo);                                                 \
+      VFLOAT _s = RVV_SLEEF_LOG1PF_ADD_VV_M                                \
+        ((mask), _x_hi, _y_hi, (vlen));                                     \
+      VFLOAT _t = RVV_SLEEF_LOG1PF_ADD_VV_M                                \
+        ((mask), RVV_SLEEF_LOG1PF_SUB_VV_M ((mask), _x_hi, _s, (vlen)),      \
+         _y_hi, (vlen));                                                     \
+      _t = RVV_SLEEF_LOG1PF_ADD_VV_M ((mask), _t, _x_lo, (vlen));            \
+      _t = RVV_SLEEF_LOG1PF_ADD_VV_M ((mask), _t, _y_lo, (vlen));            \
+      (r_hi) = _s;                                                           \
+      (r_lo) = _t;                                                           \
+    }                                                                        \
+  while (0)
+
+# define RVV_SLEEF_LOG1PF_DFADD_VF2_VF2_VF_M(mask, x_hi, x_lo, y, r_hi,     \
+                                             r_lo, vlen)                     \
+  do                                                                         \
+    {                                                                        \
+      VFLOAT _x_hi = (x_hi);                                                 \
+      VFLOAT _x_lo = (x_lo);                                                 \
+      VFLOAT _y = (y);                                                       \
+      VFLOAT _s = RVV_SLEEF_LOG1PF_ADD_VV_M                                \
+        ((mask), _x_hi, _y, (vlen));                                         \
+      VFLOAT _t = RVV_SLEEF_LOG1PF_ADD_VV_M                                \
+        ((mask), RVV_SLEEF_LOG1PF_SUB_VV_M ((mask), _x_hi, _s, (vlen)),      \
+         _y, (vlen));                                                        \
+      (r_hi) = _s;                                                           \
+      (r_lo) = RVV_SLEEF_LOG1PF_ADD_VV_M ((mask), _t, _x_lo, (vlen));        \
+    }                                                                        \
+  while (0)
+
+# define RVV_SLEEF_LOG1PF_DFSCALE_VF2_VF_M(mask, x_hi, x_lo, scale, r_hi,   \
+                                           r_lo, vlen)                       \
+  do                                                                         \
+    {                                                                        \
+      VFLOAT _x_hi = (x_hi);                                                 \
+      VFLOAT _x_lo = (x_lo);                                                 \
+      VFLOAT _scale = (scale);                                               \
+      (r_hi) = RVV_SLEEF_LOG1PF_MUL_VV_M                                    \
+        ((mask), _x_hi, _scale, (vlen));                                     \
+      (r_lo) = RVV_SLEEF_LOG1PF_MUL_VV_M                                    \
+        ((mask), _x_lo, _scale, (vlen));                                     \
+    }                                                                        \
+  while (0)
+
+# define RVV_SLEEF_LOG1PF_DFDIV_VF2_VF2_M(mask, n_hi, n_lo, d_hi, d_lo,     \
+                                          r_hi, r_lo, vlen)                  \
+  do                                                                         \
+    {                                                                        \
+      VFLOAT _n_hi = (n_hi);                                                 \
+      VFLOAT _n_lo = (n_lo);                                                 \
+      VFLOAT _d_hi = (d_hi);                                                 \
+      VFLOAT _d_lo = (d_lo);                                                 \
+      VFLOAT _one = VFMV_VF (1.0f, (vlen));                                  \
+      VFLOAT _t = RVV_SLEEF_LOG1PF_DIV_VV_M                                  \
+        ((mask), _one, _d_hi, (vlen));                                       \
+      VFLOAT _s = RVV_SLEEF_LOG1PF_MUL_VV_M                                 \
+        ((mask), _n_hi, _t, (vlen));                                         \
+      VFLOAT _u = RVV_SLEEF_LOG1PF_MSUB_VV_M                                \
+        ((mask), _t, _n_hi, _s, (vlen));                                     \
+      VFLOAT _v = RVV_SLEEF_LOG1PF_NMSUB_VV_M                               \
+        ((mask), _d_hi, _t, _one, (vlen));                                   \
+      _v = RVV_SLEEF_LOG1PF_NMSUB_VV_M                                      \
+        ((mask), _d_lo, _t, _v, (vlen));                                     \
+      VFLOAT _nlo_t = RVV_SLEEF_LOG1PF_MADD_VV_M                             \
+        ((mask), _n_lo, _t, _u, (vlen));                                     \
+      (r_hi) = _s;                                                           \
+      (r_lo) = RVV_SLEEF_LOG1PF_MADD_VV_M                                    \
+        ((mask), _s, _v, _nlo_t, (vlen));                                    \
+    }                                                                        \
+  while (0)
 #endif
 
 /* Shared coshf importer names.  The clean source-shaped helper and the
