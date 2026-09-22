@@ -107,6 +107,7 @@ static const uint64_t class_finite_pos = 0x60;
 #define RVV_SLEEF_EXPM1F_TAYLOR_C \
   0.166666659414234244790680580464e+0f
 #define RVV_SLEEF_EXPM1F_MAX_FINITE 0x1.fffffep+127f
+#define RVV_SLEEF_EXPM1F_MIN_SUBNORMAL 0x1.0p-149f
 #define RVV_SLEEF_EXPM1F_HALF 0.5f
 #define RVV_SLEEF_EXPM1F_TWO 2.0f
 
@@ -121,6 +122,12 @@ static const uint64_t class_finite_pos = 0x60;
 #define RVV_LIBMVEC_COSHF_LARGE_NEUTRAL_HI RVV_SLEEF_COSHF_TWO_L2U
 #define RVV_LIBMVEC_COSHF_LARGE_NEUTRAL_LO RVV_SLEEF_COSHF_TWO_L2L
 #define RVV_SLEEF_COSHF_SOURCE_THRESHOLD 89.0f
+
+/* This is the rounded low part used by the binary32 clean-side split.  */
+#define RVV_LIBMVEC_LN2_LO_F -1.904654323148236017e-09f
+#define RVV_LIBMVEC_EXP2M1F_MAX 128.0f
+#define RVV_LIBMVEC_EXP2M1F_MIN -25.0f
+#define RVV_LIBMVEC_EXP2M1F_EXACT_INT_LIMIT 24.0f
 
 /* Scalar constants shared by the SLEEF single-precision trigonometric
    reduction paths.  Keep the actual rempif lookup table in
