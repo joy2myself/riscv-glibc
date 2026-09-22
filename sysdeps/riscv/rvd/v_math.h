@@ -869,6 +869,28 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_EXP10M1_OUTER_POLY2_D 0x1.5555555555555p-5
 #define RVV_EXP10M1_OUTER_POLY3_D 0x1.5555555555555p-3
 #define RVV_EXP10M1_OUTER_POLY4_D 0x1.0000000000000p-1
+
+/* Scalar constants for the double-precision exp2m1 kernel.  Its exp2 and
+   scalem1 lookup tables remain indexed data in v_d_exp2m1_data.c.  */
+#ifndef RVV_EXP2M1_CONSTANTS
+# define RVV_EXP2M1_CONSTANTS
+# define RVV_EXP2M1_SPECIAL_BOUND_D 1022.0
+# define RVV_EXP2M1_SCALE_BOUND_D 1280.0
+# define RVV_EXP2M1_TABLE_BOUND_D 0x1.5bfffffffffffp-2
+# define RVV_EXP2M1_SPECIAL_OFFSET RVV_EXP10M1_SPECIAL_OFFSET
+# define RVV_EXP2M1_SPECIAL_BIAS RVV_EXP10M1_SPECIAL_BIAS1
+# define RVV_EXP2M1_SPECIAL_BIAS2 RVV_EXP10M1_SPECIAL_BIAS2
+# define RVV_EXP2M1_SHIFT_D (0x1.8p52 / V_EXP2M1_N)
+# define RVV_EXP2M1_LOG2_HI_D RVV_LN2_HI_D
+# define RVV_EXP2M1_LOG2_LO_D RVV_LN2_LO_D
+# define RVV_EXP2M1_C1_D 0x1.ebfbdff82c58ep-3
+# define RVV_EXP2M1_C2_D 0x1.c6b08d71f5804p-5
+# define RVV_EXP2M1_C3_D 0x1.3b2ab6fee7509p-7
+# define RVV_EXP2M1_C4_D 0x1.5d1d37eb33b15p-10
+# define RVV_EXP2M1_C5_D 0x1.423f35f371d9ap-13
+# define RVV_EXP2M1_C6_D 0x1.e7d57ad9a5f93p-5
+# define RVV_EXP2M1_INV_LN2_D RVV_LN2_INV_D
+#endif
 #define RVV_EXP2F_CLEAN_MAX_INPUT_F 128.0f
 #define RVV_EXP2F_CLEAN_MIN_INPUT_F -150.0f
 #define RVV_EXP2F_CLEAN_MAX_FINITE_F 0x1.fffffep127f

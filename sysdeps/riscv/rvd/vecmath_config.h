@@ -222,6 +222,15 @@ extern const struct v_log_data
   const int64_t table[1 << V_LOG_TABLE_BITS];
 } __v_log_data attribute_hidden;
 
+/* Shared constants and tables for the double-precision exp2m1 implementation.  */
+#define V_EXP2M1_TABLE_BITS 7
+#define V_EXP2M1_N (1 << V_EXP2M1_TABLE_BITS)
+extern const struct v_exp2m1_data
+{
+  const uint64_t exp2_tab[2 * V_EXP2M1_N];
+  const uint64_t scalem1_tab[88];
+} __v_exp2m1_data attribute_hidden;
+
 /* Lookup tables for the double-precision exp10m1 implementation.  */
 extern const struct v_exp10m1_data
 {
