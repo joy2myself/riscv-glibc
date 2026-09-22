@@ -160,6 +160,19 @@ extern const struct v_cos_data
     }                                                                         \
   while (0)
 
+#define DIV_N2D2(numer, delta_n, denom, delta_d, q, vlen)                     \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _tmp;                                                            \
+      (q) = __riscv_vfdiv ((numer), (denom), (vlen));                         \
+      _tmp = __riscv_vfnmsub ((q), (denom), (numer), (vlen));                 \
+      _tmp = __riscv_vfnmsac (_tmp, (q), (delta_d), (vlen));                  \
+      _tmp = __riscv_vfadd (_tmp, (delta_n), (vlen));                         \
+      _tmp = __riscv_vfmul (_tmp, __riscv_vfrec7 ((denom), (vlen)), (vlen));  \
+      (q) = __riscv_vfadd ((q), _tmp, (vlen));                                \
+    }                                                                         \
+  while (0)
+
 #define DIV2_N2D2(numer, delta_n, denom, delta_d, q_hi, q_lo, vlen)          \
   do                                                                          \
     {                                                                         \
