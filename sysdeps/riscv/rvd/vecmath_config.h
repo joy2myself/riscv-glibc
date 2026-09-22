@@ -173,6 +173,12 @@ __BEGIN_DECLS
 #define PSTEPN_I(coeff_j, x, poly, vlen)                                      \
   __riscv_vrsub (__riscv_vsmul ((poly), (x), 1, (vlen)), (coeff_j), (vlen))
 
+#define PSTEP_I_ab(pick_a, coeff_a, coeff_b, x, poly, vlen)                   \
+  __riscv_vsadd (__riscv_vsmul ((poly), (x), 1, (vlen)),                      \
+                 VMERGE_VXM_I (VMVI_VX ((coeff_b), (vlen)), (coeff_a),       \
+                               (pick_a), (vlen)),                             \
+                 (vlen))
+
 #define IDENTIFY(vclass, stencil, identity_mask, vlen)                        \
   identity_mask = __riscv_vmsgtu (__riscv_vand ((vclass), (stencil), (vlen)), \
                                   0, (vlen))
