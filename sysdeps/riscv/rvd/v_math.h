@@ -215,6 +215,7 @@ RVV_SLEEF_ORIG_F64_TO_F32 (double value)
 #undef MAN_LEN
 #undef EXP_BIAS_F
 #undef MAN_LEN_F
+#undef BIT_WIDTH_F
 #undef fp_negOne_f
 #undef fp_sNaN_f
 
@@ -258,6 +259,7 @@ static const scalar_t fp_posInf = __builtin_inff ();
 
 #define EXP_BIAS_F EXP_BIAS
 #define MAN_LEN_F MAN_LEN
+#define BIT_WIDTH_F BIT_WIDTH
 #define fp_posOne_f fp_posOne
 #define fp_posZero_f fp_posZero
 #define fp_posInf_f fp_posInf
@@ -443,6 +445,23 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_SLEEF_LOG_U1_POLY2_F 0.6666694880e+0f
 #define RVV_LOG1PF_LN2_HI_F RVV_SLEEF_LOG_U1_LN2_HI_F
 #define RVV_LOG1PF_LN2_LO_F RVV_SLEEF_LOG_U1_LN2_LO_F
+#define RVV_COSPIF_TINY_EXPONENT 99u
+#define RVV_COSPIF_LARGE_EXPONENT 151u
+#define RVV_COSPIF_TRIG_RANGE_MAX4_F 8.0e6f
+#define RVV_COSPIF_POLY_COS0_F 0.3093842054e-6f
+#define RVV_COSPIF_POLY_SIN0_F -0.2430611801e-7f
+#define RVV_COSPIF_POLY_COS1_F -0.3657307388e-4f
+#define RVV_COSPIF_POLY_SIN1_F 0.3590577080e-5f
+#define RVV_COSPIF_POLY_COS2_F 0.2490393585e-2f
+#define RVV_COSPIF_POLY_SIN2_F -0.3259917721e-3f
+#define RVV_COSPIF_DF_FIRST_COS_HI_F -0.080745510756969451904f
+#define RVV_COSPIF_DF_FIRST_COS_LO_F -1.3373665339076936258e-09f
+#define RVV_COSPIF_DF_FIRST_SIN_HI_F 0.015854343771934509277f
+#define RVV_COSPIF_DF_FIRST_SIN_LO_F 4.4940051354032242811e-10f
+#define RVV_COSPIF_DF_SECOND_COS_HI_F 0.78539818525314331055f
+#define RVV_COSPIF_DF_SECOND_COS_LO_F -2.1857338617566484855e-08f
+#define RVV_COSPIF_DF_SECOND_SIN_HI_F -0.30842512845993041992f
+#define RVV_COSPIF_DF_SECOND_SIN_LO_F -9.0728339030733922277e-09f
 
 /* Fixed coefficients for the single-precision gamma helpers.  Preserve
    the source float/double types and the explicit conversion points.  */
@@ -1416,6 +1435,45 @@ static const scalar_t fp_posInf = __builtin_inff ();
 
 #endif /* RVV_COSHF_CLEAN_DF_HELPERS */
 
+/* Float-float additions used by the clean cospif kernel.  Keep these
+   importer-dependent operations in the common math header; the skeleton
+   itself should expose only the algorithm and its data accesses.  */
+#ifndef RVV_COSPIF_CLEAN_DF_HELPERS
+# define RVV_COSPIF_CLEAN_DF_HELPERS
+
+# define DFADD2_VF2_VF(a_hi, a_lo, b, r_hi, r_lo, vlen)                      \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _a_hi = (a_hi);                                                  \
+      VFLOAT _a_lo = (a_lo);                                                  \
+      VFLOAT _b = (b);                                                        \
+      VFLOAT _s = VFADD_VV (_a_hi, _b, (vlen));                               \
+      VFLOAT _v = VFSUB_VV (_s, _a_hi, (vlen));                               \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (                                                     \
+          VFADD_VV (VFSUB_VV (_a_hi, VFSUB_VV (_s, _v, (vlen)), (vlen)),      \
+                    VFSUB_VV (_b, _v, (vlen)), (vlen)),                       \
+          _a_lo, (vlen));                                                     \
+    }                                                                         \
+  while (0)
+
+# define DFADD2_VF2_VF_VF2(x, y_hi, y_lo, r_hi, r_lo, vlen)                   \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x = (x);                                                        \
+      VFLOAT _y_hi = (y_hi);                                                  \
+      VFLOAT _y_lo = (y_lo);                                                  \
+      VFLOAT _s = VFADD_VV (_x, _y_hi, (vlen));                               \
+      VFLOAT _v = VFSUB_VV (_s, _x, (vlen));                                  \
+      VFLOAT _t = VFADD_VV (VFSUB_VV (_x, VFSUB_VV (_s, _v, (vlen)), (vlen)), \
+                            VFSUB_VV (_y_hi, _v, (vlen)), (vlen));             \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (_t, _y_lo, (vlen));                                  \
+    }                                                                         \
+  while (0)
+
+#endif /* RVV_COSPIF_CLEAN_DF_HELPERS */
+
 /* Fixed scalar coefficients and endpoint constants for the single-precision
    atan family.  */
 #ifndef RVV_ATANF_CONSTANTS
@@ -1500,6 +1558,15 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #undef RVV_SLEEF_ORIG_COSHF_EXPK2F
 #define RVV_SLEEF_ORIG_COSHF_EXPK2F \
   RVV_SLEEF_ORIG_COSHF_MANGLE (rvv_sleef_orig_coshf_expk2f_m)
+
+/* Shared source-association helper names for the single-precision cospif
+   finite graph.  The helper body remains in the clean skeleton, while its
+   importer-qualified name is owned here.  */
+#undef RVV_COSPIF_SOURCE_MANGLE
+#define RVV_COSPIF_SOURCE_MANGLE(base) __PASTE3 (base, _m, LMUL)
+#undef RVV_COSPIF_SOURCE_DFMUL_PAIR_PAIR
+#define RVV_COSPIF_SOURCE_DFMUL_PAIR_PAIR \
+  RVV_COSPIF_SOURCE_MANGLE (cospif_source_dfmul_pair_pair)
 
 #if defined(RVV_LIBMVEC_ATAN2F_HELPERS)                                        \
   || RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG (V_MATH_FUNC)

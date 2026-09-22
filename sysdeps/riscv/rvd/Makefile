@@ -25,7 +25,8 @@ libmvec-source-original-routines = \
   v_f_exp2f_original \
   v_f_cbrtf_original \
   v_f_cosf_original \
-  v_f_coshf_original
+  v_f_coshf_original \
+  v_f_cospif_original
 
 libmvec-sysdep_routines += $(libmvec-source-original-routines)
 

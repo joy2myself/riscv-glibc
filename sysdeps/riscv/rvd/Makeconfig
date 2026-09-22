@@ -35,6 +35,7 @@ libmvec-float-funcs-bare = \
   cbrtf \
   cosf \
   coshf \
+  cospif \
 
 libmvec-float-funcs-with-data = \
 
@@ -135,6 +136,7 @@ libmvec-float-bench-funcs = \
   cbrtf \
   cosf \
   coshf \
+  cospif \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \
