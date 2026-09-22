@@ -6,11 +6,6 @@ libmvec-sysdep_routines = \
 	$(addprefix v_f_, $(libmvec-float-funcs)) \
 	$(addsuffix _data, $(addprefix v_f_, $(libmvec-float-funcs-with-data))) \
 
-libmvec-support-routines = \
-  v_d_cos_data
-
-libmvec-sysdep_routines += $(libmvec-support-routines)
-
 libmvec-source-original-routines = \
   v_f_acosf_original
 
