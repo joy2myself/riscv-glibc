@@ -687,10 +687,116 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_ERFINV_LOG_POLY_LEFT1_D 0x1.249249501b1adp-9
 #define RVV_ERFINV_LOG_POLY_LEFT2_D 0x1.c71c47e7189f6p-12
 #define RVV_ERFINV_LOG_POLY_LEFT3_D 0x1.55555555555dbp-4
+#define RVV_ERFCINV_P_RIGHT0_I RVV_ERFINV_P_LEFT0_I
+#define RVV_ERFCINV_P_RIGHT1_I RVV_ERFINV_P_LEFT1_I
+#define RVV_ERFCINV_P_RIGHT2_I RVV_ERFINV_P_LEFT2_I
+#define RVV_ERFCINV_P_RIGHT3_I RVV_ERFINV_P_LEFT3_I
+#define RVV_ERFCINV_P_RIGHT4_I RVV_ERFINV_P_LEFT4_I
+#define RVV_ERFCINV_P_RIGHT5_I RVV_ERFINV_P_LEFT5_I
+#define RVV_ERFCINV_P_RIGHT6_I RVV_ERFINV_P_LEFT6_I
+#define RVV_ERFCINV_P_RIGHT7_I RVV_ERFINV_P_LEFT7_I
+#define RVV_ERFCINV_P_RIGHT8_I RVV_ERFINV_P_LEFT8_I
+#define RVV_ERFCINV_P_RIGHT9_I RVV_ERFINV_P_LEFT9_I
+#define RVV_ERFCINV_P_RIGHT10_I RVV_ERFINV_P_LEFT10_I
+#define RVV_ERFCINV_Q_RIGHT0_I RVV_ERFINV_Q_LEFT0_I
+#define RVV_ERFCINV_Q_RIGHT1_I RVV_ERFINV_Q_LEFT1_I
+#define RVV_ERFCINV_Q_RIGHT2_I RVV_ERFINV_Q_LEFT2_I
+#define RVV_ERFCINV_Q_RIGHT3_I RVV_ERFINV_Q_LEFT3_I
+#define RVV_ERFCINV_Q_RIGHT4_I RVV_ERFINV_Q_LEFT4_I
+#define RVV_ERFCINV_Q_RIGHT5_I RVV_ERFINV_Q_LEFT5_I
+#define RVV_ERFCINV_Q_RIGHT6_I RVV_ERFINV_Q_LEFT6_I
+#define RVV_ERFCINV_Q_RIGHT7_I RVV_ERFINV_Q_LEFT7_I
+#define RVV_ERFCINV_Q_RIGHT8_I RVV_ERFINV_Q_LEFT8_I
+#define RVV_ERFCINV_Q_RIGHT9_I RVV_ERFINV_Q_LEFT9_I
+#define RVV_ERFCINV_Q_RIGHT10_I RVV_ERFINV_Q_LEFT10_I
+#define RVV_ERFCINV_P_LEFT0_I RVV_ERFINV_P_RIGHT0_I
+#define RVV_ERFCINV_P_LEFT1_I RVV_ERFINV_P_RIGHT1_I
+#define RVV_ERFCINV_P_LEFT2_I RVV_ERFINV_P_RIGHT2_I
+#define RVV_ERFCINV_P_LEFT3_I RVV_ERFINV_P_RIGHT3_I
+#define RVV_ERFCINV_P_LEFT4_I RVV_ERFINV_P_RIGHT4_I
+#define RVV_ERFCINV_P_LEFT5_I RVV_ERFINV_P_RIGHT5_I
+#define RVV_ERFCINV_P_LEFT6_I RVV_ERFINV_P_RIGHT6_I
+#define RVV_ERFCINV_P_LEFT7_I RVV_ERFINV_P_RIGHT7_I
+#define RVV_ERFCINV_P_LEFT8_I RVV_ERFINV_P_RIGHT8_I
+#define RVV_ERFCINV_P_LEFT9_I RVV_ERFINV_P_RIGHT9_I
+#define RVV_ERFCINV_P_LEFT10_I RVV_ERFINV_P_RIGHT10_I
+#define RVV_ERFCINV_Q_LEFT0_I RVV_ERFINV_Q_RIGHT0_I
+#define RVV_ERFCINV_Q_LEFT1_I RVV_ERFINV_Q_RIGHT1_I
+#define RVV_ERFCINV_Q_LEFT2_I RVV_ERFINV_Q_RIGHT2_I
+#define RVV_ERFCINV_Q_LEFT3_I RVV_ERFINV_Q_RIGHT3_I
+#define RVV_ERFCINV_Q_LEFT4_I RVV_ERFINV_Q_RIGHT4_I
+#define RVV_ERFCINV_Q_LEFT5_I RVV_ERFINV_Q_RIGHT5_I
+#define RVV_ERFCINV_Q_LEFT6_I RVV_ERFINV_Q_RIGHT6_I
+#define RVV_ERFCINV_Q_LEFT7_I RVV_ERFINV_Q_RIGHT7_I
+#define RVV_ERFCINV_Q_LEFT8_I RVV_ERFINV_Q_RIGHT8_I
+#define RVV_ERFCINV_Q_LEFT9_I RVV_ERFINV_Q_RIGHT9_I
+#define RVV_ERFCINV_Q_LEFT10_I RVV_ERFINV_Q_RIGHT10_I
+#define RVV_ERFCINV_LOG_POLY_RIGHT0_D RVV_ERFINV_LOG_POLY_RIGHT0_D
+#define RVV_ERFCINV_LOG_POLY_RIGHT1_D RVV_ERFINV_LOG_POLY_RIGHT1_D
+#define RVV_ERFCINV_LOG_POLY_RIGHT2_D RVV_ERFINV_LOG_POLY_RIGHT2_D
+#define RVV_ERFCINV_LOG_POLY_LEFT0_D RVV_ERFINV_LOG_POLY_LEFT0_D
+#define RVV_ERFCINV_LOG_POLY_LEFT1_D RVV_ERFINV_LOG_POLY_LEFT1_D
+#define RVV_ERFCINV_LOG_POLY_LEFT2_D RVV_ERFINV_LOG_POLY_LEFT2_D
+#define RVV_ERFCINV_LOG_POLY_LEFT3_D RVV_ERFINV_LOG_POLY_LEFT3_D
+#define RVV_ERFCINV_P_TINY_HI0_I -0x8593442eLL
+#define RVV_ERFCINV_P_TINY_HI1_I -0x7f3dc156b1LL
+#define RVV_ERFCINV_P_TINY_HI2_I -0x20dbbc67b1b8LL
+#define RVV_ERFCINV_P_TINY_HI3_I -0x30c75b8264d44LL
+#define RVV_ERFCINV_P_TINY_HI4_I -0x1ab06f39e5addeLL
+#define RVV_ERFCINV_P_TINY_HI5_I -0x3d698fc2964a9cLL
+#define RVV_ERFCINV_P_TINY_HI6_I 0x7f7d6a748d0c2fLL
+#define RVV_ERFCINV_P_TINY_HI7_I 0x18b100818c77848LL
+#define RVV_ERFCINV_P_TINY_HI8_I 0x4be1ed5d031774LL
+#define RVV_ERFCINV_P_TINY_HI9_I 0x156a7e2e54e260LL
+#define RVV_ERFCINV_P_TINY_LO0_I -0x4e7245b3LL
+#define RVV_ERFCINV_P_TINY_LO1_I -0x1f0300096LL
+#define RVV_ERFCINV_P_TINY_LO2_I -0xbc59b742LL
+#define RVV_ERFCINV_P_TINY_LO3_I -0x18a421ab9LL
+#define RVV_ERFCINV_P_TINY_LO4_I -0x180f2a477LL
+#define RVV_ERFCINV_P_TINY_LO5_I 0xc3d4ab0bLL
+#define RVV_ERFCINV_P_TINY_LO6_I 0x1729754e9LL
+#define RVV_ERFCINV_P_TINY_LO7_I 0x1aca73439LL
+#define RVV_ERFCINV_P_TINY_LO8_I -0x3b6c5afbLL
+#define RVV_ERFCINV_P_TINY_LO9_I 0x1a0c336beLL
+#define RVV_ERFCINV_Q_TINY_HI0_I -0x85933cdaLL
+#define RVV_ERFCINV_Q_TINY_HI1_I -0x7f3de4b69fLL
+#define RVV_ERFCINV_Q_TINY_HI2_I -0x20dd8dc1da27LL
+#define RVV_ERFCINV_Q_TINY_HI3_I -0x30dc92d1cd231LL
+#define RVV_ERFCINV_Q_TINY_HI4_I -0x1af5fcee397d58LL
+#define RVV_ERFCINV_Q_TINY_HI5_I -0x42639eeec1d051LL
+#define RVV_ERFCINV_Q_TINY_HI6_I 0x6182b99f6ca998LL
+#define RVV_ERFCINV_Q_TINY_HI7_I 0x17a6848dc07624aLL
+#define RVV_ERFCINV_Q_TINY_HI8_I 0x105ecd6aac52b12LL
+#define RVV_ERFCINV_Q_TINY_HI9_I 0xbc944d4f8282afLL
+#define RVV_ERFCINV_Q_TINY_LO0_I -0xb5b39d61LL
+#define RVV_ERFCINV_Q_TINY_LO1_I -0x151d1cd35LL
+#define RVV_ERFCINV_Q_TINY_LO2_I -0x1706945d7LL
+#define RVV_ERFCINV_Q_TINY_LO3_I 0xabde03f9LL
+#define RVV_ERFCINV_Q_TINY_LO4_I -0xc3530d28LL
+#define RVV_ERFCINV_Q_TINY_LO5_I 0x662b41ecLL
+#define RVV_ERFCINV_Q_TINY_LO6_I 0x938a5e35LL
+#define RVV_ERFCINV_Q_TINY_LO7_I 0x8a0484b7LL
+#define RVV_ERFCINV_Q_TINY_LO8_I 0x1d1e38258LL
+#define RVV_ERFCINV_Q_TINY_LO9_I -0x155b50b48LL
 #define RVV_ERFINV_DELTA_P0_LEFT_D -0x1.ec7dc41c17860p-2
 #define RVV_ERFINV_DELTA_Q0_LEFT_D -0x1.29a0161e99446p-3
 #define RVV_ERFINV_DELTA_P0_RIGHT_D -0x1.d622f4cbe0eeep-2
 #define RVV_ERFINV_DELTA_Q0_RIGHT_D 0x1.f7e7557a34ae6p-2
+/* erfcinv uses the complementary branch labels for these same split
+   correction constants.  */
+#define RVV_ERFCINV_DELTA_P0_RIGHT_D RVV_ERFINV_DELTA_P0_LEFT_D
+#define RVV_ERFCINV_DELTA_Q0_RIGHT_D RVV_ERFINV_DELTA_Q0_LEFT_D
+#define RVV_ERFCINV_DELTA_P0_LEFT_D RVV_ERFINV_DELTA_P0_RIGHT_D
+#define RVV_ERFCINV_DELTA_Q0_LEFT_D RVV_ERFINV_DELTA_Q0_RIGHT_D
+#define RVV_ERFCINV_N_ADJUST 60
+#define RVV_ERFCINV_LEFT_THRESHOLD_D 0x1.2p-2
+#define RVV_ERFCINV_TINY_THRESHOLD_D 0x1.0p-52
+#define RVV_ERFCINV_LEFT_SEED_D 0x1.0p-3
+#define RVV_ERFCINV_SCALE_X_D 0x1.0p60
+#define RVV_ERFCINV_TINY_T_SCALE_D 0x1.0p64
+#define RVV_ERFCINV_TINY_T_SCALE_INV_D 0x1.0p-64
+#define RVV_ERFCINV_TINY_QUARANTINE_Y_D 0x1.0p4
+#define RVV_ERFCINV_TINY_DF_SCALE_D 0x1.0p-34
 #define RVV_ERFINV_RTPI_BY2_HI_D 0x1.c5bf891b4ef6ap-1
 #define RVV_ERFINV_RTPI_BY2_LO_D 0x1.4f38760a41abbp-54
 #define RVV_ERFINV_RIGHT_THRESHOLD_D 0x1.7p-1
@@ -2588,6 +2694,219 @@ RVV_ERFC_RECIP_SCALE (VFLOAT vx, VINT *b, VINT *m, size_t vlen)
 #undef RVV_MATH_IS_ERFC
 #undef RVV_MATH_IS_ERFC_INNER
 #undef RVV_MATH_IS_ERFC_erfc
+
+/* The double-precision erfcinv importer keeps its source helper operation
+   graphs here so the skeleton contains only the main computation and its
+   data reference.  */
+#define RVV_MATH_IS_ERFCINV_erfcinv 1
+#define RVV_MATH_IS_ERFCINV_INNER(name) RVV_MATH_IS_ERFCINV_##name
+#define RVV_MATH_IS_ERFCINV(name) RVV_MATH_IS_ERFCINV_INNER (name)
+
+#if (BIT_WIDTH == 64) && RVV_MATH_IS_ERFCINV (V_MATH_FUNC)
+static inline void
+RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_exception_handling, LMUL)
+  (VFLOAT *vx, VBOOL *special_args, VFLOAT *vy_special, size_t vlen)
+{
+  VUINT vclass = __riscv_vfclass (*vx, vlen);
+  IDENTIFY (vclass, 0x39F, *special_args, vlen);
+  VBOOL x_ge_2 = __riscv_vmfge (*vx, RVV_TWO_D, vlen);
+  *special_args = __riscv_vmor (*special_args, x_ge_2, vlen);
+
+  if (__riscv_vcpop (*special_args, vlen) > 0)
+    {
+      VBOOL x_gt_2 = __riscv_vmfgt (*vx, RVV_TWO_D, vlen);
+      VBOOL x_lt_0 = __riscv_vmflt (*vx, fp_posZero, vlen);
+      *vx = VFMERGE_VFM (*vx, fp_sNaN, x_gt_2, vlen);
+      *vx = VFMERGE_VFM (*vx, fp_sNaN, x_lt_0, vlen);
+
+      VFLOAT tmp = VFMV_VF (fp_posZero, vlen);
+      VFLOAT x_tmp = __riscv_vfrsub (*vx, fp_posOne, vlen);
+      tmp = __riscv_vfsgnj (tmp, x_tmp, vlen);
+
+      VBOOL x_eq_2 = __riscv_vmfeq (*vx, RVV_TWO_D, vlen);
+      VBOOL x_eq_0 = __riscv_vmfeq (*vx, fp_posZero, vlen);
+      VBOOL pm_inf = __riscv_vmor (x_eq_2, x_eq_0, vlen);
+      tmp = VFREC7_M (pm_inf, tmp, vlen);
+
+      /* Keep the clean definedness/operation-scope adaptation: the source
+         spells this exceptional base as a masked vfsub, while the clean
+         importer computes it unmasked and selects the exceptional lanes at
+         the final merge.  */
+      *vy_special = __riscv_vfsub (*vx, *vx, vlen);
+      *vy_special = VMERGE_VVM_F (*vy_special, tmp, pm_inf, vlen);
+
+      *vx = VFMERGE_VFM (*vx, fp_posOne, *special_args, vlen);
+    }
+}
+
+static inline void
+RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_neg_logx, LMUL)
+  (VFLOAT vx, int n_adjust,
+   VFLOAT *y_hi, VFLOAT *y_lo, size_t vlen)
+{
+  VFLOAT vx_in = vx;
+  VINT n
+    = __riscv_vadd (__riscv_vsra (F_AS_I (vx_in), MAN_LEN - 8, vlen), 0x96,
+                    vlen);
+  n = __riscv_vsub (__riscv_vsra (n, 8, vlen), EXP_BIAS, vlen);
+  VFLOAT scale
+    = I_AS_F (__riscv_vsll (__riscv_vrsub (n, EXP_BIAS, vlen), MAN_LEN,
+                            vlen));
+  vx_in = __riscv_vfmul (vx_in, scale, vlen);
+  n = __riscv_vsub (n, n_adjust, vlen);
+  VFLOAT n_flt = __riscv_vfcvt_f (n, vlen);
+  VFLOAT numer = __riscv_vfrsub (vx_in, fp_posOne, vlen);
+  numer = __riscv_vfadd (numer, numer, vlen);
+  VFLOAT denom = __riscv_vfadd (vx_in, fp_posOne, vlen);
+  VFLOAT delta_denom
+    = __riscv_vfadd (__riscv_vfrsub (denom, fp_posOne, vlen), vx_in, vlen);
+  VFLOAT r_hi, r_lo, r;
+  DIV_N1D2 (numer, denom, delta_denom, r_hi, r_lo, vlen);
+  r = __riscv_vfadd (r_hi, r_lo, vlen);
+  VFLOAT a = __riscv_vfmadd (n_flt, -RVV_LOG2_HI_D, r_hi, vlen);
+  VFLOAT b = __riscv_vfmsub (n_flt, -RVV_LOG2_HI_D, a, vlen);
+  b = __riscv_vfadd (b, r_hi, vlen);
+  b = __riscv_vfadd (r_lo, b, vlen);
+  VFLOAT rsq = __riscv_vfmul (r, r, vlen);
+  VFLOAT rcube = __riscv_vfmul (rsq, r, vlen);
+  VFLOAT r6 = __riscv_vfmul (rcube, rcube, vlen);
+  VFLOAT poly_right
+    = PSTEP (RVV_ERFCINV_LOG_POLY_RIGHT0_D, rsq,
+             PSTEP (RVV_ERFCINV_LOG_POLY_RIGHT1_D,
+                    RVV_ERFCINV_LOG_POLY_RIGHT2_D, rsq,
+                    vlen),
+             vlen);
+  VFLOAT poly_left
+    = PSTEP (RVV_ERFCINV_LOG_POLY_LEFT0_D, rsq,
+             PSTEP (RVV_ERFCINV_LOG_POLY_LEFT1_D,
+                    RVV_ERFCINV_LOG_POLY_LEFT2_D, rsq,
+                    vlen),
+             vlen);
+  poly_left = __riscv_vfmacc (poly_left, r6, poly_right, vlen);
+  poly_left = PSTEP (RVV_ERFCINV_LOG_POLY_LEFT3_D, rsq, poly_left, vlen);
+  b = __riscv_vfmacc (b, -RVV_LOG2_LO_D, n_flt, vlen);
+  b = __riscv_vfmacc (b, rcube, poly_left, vlen);
+  FAST2SUM (a, b, *y_hi, *y_lo, vlen);
+}
+
+static inline void
+RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_sqrtx, LMUL)
+  (VFLOAT y_hi, VFLOAT y_lo, VFLOAT *w_hi, VFLOAT *w_lo, VINT *t,
+   double t_scale, double t_scale_inv, size_t vlen)
+{
+  *w_hi = __riscv_vfsqrt (y_hi, vlen);
+  *w_lo = __riscv_vfnmsub (*w_hi, *w_hi, y_hi, vlen);
+  *w_lo = __riscv_vfadd (*w_lo, y_lo, vlen);
+  VFLOAT recip = __riscv_vfadd (y_hi, y_hi, vlen);
+  recip = __riscv_vfrec7 (recip, vlen);
+  recip = __riscv_vfmul (recip, *w_hi, vlen);
+  *w_lo = __riscv_vfmul (*w_lo, recip, vlen);
+  VFLOAT t_lo = VFMV_VF (t_scale, vlen);
+  VFLOAT t_hi = __riscv_vfdiv (t_lo, *w_hi, vlen);
+  *t = __riscv_vfcvt_x (t_hi, vlen);
+  t_lo = __riscv_vfnmsac (t_lo, *w_hi, t_hi, vlen);
+  t_lo = __riscv_vfnmsac (t_lo, *w_lo, t_hi, vlen);
+  t_lo = __riscv_vfmul (t_lo, t_hi, vlen);
+  t_lo = __riscv_vfmul (t_lo, t_scale_inv, vlen);
+  *t = __riscv_vadd (*t, __riscv_vfcvt_x (t_lo, vlen), vlen);
+}
+
+static inline VINT
+RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+  (int64_t coeff, VINT t, VINT p_hi, VINT p_lo, size_t vlen)
+{
+  p_lo = PSTEP_I_HI (coeff, t, p_lo, vlen);
+  VINT p_tmp = __riscv_vmul (t, p_hi, vlen);
+  p_tmp = VSRL_I_AS_U (p_tmp, 30, vlen);
+  return __riscv_vadd (p_lo, p_tmp, vlen);
+}
+
+static inline void
+RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_pq_hilo_tiny, LMUL)
+  (VINT t, VFLOAT *p_hi_tiny,
+   VFLOAT *p_lo_tiny, VFLOAT *q_hi_tiny, VFLOAT *q_lo_tiny, size_t vlen)
+{
+  VINT p_hi = VMVI_VX (RVV_ERFCINV_P_TINY_HI9_I, vlen);
+  VINT p_lo = VMVI_VX (RVV_ERFCINV_P_TINY_LO9_I, vlen);
+  p_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_P_TINY_LO8_I, t, p_hi, p_lo, vlen);
+  p_hi = PSTEP_I_HI (RVV_ERFCINV_P_TINY_HI8_I, t, p_hi, vlen);
+  p_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_P_TINY_LO7_I, t, p_hi, p_lo, vlen);
+  p_hi = PSTEP_I_HI (RVV_ERFCINV_P_TINY_HI7_I, t, p_hi, vlen);
+  p_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_P_TINY_LO6_I, t, p_hi, p_lo, vlen);
+  p_hi = PSTEP_I_HI (RVV_ERFCINV_P_TINY_HI6_I, t, p_hi, vlen);
+  p_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_P_TINY_LO5_I, t, p_hi, p_lo, vlen);
+  p_hi = PSTEP_I_HI (RVV_ERFCINV_P_TINY_HI5_I, t, p_hi, vlen);
+  p_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_P_TINY_LO4_I, t, p_hi, p_lo, vlen);
+  p_hi = PSTEP_I_HI (RVV_ERFCINV_P_TINY_HI4_I, t, p_hi, vlen);
+  p_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_P_TINY_LO3_I, t, p_hi, p_lo, vlen);
+  p_hi = PSTEP_I_HI (RVV_ERFCINV_P_TINY_HI3_I, t, p_hi, vlen);
+  p_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_P_TINY_LO2_I, t, p_hi, p_lo, vlen);
+  p_hi = PSTEP_I_HI (RVV_ERFCINV_P_TINY_HI2_I, t, p_hi, vlen);
+  p_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_P_TINY_LO1_I, t, p_hi, p_lo, vlen);
+  p_hi = PSTEP_I_HI (RVV_ERFCINV_P_TINY_HI1_I, t, p_hi, vlen);
+  p_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_P_TINY_LO0_I, t, p_hi, p_lo, vlen);
+  p_hi = PSTEP_I_HI (RVV_ERFCINV_P_TINY_HI0_I, t, p_hi, vlen);
+
+  VINT q_hi = VMVI_VX (RVV_ERFCINV_Q_TINY_HI9_I, vlen);
+  VINT q_lo = VMVI_VX (RVV_ERFCINV_Q_TINY_LO9_I, vlen);
+  q_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_Q_TINY_LO8_I, t, q_hi, q_lo, vlen);
+  q_hi = PSTEP_I_HI (RVV_ERFCINV_Q_TINY_HI8_I, t, q_hi, vlen);
+  q_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_Q_TINY_LO7_I, t, q_hi, q_lo, vlen);
+  q_hi = PSTEP_I_HI (RVV_ERFCINV_Q_TINY_HI7_I, t, q_hi, vlen);
+  q_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_Q_TINY_LO6_I, t, q_hi, q_lo, vlen);
+  q_hi = PSTEP_I_HI (RVV_ERFCINV_Q_TINY_HI6_I, t, q_hi, vlen);
+  q_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_Q_TINY_LO5_I, t, q_hi, q_lo, vlen);
+  q_hi = PSTEP_I_HI (RVV_ERFCINV_Q_TINY_HI5_I, t, q_hi, vlen);
+  q_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_Q_TINY_LO4_I, t, q_hi, q_lo, vlen);
+  q_hi = PSTEP_I_HI (RVV_ERFCINV_Q_TINY_HI4_I, t, q_hi, vlen);
+  q_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_Q_TINY_LO3_I, t, q_hi, q_lo, vlen);
+  q_hi = PSTEP_I_HI (RVV_ERFCINV_Q_TINY_HI3_I, t, q_hi, vlen);
+  q_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_Q_TINY_LO2_I, t, q_hi, q_lo, vlen);
+  q_hi = PSTEP_I_HI (RVV_ERFCINV_Q_TINY_HI2_I, t, q_hi, vlen);
+  q_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_Q_TINY_LO1_I, t, q_hi, q_lo, vlen);
+  q_hi = PSTEP_I_HI (RVV_ERFCINV_Q_TINY_HI1_I, t, q_hi, vlen);
+  q_lo = RVV_LIBMVEC_IMPL_NAME (rvv_erfcinv_update_p_lo, LMUL)
+    (RVV_ERFCINV_Q_TINY_LO0_I, t, q_hi, q_lo, vlen);
+  q_hi = PSTEP_I_HI (RVV_ERFCINV_Q_TINY_HI0_I, t, q_hi, vlen);
+
+  VFLOAT a = __riscv_vfcvt_f (p_hi, vlen);
+  *p_lo_tiny = __riscv_vfcvt_f (p_lo, vlen);
+  *p_hi_tiny = __riscv_vfmadd
+    (*p_lo_tiny, RVV_ERFCINV_TINY_DF_SCALE_D, a, vlen);
+  *p_lo_tiny = __riscv_vfmadd
+    (*p_lo_tiny, RVV_ERFCINV_TINY_DF_SCALE_D,
+     __riscv_vfsub (a, *p_hi_tiny, vlen), vlen);
+
+  VFLOAT b = __riscv_vfcvt_f (q_hi, vlen);
+  *q_lo_tiny = __riscv_vfcvt_f (q_lo, vlen);
+  *q_hi_tiny = __riscv_vfmadd
+    (*q_lo_tiny, RVV_ERFCINV_TINY_DF_SCALE_D, b, vlen);
+  *q_lo_tiny = __riscv_vfmadd
+    (*q_lo_tiny, RVV_ERFCINV_TINY_DF_SCALE_D,
+     __riscv_vfsub (b, *q_hi_tiny, vlen), vlen);
+}
+#endif
+
+#undef RVV_MATH_IS_ERFCINV
+#undef RVV_MATH_IS_ERFCINV_INNER
+#undef RVV_MATH_IS_ERFCINV_erfcinv
 
 /* The double-precision erfinv importer keeps its source helper operation
    graphs here so the skeleton contains only the main computation and its

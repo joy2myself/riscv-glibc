@@ -173,6 +173,9 @@ __BEGIN_DECLS
 #define PSTEPN_I(coeff_j, x, poly, vlen)                                      \
   __riscv_vrsub (__riscv_vsmul ((poly), (x), 1, (vlen)), (coeff_j), (vlen))
 
+#define PSTEP_I_HI(coeff_j, x, poly, vlen)                                    \
+  __riscv_vadd (__riscv_vmulh ((poly), (x), (vlen)), (coeff_j), (vlen))
+
 #define PSTEP_I_ab(pick_a, coeff_a, coeff_b, x, poly, vlen)                   \
   __riscv_vsadd (__riscv_vsmul ((poly), (x), 1, (vlen)),                      \
                  VMERGE_VXM_I (VMVI_VX ((coeff_b), (vlen)), (coeff_a),       \
@@ -185,6 +188,9 @@ __BEGIN_DECLS
 
 #define FCLIP(x, min, max, vlen)                                              \
   __riscv_vfmax (__riscv_vfmin ((x), (max), (vlen)), (min), (vlen))
+
+#define VSRL_I_AS_U(x, nbits, vlen)                                           \
+  U_AS_I (__riscv_vsrl (I_AS_U ((x)), (nbits), (vlen)))
 
 #define FAST2SUM(x, y, sum_hi, sum_lo, vlen)                                  \
   do                                                                          \

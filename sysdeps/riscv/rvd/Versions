@@ -803,5 +803,16 @@ libmvec {
     _ZGVr8N8v_erfinv;
     _ZGVr8N16v_erfinv;
     _ZGVr8N32v_erfinv;
+    _ZGVr1N2v_erfcinv;
+    _ZGVr1N4v_erfcinv;
+    _ZGVr2N2v_erfcinv;
+    _ZGVr2N4v_erfcinv;
+    _ZGVr2N8v_erfcinv;
+    _ZGVr4N4v_erfcinv;
+    _ZGVr4N8v_erfcinv;
+    _ZGVr4N16v_erfcinv;
+    _ZGVr8N8v_erfcinv;
+    _ZGVr8N16v_erfcinv;
+    _ZGVr8N32v_erfcinv;
   }
 }
