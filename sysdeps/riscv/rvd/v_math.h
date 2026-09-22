@@ -64,6 +64,36 @@ static const uint64_t class_finite_pos = 0x60;
 #define RVV_SLEEF_TRIG_ONE_OVER_PI 0x1.45f306p-2f
 #define RVV_SLEEF_TRIG_PI_F 0x1.921fb6p+1f
 
+/* Scalar constants for the SLEEF single-precision cbrtf graph.  */
+#define RVV_SLEEF_CBRTF_VILOGBK_THRESH 5.421010862427522e-20f
+#define RVV_SLEEF_CBRTF_VILOGBK_SCALE 1.8446744073709552e19f
+#define RVV_SLEEF_CBRTF_VILOGBK_MASK 0xffu
+#define RVV_SLEEF_CBRTF_VILOGBK_SMALL_BIAS 0x7f
+#define RVV_SLEEF_CBRTF_VILOGBK_LARGE_BIAS (64 + 0x7f)
+#define RVV_SLEEF_CBRTF_Q2_1_HI 1.2599210739135742188f
+#define RVV_SLEEF_CBRTF_Q2_1_LO -2.4018701694217270415e-08f
+#define RVV_SLEEF_CBRTF_Q2_2_HI 1.5874010324478149414f
+#define RVV_SLEEF_CBRTF_Q2_2_LO 1.9520385308169352356e-08f
+#define RVV_SLEEF_CBRTF_ONE_THIRD (1.0f / 3.0f)
+#define RVV_SLEEF_CBRTF_NEG_ONE_THIRD (-1.0f / 3.0f)
+#define RVV_SLEEF_CBRTF_NEG_TWO_THIRDS (-2.0f / 3.0f)
+#define RVV_SLEEF_CBRTF_QUOTIENT_OFFSET_F 6144.0f
+#define RVV_SLEEF_CBRTF_QUOTIENT_DIVISOR_F 3.0f
+#define RVV_SLEEF_CBRTF_EXPONENT_OFFSET 1
+#define RVV_SLEEF_CBRTF_REMAINDER_ONE 1
+#define RVV_SLEEF_CBRTF_REMAINDER_TWO 2
+#define RVV_SLEEF_CBRTF_QUOTIENT_OFFSET 6144
+#define RVV_SLEEF_CBRTF_QUOTIENT_MUL 2731
+#define RVV_SLEEF_CBRTF_QUOTIENT_SHIFT 13
+#define RVV_SLEEF_CBRTF_QUOTIENT_DIVISOR 3
+#define RVV_SLEEF_CBRTF_EXP_ADJUST 2048
+#define RVV_SLEEF_CBRTF_POLY0_F -0.601564466953277587890625f
+#define RVV_SLEEF_CBRTF_POLY1_F 2.8208892345428466796875f
+#define RVV_SLEEF_CBRTF_POLY2_F -5.532182216644287109375f
+#define RVV_SLEEF_CBRTF_POLY3_F 5.898262500762939453125f
+#define RVV_SLEEF_CBRTF_POLY4_F -3.8095417022705078125f
+#define RVV_SLEEF_CBRTF_POLY5_F 2.2241256237030029296875f
+
 /* SLEEF's vcast_vf_f converts unsuffixed double expressions to float at the
    source operation point.  Keep that conversion tied to the surrounding
    source-shaped graph: GCC otherwise may hoist a data-backed conversion
@@ -159,6 +189,7 @@ static const scalar_t fp_posInf = __builtin_inff ();
 
 #define EXP_BIAS_F EXP_BIAS
 #define MAN_LEN_F MAN_LEN
+#define fp_posOne_f fp_posOne
 #define fp_posZero_f fp_posZero
 #define fp_posInf_f fp_posInf
 
