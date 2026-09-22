@@ -99,6 +99,7 @@ libmvec-double-funcs-with-data = \
   exp10m1 \
   exp2m1 \
   lgamma \
+  pow \
 
 libmvec-float-funcs = $(libmvec-float-funcs-bare) $(libmvec-float-funcs-with-data)
 libmvec-double-funcs = $(libmvec-double-funcs-bare) $(libmvec-double-funcs-with-data)
@@ -177,6 +178,7 @@ libmvec-double-bench-funcs = \
   log10p1 \
   logp1 \
   log1p \
+  pow \
 
 libmvec-float-bench-funcs = \
   logf \

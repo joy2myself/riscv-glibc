@@ -1132,6 +1132,27 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_LGAMMA_OVERFLOW_X_D 0x1.754d9278b51a7p+1014
 #define RVV_LGAMMA_NEG_BND_TO_2_SC_D 0x1p+3
 #define RVV_LGAMMA_NEG_3_TO_BND_SC_D 0x1p+4
+#define RVV_POW_LOG_LN2_HI_D 0x1.62e42fefa3800p-1
+#define RVV_POW_LOG_LN2_LO_D 0x1.ef35793c76730p-45
+#define RVV_POW_LOG_OFF 0x3fe6955500000000ULL
+#define RVV_POW_EXP_SIGN_BIAS (0x800ULL << V_POW_EXP_TABLE_BITS)
+#define RVV_POW_EXP_SMALL_TOP 0x3c9U
+#define RVV_POW_EXP_THRES_TOP (0x408U - 0x3c9U)
+#define RVV_POW_EXP_HUGE_TOP 0x409U
+#define RVV_POW_EXP_INV_LN2_N_D (RVV_LN2_INV_D * (double) V_POW_EXP_N)
+#define RVV_POW_EXP_NEG_LN2_HI_N_D -0x1.62e42fefa0000p-8
+#define RVV_POW_EXP_NEG_LN2_LO_N_D -0x1.cf79abc9e3b3ap-47
+#define RVV_POW_EXP_C2_D 0x1.ffffffffffdbdp-2
+#define RVV_POW_EXP_C3_D 0x1.555555555543cp-3
+#define RVV_POW_EXP_C4_D 0x1.55555cf172b91p-5
+#define RVV_POW_EXP_C5_D 0x1.1111167a4d017p-7
+#define RVV_POW_LOG_POLY0_D -0x1p-1
+#define RVV_POW_LOG_POLY1_D -0x1.555555555556p-1
+#define RVV_POW_LOG_POLY2_D 0x1.0000000000006p-1
+#define RVV_POW_LOG_POLY3_D 0x1.999999959554ep-1
+#define RVV_POW_LOG_POLY4_D -0x1.555555529a47ap-1
+#define RVV_POW_LOG_POLY5_D -0x1.2495b9b4845e9p0
+#define RVV_POW_LOG_POLY6_D 0x1.0002b8b263fc3p0
 
 /* Fixed coefficients for the single-precision gamma helpers.  Preserve
    the source float/double types and the explicit conversion points.  */

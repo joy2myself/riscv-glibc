@@ -73,6 +73,8 @@ __BEGIN_DECLS
   __VCFG_PASTE5 (__riscv_vfmacc_vv_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VFMACC_VF_M \
   __VCFG_PASTE5 (__riscv_vfmacc_vf_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFMACC_VF \
+  __VCFG_PASTE4 (__riscv_vfmacc_vf_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFDIV_VV_M \
   __VCFG_PASTE5 (__riscv_vfdiv_vv_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VFNMSAC_VV_M \
@@ -132,6 +134,8 @@ __BEGIN_DECLS
   __MAKE_VFMACC_VV_M ((mask), (op1), (op2), (op3), (vlen))
 #define VFMACC_VF_M(mask, op1, scalar, op2, vlen) \
   __MAKE_VFMACC_VF_M ((mask), (op1), (scalar), (op2), (vlen))
+#define VFMACC_VF(op1, scalar, op2, vlen) \
+  __MAKE_VFMACC_VF ((op1), (scalar), (op2), (vlen))
 #define VFDIV_VV_M(mask, op1, op2, vlen) \
   __MAKE_VFDIV_VV_M ((mask), (op1), (op2), (vlen))
 #define VFNMSAC_VV_M(mask, op1, op2, op3, vlen) \
@@ -327,6 +331,23 @@ extern const struct v_exp2m1_data
   const uint64_t exp2_tab[2 * V_EXP2M1_N];
   const uint64_t scalem1_tab[88];
 } __v_exp2m1_data attribute_hidden;
+
+/* Lookup tables shared by the double-precision pow kernel.  */
+enum
+{
+  V_POW_LOG_TABLE_BITS = 7,
+  V_POW_LOG_N = 128,
+  V_POW_EXP_TABLE_BITS = 7,
+  V_POW_EXP_N = 128
+};
+
+extern const struct v_pow_data
+{
+  const double log_invc[V_POW_LOG_N];
+  const double log_logc[V_POW_LOG_N];
+  const double log_logctail[V_POW_LOG_N];
+  const uint64_t exp_tab[2 * V_POW_EXP_N];
+} __v_pow_data attribute_hidden;
 /* Indexed coefficient tables for the double-precision lgamma implementation.  */
 extern const struct v_lgamma_data
 {
