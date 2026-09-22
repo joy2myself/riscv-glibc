@@ -575,6 +575,9 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_LN2_LO_D 0x1.abc9e3b39803fp-56
 #define RVV_LN2_INV_LO_D 0x1.777d0ffda0d24p-56
 #define RVV_LOG10_2_HI_D 0x1.34413509f79ffp-2
+#define RVV_LOG10_2_LO_D -0x1.9dc1da994fd00p-59
+#define RVV_LOG10_E_HI_D 0x1.bcb7b1526e50ep-2
+#define RVV_LOG10_E_LO_D 0x1.95355baaafad3p-57
 #define RVV_EXP_X_MAX_D 0x1.65p+9
 #define RVV_EXP_X_MIN_D -0x1.77p+9
 #define RVV_LOG2_HI_D 0x1.62e42fefa4000p-1
