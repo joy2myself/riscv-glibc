@@ -152,6 +152,17 @@ extern const struct v_cos_data
     }                                                                         \
   while (0)
 
+#define POS2SUM(x, y, sum_hi, sum_lo, vlen)                                   \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _first = __riscv_vfmax ((x), (y), (vlen));                       \
+      VFLOAT _second = __riscv_vfmin ((x), (y), (vlen));                      \
+      (sum_hi) = __riscv_vfadd ((x), (y), (vlen));                            \
+      (sum_lo) = __riscv_vfadd (                                              \
+          __riscv_vfsub (_first, (sum_hi), (vlen)), _second, (vlen));         \
+    }                                                                         \
+  while (0)
+
 #define PROD_X1Y1(x, y, prod_hi, prod_lo, vlen)                               \
   do                                                                          \
     {                                                                         \
