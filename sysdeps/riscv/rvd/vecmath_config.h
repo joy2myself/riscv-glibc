@@ -115,6 +115,9 @@ __BEGIN_DECLS
 #define PSTEP_I(coeff_j, x, poly, vlen)                                       \
   __riscv_vsadd (__riscv_vsmul ((poly), (x), 1, (vlen)), (coeff_j), (vlen))
 
+#define PSTEPN_I(coeff_j, x, poly, vlen)                                      \
+  __riscv_vrsub (__riscv_vsmul ((poly), (x), 1, (vlen)), (coeff_j), (vlen))
+
 #define IDENTIFY(vclass, stencil, identity_mask, vlen)                        \
   identity_mask = __riscv_vmsgtu (__riscv_vand ((vclass), (stencil), (vlen)), \
                                   0, (vlen))

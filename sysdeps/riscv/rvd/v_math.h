@@ -212,6 +212,7 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define PIBY2_LO -0x1.f1976b7ed8fbcp-110
 #define RVV_PI_Q60 0x3243f6a8885a308dLL
 #define RVV_PIBY2_Q60 0x1921fb54442d1847LL
+#define RVV_PIBY2_Q61 0x3243f6a8885a308dLL
 #define RVV_ONE_OVER_PI_HI_D 0x1.45f306dc9c883p-2
 #define RVV_ONE_OVER_PI_LO_D -0x1.6b01ec5417056p-56
 #define RVV_ONE_OVER_PI_Q63 0x28be60db9391054aLL
