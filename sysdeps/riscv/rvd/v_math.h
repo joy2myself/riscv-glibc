@@ -52,6 +52,12 @@ static const uint64_t class_posZero = 0x10;
 static const uint64_t class_posDenorm = 0x20;
 static const uint64_t class_Subnormal = 0x24;
 static const uint64_t class_negative = 0x7;
+
+/* Scalar constants shared by the SLEEF single-precision trigonometric
+   reduction paths.  Keep the actual rempif lookup table in
+   v_f_sleef_trig_data.c; these values are compile-time constants, not
+   indexed data.  */
+#define RVV_SLEEF_TRIG_ONE_OVER_PI 0x1.45f306p-2f
 #define RVV_SLEEF_TRIG_PI_F 0x1.921fb6p+1f
 
 #ifdef _NEED_UNDEF_GNU_SOURCE_V_MATH
@@ -467,6 +473,27 @@ static const scalar_t fp_posInf = __builtin_inff ();
 # define RVV_SLEEF_ORIG_ASINF_PI4_HI 3.1415927410125732422f / 4.0f
 # define RVV_SLEEF_ORIG_ASINF_PI4_LO \
   -8.7422776573475857731e-08f / 4.0f
+#endif
+
+/* Source-shaped helper names used by the asinpif composite.  Keep this
+   importer-dependent mangle in the common math header; the routine skeleton
+   itself should contain only the finite operation graph and data references.  */
+#ifndef RVV_ASINPIF_COMMON_DEFINITIONS
+# define RVV_ASINPIF_COMMON_DEFINITIONS
+# define RVV_ASINPIF_SOURCE_MANGLE(base) \
+  RVV_SLEEF_ORIG_MANGLE (base, LMUL)
+# define RVV_ASINPIF_ONE_OVER_PI_HI_F RVV_SLEEF_TRIG_ONE_OVER_PI
+# define RVV_ASINPIF_ONE_OVER_PI_LO_F 0x1.b93910p-27f
+# define RVV_ASINPIF_PI4_HI_F RVV_ASINF_PIBY4_HI
+# define RVV_ASINPIF_PI4_LO_F RVV_ASINF_PIBY4_LO
+# define RVV_ASINPIF_HALF_F 0.5f
+# define RVV_ASINPIF_TWO_F 2.0f
+# define RVV_ASINPIF_TINY_SQUARE_LIMIT_F 0x1p-63f
+# define RVV_ASINPIF_POLY0_F 0.1666677296e+0f
+# define RVV_ASINPIF_POLY1_F 0.7495029271e-1f
+# define RVV_ASINPIF_POLY2_F 0.4547423869e-1f
+# define RVV_ASINPIF_POLY3_F 0.2424046025e-1f
+# define RVV_ASINPIF_POLY4_F 0.4197454825e-1f
 #endif
 
 /* Target-owned source-shaped SLEEF DF/FMA helpers.  These macros are
