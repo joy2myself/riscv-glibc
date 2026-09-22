@@ -170,6 +170,11 @@ __BEGIN_DECLS
 #define PSTEP_I(coeff_j, x, poly, vlen)                                       \
   __riscv_vsadd (__riscv_vsmul ((poly), (x), 1, (vlen)), (coeff_j), (vlen))
 
+#define PSTEP_I_SLL(coeff_j, x, k, poly, vlen)                                \
+  __riscv_vsadd (                                                             \
+      __riscv_vsll (__riscv_vsmul ((poly), (x), 1, (vlen)), (k), (vlen)),     \
+      (coeff_j), (vlen))
+
 #define PSTEPN_I(coeff_j, x, poly, vlen)                                      \
   __riscv_vrsub (__riscv_vsmul ((poly), (x), 1, (vlen)), (coeff_j), (vlen))
 
@@ -198,6 +203,53 @@ __BEGIN_DECLS
       (sum_hi) = __riscv_vfadd ((x), (y), (vlen));                            \
       (sum_lo) = __riscv_vfsub ((x), (sum_hi), (vlen));                       \
       (sum_lo) = __riscv_vfadd ((sum_lo), (y), (vlen));                       \
+    }                                                                         \
+  while (0)
+
+#define KNUTH2SUM(x, y, sum_hi, sum_lo, vlen)                                 \
+  do                                                                          \
+    {                                                                         \
+      (sum_hi) = __riscv_vfadd ((x), (y), (vlen));                            \
+      VFLOAT _x_hat = __riscv_vfsub ((sum_hi), (y), (vlen));                  \
+      (sum_lo) = __riscv_vfadd (                                              \
+          __riscv_vfsub ((x), _x_hat, (vlen)),                                \
+          __riscv_vfsub ((y), __riscv_vfsub ((sum_hi), _x_hat, (vlen)),       \
+                         (vlen)),                                             \
+          (vlen));                                                            \
+    }                                                                         \
+  while (0)
+
+#define FIX2FLT(x, scale, y_hi, y_lo, vlen)                                   \
+  do                                                                          \
+    {                                                                         \
+      (y_hi) = __riscv_vfcvt_f ((x), (vlen));                                 \
+      (y_lo) = __riscv_vfcvt_f (                                              \
+          __riscv_vsub ((x), __riscv_vfcvt_x ((y_hi), (vlen)), (vlen)),       \
+          (vlen));                                                            \
+      (y_hi) = __riscv_vfmul ((y_hi), (scale), (vlen));                       \
+      (y_lo) = __riscv_vfmul ((y_lo), (scale), (vlen));                       \
+    }                                                                         \
+  while (0)
+
+#define FLT2FIX(x_hi, x_lo, scale, y, vlen)                                   \
+  do                                                                          \
+    {                                                                         \
+      (y) = __riscv_vfcvt_x (__riscv_vfmul ((x_hi), (scale), (vlen)),         \
+                             (vlen));                                         \
+      (y) = __riscv_vadd (                                                    \
+          (y),                                                                \
+          __riscv_vfcvt_x (__riscv_vfmul ((x_lo), (scale), (vlen)), (vlen)),  \
+          (vlen));                                                            \
+    }                                                                         \
+  while (0)
+
+#define SQR_X2(x_hi, x_lo, prod_hi, prod_lo, vlen)                            \
+  do                                                                          \
+    {                                                                         \
+      (prod_hi) = __riscv_vfmul ((x_hi), (x_hi), (vlen));                     \
+      (prod_lo) = __riscv_vfmsub ((x_hi), (x_hi), (prod_hi), (vlen));         \
+      (prod_lo) = __riscv_vfmacc ((prod_lo), (x_hi), (x_lo), (vlen));         \
+      (prod_lo) = __riscv_vfmacc ((prod_lo), (x_lo), (x_hi), (vlen));         \
     }                                                                         \
   while (0)
 
@@ -284,6 +336,16 @@ extern const struct v_cos_data
     {                                                                         \
       (prod_hi) = __riscv_vfmul ((x), (y), (vlen));                           \
       (prod_lo) = __riscv_vfmsub ((x), (y), (prod_hi), (vlen));               \
+    }                                                                         \
+  while (0)
+
+#define PROD_X2Y2(x_hi, x_lo, y_hi, y_lo, prod_hi, prod_lo, vlen)             \
+  do                                                                          \
+    {                                                                         \
+      (prod_hi) = __riscv_vfmul ((x_hi), (y_hi), (vlen));                     \
+      (prod_lo) = __riscv_vfmsub ((x_hi), (y_hi), (prod_hi), (vlen));         \
+      (prod_lo) = __riscv_vfmacc ((prod_lo), (x_hi), (y_lo), (vlen));         \
+      (prod_lo) = __riscv_vfmacc ((prod_lo), (x_lo), (y_hi), (vlen));         \
     }                                                                         \
   while (0)
 
