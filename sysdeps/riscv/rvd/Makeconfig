@@ -81,6 +81,7 @@ libmvec-double-funcs-bare = \
   erfcinv \
   expint1 \
   expm1 \
+  hypot \
 
 libmvec-double-funcs-with-data = \
   log \
@@ -159,6 +160,7 @@ libmvec-double-bench-funcs = \
   exp2m1 \
   expint1 \
   expm1 \
+  hypot \
 
 libmvec-float-bench-funcs = \
   logf \

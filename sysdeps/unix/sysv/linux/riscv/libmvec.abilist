@@ -31,6 +31,8 @@ GLIBC_2.43 _ZGVr1N2v_sin F
 GLIBC_2.43 _ZGVr1N2v_tan F
 GLIBC_2.43 _ZGVr1N2vv_atan2 F
 GLIBC_2.43 _ZGVr1N2vv_atan2pi F
+GLIBC_2.43 _ZGVr1N2vv_hypot F
+GLIBC_2.43 _ZGVr1N2vv_hypot_original F
 GLIBC_2.43 _ZGVr1N4v_acos F
 GLIBC_2.43 _ZGVr1N4v_acosf F
 GLIBC_2.43 _ZGVr1N4v_acosf_original F
@@ -118,6 +120,8 @@ GLIBC_2.43 _ZGVr1N4vv_atan2pif F
 GLIBC_2.43 _ZGVr1N4vv_atan2pif_original F
 GLIBC_2.43 _ZGVr1N4vv_fastpowf F
 GLIBC_2.43 _ZGVr1N4vv_fastpowf_original F
+GLIBC_2.43 _ZGVr1N4vv_hypot F
+GLIBC_2.43 _ZGVr1N4vv_hypot_original F
 GLIBC_2.43 _ZGVr1N8v_acosf F
 GLIBC_2.43 _ZGVr1N8v_acosf_original F
 GLIBC_2.43 _ZGVr1N8v_asinf F
@@ -259,6 +263,8 @@ GLIBC_2.43 _ZGVr2N2v_sin F
 GLIBC_2.43 _ZGVr2N2v_tan F
 GLIBC_2.43 _ZGVr2N2vv_atan2 F
 GLIBC_2.43 _ZGVr2N2vv_atan2pi F
+GLIBC_2.43 _ZGVr2N2vv_hypot F
+GLIBC_2.43 _ZGVr2N2vv_hypot_original F
 GLIBC_2.43 _ZGVr2N4v_acos F
 GLIBC_2.43 _ZGVr2N4v_acosf F
 GLIBC_2.43 _ZGVr2N4v_acosf_original F
@@ -346,6 +352,8 @@ GLIBC_2.43 _ZGVr2N4vv_atan2pif F
 GLIBC_2.43 _ZGVr2N4vv_atan2pif_original F
 GLIBC_2.43 _ZGVr2N4vv_fastpowf F
 GLIBC_2.43 _ZGVr2N4vv_fastpowf_original F
+GLIBC_2.43 _ZGVr2N4vv_hypot F
+GLIBC_2.43 _ZGVr2N4vv_hypot_original F
 GLIBC_2.43 _ZGVr2N8v_acos F
 GLIBC_2.43 _ZGVr2N8v_acosf F
 GLIBC_2.43 _ZGVr2N8v_acosf_original F
@@ -433,6 +441,8 @@ GLIBC_2.43 _ZGVr2N8vv_atan2pif F
 GLIBC_2.43 _ZGVr2N8vv_atan2pif_original F
 GLIBC_2.43 _ZGVr2N8vv_fastpowf F
 GLIBC_2.43 _ZGVr2N8vv_fastpowf_original F
+GLIBC_2.43 _ZGVr2N8vv_hypot F
+GLIBC_2.43 _ZGVr2N8vv_hypot_original F
 GLIBC_2.43 _ZGVr4N16v_acos F
 GLIBC_2.43 _ZGVr4N16v_acosf F
 GLIBC_2.43 _ZGVr4N16v_acosf_original F
@@ -520,6 +530,8 @@ GLIBC_2.43 _ZGVr4N16vv_atan2pif F
 GLIBC_2.43 _ZGVr4N16vv_atan2pif_original F
 GLIBC_2.43 _ZGVr4N16vv_fastpowf F
 GLIBC_2.43 _ZGVr4N16vv_fastpowf_original F
+GLIBC_2.43 _ZGVr4N16vv_hypot F
+GLIBC_2.43 _ZGVr4N16vv_hypot_original F
 GLIBC_2.43 _ZGVr4N32v_acosf F
 GLIBC_2.43 _ZGVr4N32v_acosf_original F
 GLIBC_2.43 _ZGVr4N32v_asinf F
@@ -607,6 +619,8 @@ GLIBC_2.43 _ZGVr4N4v_sin F
 GLIBC_2.43 _ZGVr4N4v_tan F
 GLIBC_2.43 _ZGVr4N4vv_atan2 F
 GLIBC_2.43 _ZGVr4N4vv_atan2pi F
+GLIBC_2.43 _ZGVr4N4vv_hypot F
+GLIBC_2.43 _ZGVr4N4vv_hypot_original F
 GLIBC_2.43 _ZGVr4N8v_acos F
 GLIBC_2.43 _ZGVr4N8v_acosf F
 GLIBC_2.43 _ZGVr4N8v_acosf_original F
@@ -694,6 +708,8 @@ GLIBC_2.43 _ZGVr4N8vv_atan2pif F
 GLIBC_2.43 _ZGVr4N8vv_atan2pif_original F
 GLIBC_2.43 _ZGVr4N8vv_fastpowf F
 GLIBC_2.43 _ZGVr4N8vv_fastpowf_original F
+GLIBC_2.43 _ZGVr4N8vv_hypot F
+GLIBC_2.43 _ZGVr4N8vv_hypot_original F
 GLIBC_2.43 _ZGVr8N16v_acos F
 GLIBC_2.43 _ZGVr8N16v_acosf F
 GLIBC_2.43 _ZGVr8N16v_acosf_original F
@@ -781,6 +797,8 @@ GLIBC_2.43 _ZGVr8N16vv_atan2pif F
 GLIBC_2.43 _ZGVr8N16vv_atan2pif_original F
 GLIBC_2.43 _ZGVr8N16vv_fastpowf F
 GLIBC_2.43 _ZGVr8N16vv_fastpowf_original F
+GLIBC_2.43 _ZGVr8N16vv_hypot F
+GLIBC_2.43 _ZGVr8N16vv_hypot_original F
 GLIBC_2.43 _ZGVr8N32v_acos F
 GLIBC_2.43 _ZGVr8N32v_acosf F
 GLIBC_2.43 _ZGVr8N32v_acosf_original F
@@ -868,6 +886,8 @@ GLIBC_2.43 _ZGVr8N32vv_atan2pif F
 GLIBC_2.43 _ZGVr8N32vv_atan2pif_original F
 GLIBC_2.43 _ZGVr8N32vv_fastpowf F
 GLIBC_2.43 _ZGVr8N32vv_fastpowf_original F
+GLIBC_2.43 _ZGVr8N32vv_hypot F
+GLIBC_2.43 _ZGVr8N32vv_hypot_original F
 GLIBC_2.43 _ZGVr8N64v_acosf F
 GLIBC_2.43 _ZGVr8N64v_acosf_original F
 GLIBC_2.43 _ZGVr8N64v_asinf F
@@ -955,3 +975,5 @@ GLIBC_2.43 _ZGVr8N8v_sin F
 GLIBC_2.43 _ZGVr8N8v_tan F
 GLIBC_2.43 _ZGVr8N8vv_atan2 F
 GLIBC_2.43 _ZGVr8N8vv_atan2pi F
+GLIBC_2.43 _ZGVr8N8vv_hypot F
+GLIBC_2.43 _ZGVr8N8vv_hypot_original F
