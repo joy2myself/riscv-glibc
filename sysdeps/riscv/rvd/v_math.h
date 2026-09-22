@@ -240,6 +240,8 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_SLEEF_LOG_U1_POLY0_F 0.3027294874e+0f
 #define RVV_SLEEF_LOG_U1_POLY1_F 0.3996108174e+0f
 #define RVV_SLEEF_LOG_U1_POLY2_F 0.6666694880e+0f
+#define RVV_LOG1PF_LN2_HI_F RVV_SLEEF_LOG_U1_LN2_HI_F
+#define RVV_LOG1PF_LN2_LO_F RVV_SLEEF_LOG_U1_LN2_LO_F
 
 /* Fixed coefficients for the single-precision gamma helpers.  Preserve
    the source float/double types and the explicit conversion points.  */
@@ -532,6 +534,20 @@ static const scalar_t fp_posInf = __builtin_inff ();
     }                                                                         \
   while (0)
 
+#define RVV_SLEEF_ORIG_DFADD2_VF_VF(x, y, r_hi, r_lo, vlen)                  \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x = (x);                                                        \
+      VFLOAT _y = (y);                                                        \
+      VFLOAT _s = VFADD_VV (_x, _y, (vlen));                                  \
+      VFLOAT _v = VFSUB_VV (_s, _x, (vlen));                                  \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (                                                      \
+          VFSUB_VV (_x, VFSUB_VV (_s, _v, (vlen)), (vlen)),                   \
+          VFSUB_VV (_y, _v, (vlen)), (vlen));                                 \
+    }                                                                         \
+  while (0)
+
 #define RVV_SLEEF_ORIG_DFADD_VF_VF(x, y, r_hi, r_lo, vlen)                   \
   do                                                                          \
     {                                                                         \
@@ -809,6 +825,24 @@ static const scalar_t fp_posInf = __builtin_inff ();
 # define RVV_SLEEF_ORIG_ASINHF_LOG_P3 RVV_SLEEF_LOGK2F_POLY3_F
 # define RVV_SLEEF_ORIG_ASINHF_MANGLE(base, lmul) \
   RVV_SLEEF_ORIG_MANGLE (base, lmul)
+#endif
+
+/* Shared importer mangles for the single-precision atanh source-shaped
+   helpers.  The operation bodies remain in the routine skeletons, while
+   these LMUL-dependent names live in the common math header so the skeletons
+   contain no routine-local helper macro block.  */
+#ifndef RVV_ATANHF_COMMON_DEFINITIONS
+# define RVV_ATANHF_COMMON_DEFINITIONS
+# define RVV_ATANHF_LOG_POLY0_F RVV_SLEEF_LOGK2F_POLY0_F
+# define RVV_ATANHF_LOG_POLY1_F RVV_SLEEF_LOGK2F_POLY1_F
+# define RVV_ATANHF_LOG_POLY2_F RVV_SLEEF_LOGK2F_POLY2_F
+# define RVV_ATANHF_LOG_POLY3_F RVV_SLEEF_LOGK2F_POLY3_F
+# define RVV_LIBMVEC_ATANHF_VILOGBK \
+  __PASTE2 (rvv_libmvec_atanhf_vilogbk_m, LMUL)
+# define RVV_LIBMVEC_ATANHF_VPOW2I \
+  __PASTE2 (rvv_libmvec_atanhf_vpow2i_m, LMUL)
+# define RVV_LIBMVEC_ATANHF_LOGK2F \
+  __PASTE2 (rvv_libmvec_atanhf_logk2f_m, LMUL)
 #endif
 
 /* Clean asinhf is the first importer that needs this subset of the generic
