@@ -23,3 +23,17 @@ $(foreach f,$(libmvec-sysdep_routines), $(eval $(call riscv32-vector-cflags-temp
 endif
 
 endif
+
+ifneq ($(multi-arch),no)
+ifeq ($(subdir)$(build-mathvec),mathyes)
+
+ifneq ($(have-test-clang),yes)
+
+tests += \
+  $(libmvec-abi-func-tests)     \
+
+endif
+
+endif
+
+endif

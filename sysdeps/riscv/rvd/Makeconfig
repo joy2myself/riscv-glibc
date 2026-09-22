@@ -31,3 +31,37 @@ libmvec-double-funcs-with-data = \
 
 libmvec-float-funcs = $(libmvec-float-funcs-bare) $(libmvec-float-funcs-with-data)
 libmvec-double-funcs = $(libmvec-double-funcs-bare) $(libmvec-double-funcs-with-data)
+
+ifeq ($(config-machine),riscv64)
+libmvec-abi-test-arch-cflags = -march=rv64gcv
+else ifeq ($(config-machine),riscv32)
+libmvec-abi-test-arch-cflags = -march=rv32gcv
+endif
+
+libmvec-abi-test-cflags = \
+  $(libmvec-abi-test-arch-cflags) \
+  $(libm-test-fast-math-cflags)   \
+  -fno-inline -fopenmp -Wno-unknown-pragmas
+
+# The base libmvec ABI tests.
+libmvec-abi-func-tests = \
+  $(addprefix test-float-libmvec-,$(libmvec-float-funcs))  \
+  $(addprefix test-double-libmvec-,$(libmvec-double-funcs)) \
+
+$(common-objpfx)libmvec.mk: $(common-objpfx)config.make
+	(echo "ifeq (\$$(subdir)\$$(build-mathvec),mathyes)"; \
+	 echo; \
+	 for t in $(libmvec-abi-func-tests); do \
+	   echo "\$$(objpfx)$$t: \\"; \
+	   echo "  \$$(objpfx)$$t.o \\"; \
+	   echo "  \$$(libmvec)"; \
+	   echo "LDLIBS-$$t = \$$(libmvec)"; \
+	   echo; \
+	 done; \
+	 for t in $(libmvec-abi-func-tests); do \
+	   echo "CFLAGS-$$t.c = \\"; \
+	   echo "  \$$(libmvec-abi-test-cflags)"; \
+	   echo; \
+	 done; \
+	 echo "endif";)> $@T
+	mv -f $@T $@
