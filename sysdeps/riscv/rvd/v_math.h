@@ -220,6 +220,9 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_LN2_LO_D 0x1.abc9e3b39803fp-56
 #define RVV_LOG2_HI_D 0x1.62e42fefa4000p-1
 #define RVV_LOG2_LO_D -0x1.8432a1b0e2634p-43
+#define RVV_LOG2_BY2_HI_D 0x1.62e42fefa4000p-2
+#define RVV_LOG2_BY2_LO_D -0x1.8432a1b0e2634p-44
+#define RVV_ONE_Q60 0x1000000000000000LL
 #define RVV_COSPI_POLY_RIGHT_SEED_A -0x1.8f5dd75850673p-37
 #define RVV_COSPI_POLY_RIGHT_SEED_B 0x1.5d8b5ae12066ap-33
 #define RVV_COSPI_POLY_RIGHT_OUTER_A -0x1.27e4f72551e3dp-22

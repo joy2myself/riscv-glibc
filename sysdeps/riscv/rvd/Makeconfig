@@ -40,6 +40,7 @@ libmvec-double-funcs-bare = \
   asinh \
   asinpi \
   atan \
+  atanh \
 
 libmvec-double-funcs-with-data = \
   log \
@@ -95,6 +96,7 @@ libmvec-double-bench-funcs = \
   asinh \
   asinpi \
   atan \
+  atanh \
 
 libmvec-float-bench-funcs = \
   logf \
