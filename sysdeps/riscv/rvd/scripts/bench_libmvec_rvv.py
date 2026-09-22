@@ -29,20 +29,20 @@ TEMPLATE = r"""
 
 #pragma GCC diagnostic ignored "-Wmissing-prototypes"
 
-struct args_1
+struct {args_type}
 {{
-  {stype} arg0[{nelems}];
+{arg_fields}
 }};
 
 struct variant
 {{
   const char *name;
   size_t stride;
-  double (*call) (const struct args_1 *, size_t idx);
-  const struct args_1 *in;
+  double (*call) (const struct {args_type} *, size_t idx);
+  const struct {args_type} *in;
 }};
 
-static const struct args_1 in0 = {{
+static const struct {args_type} in0 = {{
 {in_data}
 }};
 
@@ -119,7 +119,10 @@ Variant = Dict[str, Union[str, int]]
 
 
 def _make_vector_variants(
-    func: str, elem_width: int, variants: Iterable[Tuple[int, int]]
+    func: str,
+    elem_width: int,
+    variants: Iterable[Tuple[int, int]],
+    arity: int,
 ) -> Iterator[Variant]:
     """Yield vector variant metadata for the given function."""
     vtype_prefix = f"vfloat{elem_width}"
@@ -128,7 +131,8 @@ def _make_vector_variants(
         m_suffix = f"m{lmul}"
         vtype = f"{vtype_prefix}{m_suffix}_t"
         setvl_suffix = f"{setvl_prefix}{m_suffix}"
-        asm_sym = f"_ZGVr{lmul}N{simdlen}v_{func}"
+        abi_suffix = "vv" if arity == 2 else "v"
+        asm_sym = f"_ZGVr{lmul}N{simdlen}{abi_suffix}_{func}"
         yield {
             "name": asm_sym,
             "vtype": vtype,
@@ -155,8 +159,8 @@ def _parse_bench_name(name: str) -> Tuple[str, str]:
     return prec, func
 
 
-def _load_input_data(func: str) -> Tuple[str, int]:
-    """Load inputs for FUNC, returning the initializer and element count."""
+def _load_input_data(func: str) -> Tuple[str, int, int]:
+    """Load inputs for FUNC, returning initializer, count, and arity."""
     input_filename = f"{func}-inputs"
     with open(
         f"../benchtests/libmvec/{input_filename}",
@@ -164,22 +168,34 @@ def _load_input_data(func: str) -> Tuple[str, int]:
     ) as f:
         input_file = f.readlines()
 
-    arity_line = [l for l in input_file if l.startswith("## args: ")]
-    if not arity_line:
+    arity_line = next(
+        (l for l in input_file if l.startswith("## args: ")), None
+    )
+    if arity_line is None:
         raise SystemExit("missing arity line in input file")
+    arity = len(arity_line[len("## args: "):].strip().split(":"))
+    if arity not in (1, 2):
+        raise SystemExit(f"unsupported input arity: {arity}")
 
-    in_vals = (l.strip() for l in input_file if l and not l.startswith("#"))
-    in_vals = (l.split(", ") for l in in_vals)
-    in_vals = list(zip(*in_vals))
+    rows = [
+        [value.strip() for value in line.strip().split(",")]
+        for line in input_file
+        if line.strip() and not line.startswith("#")
+    ]
+    if not rows or any(len(row) != arity for row in rows):
+        raise SystemExit("input row count does not match declared arity")
+    in_vals = list(zip(*rows))
     in_data = ",\n".join(
         "{" + (", ".join(val for val in col) + "}") for col in in_vals
     )
-    return in_data, len(in_vals[0])
+    return in_data, len(rows), arity
 
 
 def _vector_variant_snippets(
     idx: int,
     variant: Variant,
+    arity: int,
+    args_type: str,
 ) -> Tuple[str, str, str]:
     """Build prototype, caller, and table entry for a vector variant."""
     vtype = variant["vtype"]
@@ -199,18 +215,27 @@ def _vector_variant_snippets(
 
     m_suffix = vtype.replace(f"vfloat{elem_width}", "").replace("_t", "")
 
+    call_args = ", ".join([vtype] * arity)
     proto = (
-        f"extern {vtype} {name_sym}({vtype}) __asm__(\"{asm_sym}\");"
+        f"extern {vtype} {name_sym}({call_args}) "
+        f"__asm__(\"{asm_sym}\");"
     )
+    vector_args = [
+        f"  {vtype} arg{i} = "
+        f"__riscv_vle{elem_width}_v_{elem_type}{m_suffix} "
+        f"(&in->arg{i}[idx], vl);"
+        for i in range(arity)
+    ]
+    call_expr = f"{name_sym} (" + ", ".join(
+        f"arg{i}" for i in range(arity)
+    ) + ")"
     caller = (
         f"static double\n"
-        f"call_{idx} (const struct args_1 *in, size_t idx)\n"
+        f"call_{idx} (const struct {args_type} *in, size_t idx)\n"
         f"{{\n"
         f"  size_t vl = __riscv_vsetvl_{setvl_suffix} ({simdlen});\n"
-        f"  {vtype} x = "
-        f"__riscv_vle{elem_width}_v_{elem_type}{m_suffix} "
-        f"(&in->arg0[idx], vl);\n"
-        f"  {vtype} r = {name_sym} (x);\n"
+        f"{chr(10).join(vector_args)}\n"
+        f"  {vtype} r = {call_expr};\n"
         f"  return __riscv_vfmv_f_s_{elem_type}{m_suffix}_{elem_type} "
         f"(r);\n"
         f"}}\n"
@@ -223,19 +248,23 @@ def _build_variants(
     func: str,
     elem_width: int,
     variants: Iterable[Tuple[int, int]],
+    arity: int,
+    args_type: str,
 ) -> Tuple[List[str], List[str], List[str]]:
     """Build prototypes, callers, and table entries for all variants."""
     protos: List[str] = []
     callers: List[str] = []
     variant_entries: List[str] = []
 
-    variants_list = list(_make_vector_variants(func, elem_width, variants))
+    variants_list = list(
+        _make_vector_variants(func, elem_width, variants, arity)
+    )
     prefix = "v_d_" if elem_width == 64 else "v_f_"
     original = Path(__file__).resolve().parent.parent / (
         prefix + func + "_original.c"
     )
     if original.is_file():
-        variants_list.extend(_make_vector_variants(func + "_original", elem_width, variants))
+        variants_list.extend(_make_vector_variants(func + "_original", elem_width, variants, arity))
 
     variants_list.append(
         {
@@ -250,9 +279,11 @@ def _build_variants(
         if variant["kind"] == "scalar":
             callers.append(
                 f"static double\n"
-                f"call_{idx} (const struct args_1 *in, size_t idx)\n"
+                f"call_{idx} (const struct {args_type} *in, size_t idx)\n"
                 f"{{\n"
-                f"  return {func} (in->arg0[idx]);\n"
+                f"  return {func} (" + ", ".join(
+                    f"in->arg{i}[idx]" for i in range(arity)
+                ) + ");\n"
                 f"}}\n"
             )
             variant_entries.append(
@@ -260,7 +291,9 @@ def _build_variants(
             )
             continue
 
-        proto, caller, entry = _vector_variant_snippets(idx, variant)
+        proto, caller, entry = _vector_variant_snippets(
+            idx, variant, arity, args_type
+        )
         protos.append(proto)
         callers.append(caller)
         variant_entries.append(entry)
@@ -276,17 +309,25 @@ def main(name: str):
 
     stype = config["stype"]
     elem_width = config["elem_width"]
-    in_data, nelems = _load_input_data(func)
+    in_data, nelems, arity = _load_input_data(func)
+    args_type = f"args_{arity}"
+    arg_fields = "\n".join(
+        f"  {stype} arg{i}[{nelems}];" for i in range(arity)
+    )
     protos, callers, variant_entries = _build_variants(
         func,
         elem_width,
         config["variants"],
+        arity,
+        args_type,
     )
 
     print(
         TEMPLATE.format(
             stype=stype,
             nelems=nelems,
+            args_type=args_type,
+            arg_fields=arg_fields,
             in_data=in_data,
             protos="\n".join(protos),
             callers="\n".join(callers),

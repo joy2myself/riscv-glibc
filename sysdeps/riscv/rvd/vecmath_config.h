@@ -71,6 +71,18 @@ __BEGIN_DECLS
 #define VFMUL_VV(op1, op2, vlen) \
   __MAKE_VFMUL_VV ((op1), (op2), (vlen))
 
+/* Explicitly masked float/integer conversions used by the double atan2
+   fixed-point core.  Keep the intrinsic spelling in the common framework so
+   the routine skeleton contains only its operation graph.  */
+#define __MAKE_VFCVT_X_F_M \
+  __VCFG_PASTE5 (__riscv_vfcvt_x_f_v_i, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFCVT_F_X_M \
+  __VCFG_PASTE5 (__riscv_vfcvt_f_x_v_f, BIT_WIDTH, m, LMUL, _m)
+#define VFCVT_X_F_M(mask, value, vlen) \
+  __MAKE_VFCVT_X_F_M ((mask), (value), (vlen))
+#define VFCVT_F_X_M(mask, value, vlen) \
+  __MAKE_VFCVT_F_X_M ((mask), (value), (vlen))
+
 #ifndef FE_TONEAREST
 #define FE_TONEAREST 0x000
 #endif

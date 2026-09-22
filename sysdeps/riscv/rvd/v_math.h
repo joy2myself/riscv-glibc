@@ -47,11 +47,14 @@ _Static_assert (0, "NaN not available on this architecture");
 static const uint64_t class_sNaN = 0x100;
 static const uint64_t class_NaN = 0x300;
 static const uint64_t class_Inf = 0x81;
+static const uint64_t class_negZero = 0x8;
 static const uint64_t class_Zero = 0x18;
 static const uint64_t class_posZero = 0x10;
 static const uint64_t class_posDenorm = 0x20;
 static const uint64_t class_Subnormal = 0x24;
 static const uint64_t class_negative = 0x7;
+static const uint64_t class_finite_neg = 0x6;
+static const uint64_t class_finite_pos = 0x60;
 
 /* Scalar constants shared by the SLEEF single-precision trigonometric
    reduction paths.  Keep the actual rempif lookup table in
@@ -113,9 +116,11 @@ static const uint64_t class_negative = 0x7;
 #  define _V_MATH_SCALAR_64
 typedef double scalar_t;
 static const scalar_t fp_sNaN = __builtin_nans ("");
+static const scalar_t fp_negInf = -__builtin_inf ();
 static const scalar_t fp_negZero = -0.;
 static const scalar_t fp_posZero = 0.0;
 static const scalar_t fp_posOne = 0x1.0p0;
+static const scalar_t fp_posHalf = 0x1.0p-1;
 static const scalar_t fp_posInf = __builtin_inf ();
 # endif
 #elif (BIT_WIDTH == 32)
@@ -125,9 +130,11 @@ static const scalar_t fp_posInf = __builtin_inf ();
 #  define _V_MATH_SCALAR_32
 typedef float scalar_t;
 static const scalar_t fp_sNaN = __builtin_nansf ("");
+static const scalar_t fp_negInf = -__builtin_inff ();
 static const scalar_t fp_negZero = -0.f;
 static const scalar_t fp_posZero = 0.0f;
 static const scalar_t fp_posOne = 0x1.0p0f;
+static const scalar_t fp_posHalf = 0x1.0p-1f;
 static const scalar_t fp_posInf = __builtin_inff ();
 # endif
 #else
@@ -216,6 +223,15 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_ONE_OVER_PI_HI_D 0x1.45f306dc9c883p-2
 #define RVV_ONE_OVER_PI_LO_D -0x1.6b01ec5417056p-56
 #define RVV_ONE_OVER_PI_Q63 0x28be60db9391054aLL
+#define RVV_ATAN2_PI_075_HI_D 0x1.2d97c7f3321d2p+1
+#define RVV_ATAN2_PIBY4_HI_D 0x1.921fb54442d18p-1
+#define RVV_ATAN2_PI_HI_D 0x1.921fb54442d18p+1
+#define RVV_ATAN2_PI_LO_D 0x1.1a62633145c07p-53
+#define RVV_ATAN2_PI_Q61 0x6487ed5110b4611aLL
+#define RVV_ATAN2_HALF_Q61 0x1000000000000000LL
+#define RVV_ATAN2_ONE_Q61 0x2000000000000000LL
+#define RVV_ATAN2_ONE_OVER_4_D 0x1.0p-2
+#define RVV_ATAN2_THREE_OVER_4_D 0x1.8p-1
 #define RVV_LN2_HI_D 0x1.62e42fefa39efp-1
 #define RVV_LN2_LO_D 0x1.abc9e3b39803fp-56
 #define RVV_LOG2_HI_D 0x1.62e42fefa4000p-1
@@ -843,6 +859,69 @@ static const scalar_t fp_posInf = __builtin_inff ();
   __PASTE2 (rvv_libmvec_atanhf_vpow2i_m, LMUL)
 # define RVV_LIBMVEC_ATANHF_LOGK2F \
   __PASTE2 (rvv_libmvec_atanhf_logk2f_m, LMUL)
+#endif
+
+/* The double-precision atan2 and atan2pi skeletons share one operation graph.
+   Keep their mode-specific constants and fixed-point post-selection in this
+   common header; the skeleton itself should not carry a compile-control
+   define merely because the importer has a different public function name.  */
+#ifndef RVV_MATH_IS_ATAN2_FAMILY_atan2
+# define RVV_MATH_IS_ATAN2_FAMILY_atan2 1
+# define RVV_MATH_IS_ATAN2_FAMILY_atan2pi 1
+# define RVV_MATH_IS_ATAN2_FAMILY_INNER(name) \
+  RVV_MATH_IS_ATAN2_FAMILY_##name
+# define RVV_MATH_IS_ATAN2_FAMILY(name) \
+  RVV_MATH_IS_ATAN2_FAMILY_INNER (name)
+#endif
+
+#ifndef RVV_MATH_IS_ATAN2PI_atan2pi
+# define RVV_MATH_IS_ATAN2PI_atan2pi 1
+# define RVV_MATH_IS_ATAN2PI_INNER(name) RVV_MATH_IS_ATAN2PI_##name
+# define RVV_MATH_IS_ATAN2PI(name) RVV_MATH_IS_ATAN2PI_INNER (name)
+#endif
+
+#undef RVV_ATAN2_Y_NONZERO_X_ZERO
+#undef RVV_ATAN2_Y_ZERO_X_NEGATIVE
+#undef RVV_ATAN2_POSINF_POSINF
+#undef RVV_ATAN2_NEGINF_INF
+#undef RVV_ATAN2_NEGINF_FINITE
+#undef RVV_ATAN2_FINITE_NEGATIVE_ZERO
+#undef RVV_ATAN2_Y_INF_FINITE
+#undef RVV_ATAN2_PI_HI
+#undef RVV_ATAN2_PI_LO
+#undef RVV_ATAN2_PIBY2_HI
+#undef RVV_ATAN2_FIXED_HALF
+#undef RVV_ATAN2_FIXED_ONE
+#undef RVV_ATAN2_POST_SCALE
+
+#if (BIT_WIDTH == 64) && RVV_MATH_IS_ATAN2_FAMILY (V_MATH_FUNC)
+# if RVV_MATH_IS_ATAN2PI (V_MATH_FUNC)
+#  define RVV_ATAN2_Y_NONZERO_X_ZERO (fp_posHalf)
+#  define RVV_ATAN2_Y_ZERO_X_NEGATIVE (fp_posOne)
+#  define RVV_ATAN2_POSINF_POSINF RVV_ATAN2_ONE_OVER_4_D
+#  define RVV_ATAN2_NEGINF_INF RVV_ATAN2_THREE_OVER_4_D
+#  define RVV_ATAN2_NEGINF_FINITE (fp_posOne)
+#  define RVV_ATAN2_FINITE_NEGATIVE_ZERO (fp_posOne)
+#  define RVV_ATAN2_Y_INF_FINITE (fp_posHalf)
+#  define RVV_ATAN2_FIXED_HALF RVV_ATAN2_HALF_Q61
+#  define RVV_ATAN2_FIXED_ONE RVV_ATAN2_ONE_Q61
+#  define RVV_ATAN2_POST_SCALE(value, vlen) \
+  __riscv_vsmul ((value), RVV_ONE_OVER_PI_Q63, 1, (vlen))
+# else
+#  define RVV_ATAN2_Y_NONZERO_X_ZERO PIBY2_HI
+#  define RVV_ATAN2_Y_ZERO_X_NEGATIVE RVV_ATAN2_PI_HI_D
+#  define RVV_ATAN2_POSINF_POSINF RVV_ATAN2_PIBY4_HI_D
+#  define RVV_ATAN2_NEGINF_INF RVV_ATAN2_PI_075_HI_D
+#  define RVV_ATAN2_NEGINF_FINITE RVV_ATAN2_PI_HI_D
+#  define RVV_ATAN2_FINITE_NEGATIVE_ZERO RVV_ATAN2_PI_HI_D
+#  define RVV_ATAN2_Y_INF_FINITE PIBY2_HI
+#  define RVV_ATAN2_FIXED_HALF RVV_PIBY2_Q61
+#  define RVV_ATAN2_FIXED_ONE RVV_ATAN2_PI_Q61
+#  define RVV_ATAN2_POST_SCALE(value, vlen) (value)
+# endif
+# define RVV_ATAN2_PI_HI RVV_ATAN2_PI_HI_D
+# define RVV_ATAN2_PI_LO RVV_ATAN2_PI_LO_D
+# define RVV_ATAN2_PIBY2_HI PIBY2_HI
 #endif
 
 /* Clean asinhf is the first importer that needs this subset of the generic
