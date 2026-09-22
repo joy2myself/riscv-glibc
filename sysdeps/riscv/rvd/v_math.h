@@ -469,6 +469,7 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_LN2_INV_D 0x1.71547652b82fep+0
 #define RVV_LN2_HI_D 0x1.62e42fefa39efp-1
 #define RVV_LN2_LO_D 0x1.abc9e3b39803fp-56
+#define RVV_LOG10_2_HI_D 0x1.34413509f79ffp-2
 #define RVV_EXP_X_MAX_D 0x1.65p+9
 #define RVV_EXP_X_MIN_D -0x1.77p+9
 #define RVV_LOG2_HI_D 0x1.62e42fefa4000p-1
@@ -596,6 +597,13 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_ERFC_EXP_P_LEFT2_I 0x2000000000001659LL
 #define RVV_ERFC_EXP_P_LEFT3_I 0xaaaaaaaaaaa201bLL
 #define RVV_ERFC_EXP_P_LEFT4_I 0x2aaaaaaaaa03367LL
+#define RVV_LN10_HI_D 0x1.26bb1bbb55516p+1
+#define RVV_LN10_LO_D -0x1.f48ad494ea3e9p-53
+#define RVV_EXP10_P_INV_STD_D 0x1.a934f0979a371p+1
+#define RVV_EXP10_P_HI_STD_D RVV_LOG10_2_HI_D
+#define RVV_EXP10_P_LO_STD_D -0x1.9dc1da994fd21p-59
+#define RVV_EXP10_X_MAX_D 0x1.36p+8
+#define RVV_EXP10_X_MIN_D -0x1.46p+8
 #define RVV_EXP_POLY_RIGHT0_D 0x1.71df804f1baa1p-19
 #define RVV_EXP_POLY_RIGHT1_D 0x1.28aa3ea739296p-22
 #define RVV_EXP_POLY_RIGHT2_D 0x1.acf86201fd199p-26
