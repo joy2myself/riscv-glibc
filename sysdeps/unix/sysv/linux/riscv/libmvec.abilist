@@ -1,6 +1,7 @@
 GLIBC_2.43 _ZGVr1N2v_acos F
 GLIBC_2.43 _ZGVr1N2v_acosh F
 GLIBC_2.43 _ZGVr1N2v_acospi F
+GLIBC_2.43 _ZGVr1N2v_asin F
 GLIBC_2.43 _ZGVr1N2v_cos F
 GLIBC_2.43 _ZGVr1N2v_log F
 GLIBC_2.43 _ZGVr1N2v_sin F
@@ -10,6 +11,7 @@ GLIBC_2.43 _ZGVr1N4v_acosf F
 GLIBC_2.43 _ZGVr1N4v_acosf_original F
 GLIBC_2.43 _ZGVr1N4v_acosh F
 GLIBC_2.43 _ZGVr1N4v_acospi F
+GLIBC_2.43 _ZGVr1N4v_asin F
 GLIBC_2.43 _ZGVr1N4v_cos F
 GLIBC_2.43 _ZGVr1N4v_log F
 GLIBC_2.43 _ZGVr1N4v_logf F
@@ -24,6 +26,7 @@ GLIBC_2.43 _ZGVr2N16v_logf F
 GLIBC_2.43 _ZGVr2N2v_acos F
 GLIBC_2.43 _ZGVr2N2v_acosh F
 GLIBC_2.43 _ZGVr2N2v_acospi F
+GLIBC_2.43 _ZGVr2N2v_asin F
 GLIBC_2.43 _ZGVr2N2v_cos F
 GLIBC_2.43 _ZGVr2N2v_log F
 GLIBC_2.43 _ZGVr2N2v_sin F
@@ -33,6 +36,7 @@ GLIBC_2.43 _ZGVr2N4v_acosf F
 GLIBC_2.43 _ZGVr2N4v_acosf_original F
 GLIBC_2.43 _ZGVr2N4v_acosh F
 GLIBC_2.43 _ZGVr2N4v_acospi F
+GLIBC_2.43 _ZGVr2N4v_asin F
 GLIBC_2.43 _ZGVr2N4v_cos F
 GLIBC_2.43 _ZGVr2N4v_log F
 GLIBC_2.43 _ZGVr2N4v_logf F
@@ -43,6 +47,7 @@ GLIBC_2.43 _ZGVr2N8v_acosf F
 GLIBC_2.43 _ZGVr2N8v_acosf_original F
 GLIBC_2.43 _ZGVr2N8v_acosh F
 GLIBC_2.43 _ZGVr2N8v_acospi F
+GLIBC_2.43 _ZGVr2N8v_asin F
 GLIBC_2.43 _ZGVr2N8v_cos F
 GLIBC_2.43 _ZGVr2N8v_log F
 GLIBC_2.43 _ZGVr2N8v_logf F
@@ -53,6 +58,7 @@ GLIBC_2.43 _ZGVr4N16v_acosf F
 GLIBC_2.43 _ZGVr4N16v_acosf_original F
 GLIBC_2.43 _ZGVr4N16v_acosh F
 GLIBC_2.43 _ZGVr4N16v_acospi F
+GLIBC_2.43 _ZGVr4N16v_asin F
 GLIBC_2.43 _ZGVr4N16v_cos F
 GLIBC_2.43 _ZGVr4N16v_log F
 GLIBC_2.43 _ZGVr4N16v_logf F
@@ -64,6 +70,7 @@ GLIBC_2.43 _ZGVr4N32v_logf F
 GLIBC_2.43 _ZGVr4N4v_acos F
 GLIBC_2.43 _ZGVr4N4v_acosh F
 GLIBC_2.43 _ZGVr4N4v_acospi F
+GLIBC_2.43 _ZGVr4N4v_asin F
 GLIBC_2.43 _ZGVr4N4v_cos F
 GLIBC_2.43 _ZGVr4N4v_log F
 GLIBC_2.43 _ZGVr4N4v_sin F
@@ -73,6 +80,7 @@ GLIBC_2.43 _ZGVr4N8v_acosf F
 GLIBC_2.43 _ZGVr4N8v_acosf_original F
 GLIBC_2.43 _ZGVr4N8v_acosh F
 GLIBC_2.43 _ZGVr4N8v_acospi F
+GLIBC_2.43 _ZGVr4N8v_asin F
 GLIBC_2.43 _ZGVr4N8v_cos F
 GLIBC_2.43 _ZGVr4N8v_log F
 GLIBC_2.43 _ZGVr4N8v_logf F
@@ -83,6 +91,7 @@ GLIBC_2.43 _ZGVr8N16v_acosf F
 GLIBC_2.43 _ZGVr8N16v_acosf_original F
 GLIBC_2.43 _ZGVr8N16v_acosh F
 GLIBC_2.43 _ZGVr8N16v_acospi F
+GLIBC_2.43 _ZGVr8N16v_asin F
 GLIBC_2.43 _ZGVr8N16v_cos F
 GLIBC_2.43 _ZGVr8N16v_log F
 GLIBC_2.43 _ZGVr8N16v_logf F
@@ -93,6 +102,7 @@ GLIBC_2.43 _ZGVr8N32v_acosf F
 GLIBC_2.43 _ZGVr8N32v_acosf_original F
 GLIBC_2.43 _ZGVr8N32v_acosh F
 GLIBC_2.43 _ZGVr8N32v_acospi F
+GLIBC_2.43 _ZGVr8N32v_asin F
 GLIBC_2.43 _ZGVr8N32v_cos F
 GLIBC_2.43 _ZGVr8N32v_log F
 GLIBC_2.43 _ZGVr8N32v_logf F
@@ -104,6 +114,7 @@ GLIBC_2.43 _ZGVr8N64v_logf F
 GLIBC_2.43 _ZGVr8N8v_acos F
 GLIBC_2.43 _ZGVr8N8v_acosh F
 GLIBC_2.43 _ZGVr8N8v_acospi F
+GLIBC_2.43 _ZGVr8N8v_asin F
 GLIBC_2.43 _ZGVr8N8v_cos F
 GLIBC_2.43 _ZGVr8N8v_log F
 GLIBC_2.43 _ZGVr8N8v_sin F
