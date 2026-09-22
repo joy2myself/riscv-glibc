@@ -506,5 +506,16 @@ libmvec {
     _ZGVr8N16v_coshf_original;
     _ZGVr8N32v_coshf_original;
     _ZGVr8N64v_coshf_original;
+    _ZGVr1N2v_cospi;
+    _ZGVr1N4v_cospi;
+    _ZGVr2N2v_cospi;
+    _ZGVr2N4v_cospi;
+    _ZGVr2N8v_cospi;
+    _ZGVr4N4v_cospi;
+    _ZGVr4N8v_cospi;
+    _ZGVr4N16v_cospi;
+    _ZGVr8N8v_cospi;
+    _ZGVr8N16v_cospi;
+    _ZGVr8N32v_cospi;
   }
 }

@@ -55,6 +55,7 @@ libmvec-double-funcs-bare = \
   exp2 \
   cosh \
   cbrt \
+  cospi \
 
 libmvec-double-funcs-with-data = \
   log \
@@ -117,6 +118,7 @@ libmvec-double-bench-funcs = \
   exp2 \
   cosh \
   cbrt \
+  cospi \
 
 libmvec-float-bench-funcs = \
   logf \
