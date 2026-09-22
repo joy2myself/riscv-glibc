@@ -53,6 +53,17 @@ _Static_assert (0, "NaN not available on this architecture");
   RVV_MATH_IS_LOG2F_ORIGINAL_INNER (name)
 #endif
 
+#ifndef RVV_MATH_IS_TGAMMAF_FAMILY_tgammaf
+# define RVV_MATH_IS_TGAMMAF_FAMILY_tgammaf 1
+# define RVV_MATH_IS_TGAMMAF_FAMILY_tgammaf_original 1
+# define RVV_MATH_IS_TGAMMAF_FAMILY_lgammaf 1
+# define RVV_MATH_IS_TGAMMAF_FAMILY_lgammaf_original 1
+# define RVV_MATH_IS_TGAMMAF_FAMILY_INNER(name) \
+  RVV_MATH_IS_TGAMMAF_FAMILY_##name
+# define RVV_MATH_IS_TGAMMAF_FAMILY(name) \
+  RVV_MATH_IS_TGAMMAF_FAMILY_INNER (name)
+#endif
+
 #ifndef RVV_MATH_IS_LOG2F_FAMILY_log2f
 # define RVV_MATH_IS_LOG2F_FAMILY_log2f 1
 # define RVV_MATH_IS_LOG2F_FAMILY_log2f_clean_assert 1
@@ -1101,6 +1112,77 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_SLEEF_LOGK2F_POLY2_F 0.400005877017974853515625f
 #define RVV_SLEEF_LOGK2F_POLY3_F 0.666666686534881591796875f
 
+#ifndef RVV_TGAMMAF_CONSTANTS
+# define RVV_TGAMMAF_CONSTANTS
+# define RVV_TGAMMAF_SOURCE_LOG_POLY_0_F RVV_SLEEF_LOGK2F_POLY0_F
+# define RVV_TGAMMAF_SOURCE_LOG_POLY_1_F RVV_SLEEF_LOGK2F_POLY1_F
+# define RVV_TGAMMAF_SOURCE_LOG_POLY_2_F RVV_SLEEF_LOGK2F_POLY2_F
+# define RVV_TGAMMAF_SOURCE_LOG_POLY_3_F RVV_SLEEF_LOGK2F_POLY3_F
+# define RVV_TGAMMAF_SOURCE_SINPIF_POLY_0_0_F RVV_COSPIF_POLY_SIN0_F
+# define RVV_TGAMMAF_SOURCE_SINPIF_POLY_0_1_F RVV_COSPIF_POLY_COS0_F
+# define RVV_TGAMMAF_SOURCE_SINPIF_POLY_1_0_F RVV_COSPIF_POLY_SIN1_F
+# define RVV_TGAMMAF_SOURCE_SINPIF_POLY_1_1_F RVV_COSPIF_POLY_COS1_F
+# define RVV_TGAMMAF_SOURCE_SINPIF_POLY_2_0_F RVV_COSPIF_POLY_SIN2_F
+# define RVV_TGAMMAF_SOURCE_SINPIF_POLY_2_1_F RVV_COSPIF_POLY_COS2_F
+# define RVV_TGAMMAF_SOURCE_SINPIF_C_0_0_D +0.015854343771934509277
+# define RVV_TGAMMAF_SOURCE_SINPIF_C_0_1_D -0.080745510756969451904
+# define RVV_TGAMMAF_SOURCE_SINPIF_C_1_0_D +4.4940051354032242811e-10
+# define RVV_TGAMMAF_SOURCE_SINPIF_C_1_1_D -1.3373665339076936258e-09
+# define RVV_TGAMMAF_SOURCE_SINPIF_P_0_0_D -0.30842512845993041992
+# define RVV_TGAMMAF_SOURCE_SINPIF_P_0_1_D +0.78539818525314331055
+# define RVV_TGAMMAF_SOURCE_SINPIF_P_1_0_D -9.0728339030733922277e-09
+# define RVV_TGAMMAF_SOURCE_SINPIF_P_1_1_D -2.1857338617566484855e-08
+# define RVV_TGAMMAF_SOURCE_GAMMA_O2_0_D +0.000839498720672087279971000786
+# define RVV_TGAMMAF_SOURCE_GAMMA_O2_1_D -5.17179090826059219329394422e-05
+# define RVV_TGAMMAF_SOURCE_GAMMA_O2_2_D -0.000592166437353693882857342347
+# define RVV_TGAMMAF_SOURCE_GAMMA_O2_3_D +6.97281375836585777403743539e-05
+# define RVV_TGAMMAF_SOURCE_GAMMA_O2_4_D +0.000784039221720066627493314301
+# define RVV_TGAMMAF_SOURCE_GAMMA_O2_5_D -0.000229472093621399176949318732
+# define RVV_TGAMMAF_SOURCE_GAMMA_O2_6_D -0.002681327160493827160473958490
+# define RVV_TGAMMAF_SOURCE_GAMMA_O2_7_D +0.003472222222222222222175164840
+# define RVV_TGAMMAF_SOURCE_GAMMA_O2_8_D +0.083333333333333333335592087900
+# define RVV_TGAMMAF_SOURCE_GAMMA_O0_0_F +0.9435157776e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O0_1_F +0.8670063615e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O0_2_F +0.4826702476e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O0_3_F -0.8855129778e-1f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O0_4_F +0.1013825238e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O0_5_F -0.1493408978e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O0_6_F +0.1697509140e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O0_7_F -0.2072454542e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O0_8_F +0.2705872357e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O1_0_F +0.1102489550e-3f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O1_1_F +0.8160019934e-4f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O1_2_F +0.1528468856e-3f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O1_3_F -0.2355068718e-3f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O1_4_F +0.4962242092e-3f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O1_5_F -0.1193488017e-2f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O1_6_F +0.2891599433e-2f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O1_7_F -0.7385451812e-2f
+# define RVV_TGAMMAF_SOURCE_GAMMA_O1_8_F +0.2058077045e-1f
+# define RVV_TGAMMAF_SOURCE_GAMMA_C_0_0_F -0.400686534596170958447352690395e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_C_0_1_F -0.673523028297382446749257758235e-1f
+# define RVV_TGAMMAF_SOURCE_GAMMA_C_1_0_F +0.822466960142643054450325495997e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_C_1_1_F +0.322467033928981157743538726901e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_C_2_0_F -0.577215665946766039837398973297e+0f
+# define RVV_TGAMMAF_SOURCE_GAMMA_C_2_1_F +0.422784335087484338986941629852e+0f
+# define RVV_TGAMMAF_LOG_L2U_F RVV_LOG1PF_LN2_HI_F
+# define RVV_TGAMMAF_LOG_L2L_F RVV_LOG1PF_LN2_LO_F
+# define RVV_TGAMMAF_VILOGB_LIMIT_F RVV_SLEEF_CBRTF_VILOGBK_THRESH
+# define RVV_TGAMMAF_VILOGB_SCALE_F RVV_SLEEF_CBRTF_VILOGBK_SCALE
+# define RVV_TGAMMAF_TINY_F 1e-30f
+# define RVV_TGAMMAF_LOG_SCALE_F (1.0f / 0.75f)
+# define RVV_TGAMMAF_SIN_SCALE_F (1.0f / 4096.0f)
+# define RVV_TGAMMAF_SIN_UNSCALE_F 4096.0f
+# define RVV_TGAMMAF_TINY_SCALE_F 0x1.0p+60f
+# define RVV_TGAMMAF_HALF_F RVV_SLEEF_EXPM1F_HALF
+# define RVV_TGAMMAF_LOG_SQRT_2PI_D 0.91893853320467278056
+# define RVV_TGAMMAF_LOG_PI_D 1.1447298858494001639
+# define RVV_TGAMMAF_LOG2_60_D 41.58883083359671856503
+# define RVV_TGAMMAF_GAMMA_O0_HI_F 1.2f
+# define RVV_TGAMMAF_GAMMA_O2_LO_F 2.3f
+# define RVV_TGAMMAF_GAMMA_O2_HI_F 7.0f
+#endif
+
 #define EXCEPTION_HANDLING_TRIG(vx, expo_x, special_args, vy_special, vlen)  \
   do                                                                          \
     {                                                                         \
@@ -1814,6 +1896,501 @@ static const scalar_t fp_posInf = __builtin_inff ();
   while (0)
 
 #endif /* RVV_SLEEF_ORIGINAL_DF_HELPERS */
+
+/* Shared source-original gamma helper names and widened clean-repair vector
+   types.  The public tgammaf entry is not enabled by this block; lgammaf uses
+   only the gammafk/logk2f subgraph below.  */
+#undef RVV_SLEEF_ORIG_TGAMMAF_MANGLE
+#define RVV_SLEEF_ORIG_TGAMMAF_MANGLE(base) \
+  RVV_SLEEF_ORIG_MANGLE (base, LMUL)
+
+#undef RVV_LGAMMAF_REPAIR_MANGLE_INNER
+#undef RVV_LGAMMAF_REPAIR_MANGLE
+#undef RVV_LGAMMAF_REPAIR_CALL_INNER
+#undef RVV_LGAMMAF_REPAIR_CALL
+#define RVV_LGAMMAF_REPAIR_MANGLE_INNER(base, lmul) base##lmul
+#define RVV_LGAMMAF_REPAIR_MANGLE(base, lmul) \
+  RVV_LGAMMAF_REPAIR_MANGLE_INNER (base, lmul)
+#define RVV_LGAMMAF_REPAIR_CALL_INNER(base, lmul) base##lmul
+#define RVV_LGAMMAF_REPAIR_CALL(base, lmul) \
+  RVV_LGAMMAF_REPAIR_CALL_INNER (base, lmul)
+
+#undef RVV_LGAMMAF_REPAIR_D
+#undef RVV_LGAMMAF_REPAIR_U
+#undef RVV_LGAMMAF_REPAIR_I
+#undef RVV_LGAMMAF_REPAIR_B
+#undef RVV_LGAMMAF_REPAIR_VL
+#undef RVV_LGAMMAF_REPAIR_NC
+#undef RVV_LGAMMAF_REPAIR_MV
+#undef RVV_LGAMMAF_REPAIR_MERGE
+#undef RVV_LGAMMAF_REPAIR_MERGE_X
+#undef RVV_LGAMMAF_REPAIR_F2U
+#undef RVV_LGAMMAF_REPAIR_U2F
+#undef RVV_LGAMMAF_REPAIR_U2I
+#if (BIT_WIDTH == 32) && (LMUL == 1)
+# define RVV_LGAMMAF_REPAIR_D vfloat64m2_t
+# define RVV_LGAMMAF_REPAIR_U vuint64m2_t
+# define RVV_LGAMMAF_REPAIR_I vint64m2_t
+# define RVV_LGAMMAF_REPAIR_B vbool32_t
+# define RVV_LGAMMAF_REPAIR_VL __riscv_vfwcvt_f_f_v_f64m2
+# define RVV_LGAMMAF_REPAIR_NC __riscv_vfncvt_f_f_w_f32m1
+# define RVV_LGAMMAF_REPAIR_MV __riscv_vfmv_v_f_f64m2
+# define RVV_LGAMMAF_REPAIR_MERGE __riscv_vmerge_vvm_f64m2
+# define RVV_LGAMMAF_REPAIR_MERGE_X __riscv_vmerge_vxm_i64m2
+# define RVV_LGAMMAF_REPAIR_F2U __riscv_vreinterpret_v_f64m2_u64m2
+# define RVV_LGAMMAF_REPAIR_U2F __riscv_vreinterpret_v_u64m2_f64m2
+# define RVV_LGAMMAF_REPAIR_U2I __riscv_vreinterpret_v_u64m2_i64m2
+#elif (BIT_WIDTH == 32) && (LMUL == 2)
+# define RVV_LGAMMAF_REPAIR_D vfloat64m4_t
+# define RVV_LGAMMAF_REPAIR_U vuint64m4_t
+# define RVV_LGAMMAF_REPAIR_I vint64m4_t
+# define RVV_LGAMMAF_REPAIR_B vbool16_t
+# define RVV_LGAMMAF_REPAIR_VL __riscv_vfwcvt_f_f_v_f64m4
+# define RVV_LGAMMAF_REPAIR_NC __riscv_vfncvt_f_f_w_f32m2
+# define RVV_LGAMMAF_REPAIR_MV __riscv_vfmv_v_f_f64m4
+# define RVV_LGAMMAF_REPAIR_MERGE __riscv_vmerge_vvm_f64m4
+# define RVV_LGAMMAF_REPAIR_MERGE_X __riscv_vmerge_vxm_i64m4
+# define RVV_LGAMMAF_REPAIR_F2U __riscv_vreinterpret_v_f64m4_u64m4
+# define RVV_LGAMMAF_REPAIR_U2F __riscv_vreinterpret_v_u64m4_f64m4
+# define RVV_LGAMMAF_REPAIR_U2I __riscv_vreinterpret_v_u64m4_i64m4
+#elif (BIT_WIDTH == 32) && (LMUL == 4)
+# define RVV_LGAMMAF_REPAIR_D vfloat64m8_t
+# define RVV_LGAMMAF_REPAIR_U vuint64m8_t
+# define RVV_LGAMMAF_REPAIR_I vint64m8_t
+# define RVV_LGAMMAF_REPAIR_B vbool8_t
+# define RVV_LGAMMAF_REPAIR_VL __riscv_vfwcvt_f_f_v_f64m8
+# define RVV_LGAMMAF_REPAIR_NC __riscv_vfncvt_f_f_w_f32m4
+# define RVV_LGAMMAF_REPAIR_MV __riscv_vfmv_v_f_f64m8
+# define RVV_LGAMMAF_REPAIR_MERGE __riscv_vmerge_vvm_f64m8
+# define RVV_LGAMMAF_REPAIR_MERGE_X __riscv_vmerge_vxm_i64m8
+# define RVV_LGAMMAF_REPAIR_F2U __riscv_vreinterpret_v_f64m8_u64m8
+# define RVV_LGAMMAF_REPAIR_U2F __riscv_vreinterpret_v_u64m8_f64m8
+# define RVV_LGAMMAF_REPAIR_U2I __riscv_vreinterpret_v_u64m8_i64m8
+#endif
+
+/* Source-original SLEEF gamma helpers.  These are shared by tgammaf and the
+   lgammaf source-shaped comparator, but the public entries remain in their
+   respective skeletons so clean EH and source final-selection policy cannot
+   be accidentally coupled.  */
+#if (BIT_WIDTH == 32) && RVV_MATH_IS_TGAMMAF_FAMILY (V_MATH_FUNC)
+# if (LMUL == 1)
+#  ifndef RVV_SLEEF_ORIG_TGAMMAF_HELPERS_M1
+#   define RVV_SLEEF_ORIG_TGAMMAF_HELPERS_M1
+#   define RVV_SLEEF_ORIG_TGAMMAF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_SLEEF_ORIG_TGAMMAF_HELPERS_M2
+#   define RVV_SLEEF_ORIG_TGAMMAF_HELPERS_M2
+#   define RVV_SLEEF_ORIG_TGAMMAF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_SLEEF_ORIG_TGAMMAF_HELPERS_M4
+#   define RVV_SLEEF_ORIG_TGAMMAF_HELPERS_M4
+#   define RVV_SLEEF_ORIG_TGAMMAF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_SLEEF_ORIG_TGAMMAF_HELPERS_M8
+#   define RVV_SLEEF_ORIG_TGAMMAF_HELPERS_M8
+#   define RVV_SLEEF_ORIG_TGAMMAF_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_SLEEF_ORIG_TGAMMAF_HELPERS_THIS_LMUL
+
+static inline VINT
+RVV_SLEEF_ORIG_TGAMMAF_MANGLE (rvv_sleef_orig_tgammaf_truncate_m)
+  (VFLOAT x, size_t vlen)
+{
+  return __riscv_vfcvt_rtz_x (x, vlen);
+}
+
+static inline VINT
+RVV_SLEEF_ORIG_TGAMMAF_MANGLE (rvv_sleef_orig_tgammaf_vilogbk_m)
+  (VFLOAT d, size_t vlen)
+{
+  VBOOL small = __riscv_vmflt
+    (d, RVV_TGAMMAF_VILOGB_LIMIT_F, vlen);
+  VFLOAT scaled = VFMUL_VF (d, RVV_TGAMMAF_VILOGB_SCALE_F, vlen);
+  d = VMERGE_VVM_F (d, scaled, small, vlen);
+
+  VUINT q = __riscv_vsrl (F_AS_U (d), MAN_LEN_F, vlen);
+  q = __riscv_vand (q, 0xff, vlen);
+  VINT bias = VMERGE_VVM_I
+    (VMVI_VX (0x7f, vlen), VMVI_VX (64 + 0x7f, vlen), small, vlen);
+  return __riscv_vsub (U_AS_I (q), bias, vlen);
+}
+
+static inline VFLOAT
+RVV_SLEEF_ORIG_TGAMMAF_MANGLE (rvv_sleef_orig_tgammaf_vpow2i_m)
+  (VINT q, size_t vlen)
+{
+  VINT biased = __riscv_vadd (q, EXP_BIAS_F, vlen);
+  return I_AS_F (__riscv_vsll (biased, MAN_LEN_F, vlen));
+}
+
+static inline void
+RVV_SLEEF_ORIG_TGAMMAF_MANGLE (rvv_sleef_orig_tgammaf_logk2f_m)
+  (VFLOAT d_hi, VFLOAT d_lo,
+   VFLOAT *r_hi, VFLOAT *r_lo, size_t vlen)
+{
+  VFLOAT d_adj = VFMUL_VF (d_hi, RVV_TGAMMAF_LOG_SCALE_F, vlen);
+  VINT e = RVV_SLEEF_ORIG_TGAMMAF_MANGLE
+    (rvv_sleef_orig_tgammaf_vilogbk_m) (d_adj, vlen);
+
+  VINT neg_e = __riscv_vneg (e, vlen);
+  VFLOAT scale = RVV_SLEEF_ORIG_TGAMMAF_MANGLE
+    (rvv_sleef_orig_tgammaf_vpow2i_m) (neg_e, vlen);
+  VFLOAT m_hi, m_lo;
+  RVV_SLEEF_ORIG_DFSCALE_VF2_VF
+    (d_hi, d_lo, scale, m_hi, m_lo, vlen);
+
+  VFLOAT num_hi, num_lo;
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (m_hi, m_lo, -1.0f, num_hi, num_lo, vlen);
+  VFLOAT den_hi, den_lo;
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (m_hi, m_lo, 1.0f, den_hi, den_lo, vlen);
+
+  VFLOAT x_hi, x_lo;
+  RVV_SLEEF_ORIG_DFDIV_VF2_VF2
+    (num_hi, num_lo, den_hi, den_lo, x_hi, x_lo, vlen);
+  VFLOAT x2_hi, x2_lo;
+  RVV_SLEEF_ORIG_DFSQU_VF2 (x_hi, x_lo, x2_hi, x2_lo, vlen);
+
+  VFLOAT poly = VFMV_VF (RVV_TGAMMAF_SOURCE_LOG_POLY_0_F, vlen);
+  poly = VFMADD_VV
+    (poly, x2_hi, VFMV_VF (RVV_TGAMMAF_SOURCE_LOG_POLY_1_F, vlen), vlen);
+  poly = VFMADD_VV
+    (poly, x2_hi, VFMV_VF (RVV_TGAMMAF_SOURCE_LOG_POLY_2_F, vlen), vlen);
+  poly = VFMADD_VV
+    (poly, x2_hi, VFMV_VF (RVV_TGAMMAF_SOURCE_LOG_POLY_3_F, vlen), vlen);
+
+  VFLOAT e_f = __riscv_vfcvt_f (e, vlen);
+  VFLOAT s_hi, s_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF
+    (VFMV_VF (RVV_TGAMMAF_LOG_L2U_F, vlen),
+     VFMV_VF (RVV_TGAMMAF_LOG_L2L_F, vlen), e_f, s_hi, s_lo, vlen);
+
+  VFLOAT two_x_hi, two_x_lo;
+  RVV_SLEEF_ORIG_DFSCALE_VF2_VF
+    (x_hi, x_lo, VFMV_VF (2.0f, vlen), two_x_hi, two_x_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD_VF2_VF2
+    (s_hi, s_lo, two_x_hi, two_x_lo, s_hi, s_lo, vlen);
+
+  VFLOAT x2x_hi, x2x_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (x2_hi, x2_lo, x_hi, x_lo, x2x_hi, x2x_lo, vlen);
+  VFLOAT tail_hi, tail_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF
+    (x2x_hi, x2x_lo, poly, tail_hi, tail_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD_VF2_VF2
+    (s_hi, s_lo, tail_hi, tail_lo, *r_hi, *r_lo, vlen);
+}
+
+static inline void
+RVV_SLEEF_ORIG_TGAMMAF_MANGLE (rvv_sleef_orig_tgammaf_sinpifk_m)
+  (VFLOAT d, VFLOAT *r_hi, VFLOAT *r_lo,
+   size_t vlen)
+{
+  VFLOAT u = VFMUL_VF (d, 4.0f, vlen);
+  VINT q = RVV_SLEEF_ORIG_TGAMMAF_MANGLE
+    (rvv_sleef_orig_tgammaf_truncate_m) (u, vlen);
+
+  VUINT q_u = I_AS_U (q);
+  VUINT q_sign = __riscv_vsrl (q_u, 31, vlen);
+  VUINT q_sign_x1 = VXOR_VV (q_sign, VMVU_VX (1, vlen), vlen);
+  q = __riscv_vadd (q, U_AS_I (q_sign_x1), vlen);
+  q = __riscv_vand (q, VMVI_VX (~1, vlen), vlen);
+
+  VBOOL o = __riscv_vmseq (__riscv_vand (q, 2, vlen), 2, vlen);
+  VFLOAT q_f = __riscv_vfcvt_f (q, vlen);
+  VFLOAT s = VFSUB_VV (u, q_f, vlen);
+  VFLOAT t = s;
+  s = VFMUL_VV (s, s, vlen);
+
+  VFLOAT s2_hi, s2_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF_VF (t, t, s2_hi, s2_lo, vlen);
+
+  VFLOAT uu = VFMERGE_VFM
+    (VFMV_VF (RVV_TGAMMAF_SOURCE_SINPIF_POLY_0_1_F, vlen),
+     RVV_TGAMMAF_SOURCE_SINPIF_POLY_0_0_F, o, vlen);
+  uu = VFMADD_VV
+    (uu, s, VFMERGE_VFM
+       (VFMV_VF (RVV_TGAMMAF_SOURCE_SINPIF_POLY_1_1_F, vlen),
+        RVV_TGAMMAF_SOURCE_SINPIF_POLY_1_0_F, o, vlen), vlen);
+  uu = VFMADD_VV
+    (uu, s, VFMERGE_VFM
+       (VFMV_VF (RVV_TGAMMAF_SOURCE_SINPIF_POLY_2_1_F, vlen),
+        RVV_TGAMMAF_SOURCE_SINPIF_POLY_2_0_F, o, vlen), vlen);
+
+  VFLOAT x_hi, x_lo;
+  VFLOAT us = VFMUL_VV (uu, s, vlen);
+  VFLOAT c_hi = VFMERGE_VFM
+    (VFMV_VF
+       (RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_SOURCE_SINPIF_C_0_1_D), vlen),
+     RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_SOURCE_SINPIF_C_0_0_D), o, vlen);
+  VFLOAT c_lo = VFMERGE_VFM
+    (VFMV_VF
+       (RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_SOURCE_SINPIF_C_1_1_D), vlen),
+     RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_SOURCE_SINPIF_C_1_0_D), o, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF_VF2
+    (us, c_hi, c_lo, x_hi, x_lo, vlen);
+
+  VFLOAT s2x_hi, s2x_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (s2_hi, s2_lo, x_hi, x_lo, s2x_hi, s2x_lo, vlen);
+  VFLOAT p_hi = VFMERGE_VFM
+    (VFMV_VF
+       (RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_SOURCE_SINPIF_P_0_1_D), vlen),
+     RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_SOURCE_SINPIF_P_0_0_D), o, vlen);
+  VFLOAT p_lo = VFMERGE_VFM
+    (VFMV_VF
+       (RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_SOURCE_SINPIF_P_1_1_D), vlen),
+     RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_SOURCE_SINPIF_P_1_0_D), o, vlen);
+  VFLOAT x2_hi, x2_lo;
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (s2x_hi, s2x_lo, p_hi, p_lo, x2_hi, x2_lo, vlen);
+
+  VFLOAT m_hi = VMERGE_VVM_F (t, s2_hi, o, vlen);
+  VFLOAT m_lo = VMERGE_VVM_F (VFMV_VF (0.0f, vlen), s2_lo, o, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (x2_hi, x2_lo, m_hi, m_lo, x_hi, x_lo, vlen);
+
+  VFLOAT one_hi, one_lo;
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (x_hi, x_lo, 1.0f, one_hi, one_lo, vlen);
+  x_hi = VMERGE_VVM_F (x_hi, one_hi, o, vlen);
+  x_lo = VMERGE_VVM_F (x_lo, one_lo, o, vlen);
+
+  VBOOL flip = __riscv_vmseq (__riscv_vand (q, 4, vlen), 4, vlen);
+  VINT flip_bits = VMERGE_VVM_I
+    (VMVI_VX (0, vlen), VMVI_VX (0x80000000, vlen), flip, vlen);
+  VFLOAT flip_f = I_AS_F (flip_bits);
+  x_hi = __riscv_vfsgnjx (x_hi, flip_f, vlen);
+  x_lo = __riscv_vfsgnjx (x_lo, flip_f, vlen);
+
+  *r_hi = x_hi;
+  *r_lo = x_lo;
+}
+
+static inline void
+RVV_SLEEF_ORIG_TGAMMAF_MANGLE (rvv_sleef_orig_tgammaf_gammafk_m)
+  (VFLOAT a, VFLOAT *out_clc_hi,
+   VFLOAT *out_clc_lo, VFLOAT *out_clln_hi, VFLOAT *out_clln_lo,
+   VFLOAT *out_clld_hi, VFLOAT *out_clld_lo, size_t vlen)
+{
+  VFLOAT clc_hi = VFMV_VF (0.0f, vlen);
+  VFLOAT clc_lo = VFMV_VF (0.0f, vlen);
+  VFLOAT clln_hi = VFMV_VF (1.0f, vlen);
+  VFLOAT clln_lo = VFMV_VF (0.0f, vlen);
+  VFLOAT clld_hi = VFMV_VF (1.0f, vlen);
+  VFLOAT clld_lo = VFMV_VF (0.0f, vlen);
+  VFLOAT x_hi = a;
+  VFLOAT x_lo = VFMV_VF (0.0f, vlen);
+  VFLOAT y_hi, y_lo, z_hi, z_lo;
+  VFLOAT t, u;
+
+  VBOOL otiny = __riscv_vmflt
+    (__riscv_vfabs (a, vlen), RVV_TGAMMAF_TINY_F, vlen);
+  VBOOL oref = __riscv_vmflt (a, RVV_TGAMMAF_HALF_F, vlen);
+
+  VFLOAT one_minus_a_hi, one_minus_a_lo;
+  RVV_SLEEF_ORIG_DFADD2_VF_VF
+    (VFMV_VF (1.0f, vlen), VFNEG_V (a, vlen),
+     one_minus_a_hi, one_minus_a_lo, vlen);
+  x_hi = VMERGE_VVM_F (x_hi, one_minus_a_hi, oref, vlen);
+  x_lo = VMERGE_VVM_F (x_lo, one_minus_a_lo, oref, vlen);
+  x_hi = VMERGE_VVM_F (x_hi, VFMV_VF (0.0f, vlen), otiny, vlen);
+  x_lo = VMERGE_VVM_F (x_lo, VFMV_VF (0.0f, vlen), otiny, vlen);
+
+  VBOOL o0 = __riscv_vmand
+    (__riscv_vmfge (x_hi, RVV_TGAMMAF_HALF_F, vlen),
+     __riscv_vmfle (x_hi, RVV_TGAMMAF_GAMMA_O0_HI_F, vlen), vlen);
+  VBOOL o2 = __riscv_vmfge (x_hi, RVV_TGAMMAF_GAMMA_O2_LO_F, vlen);
+
+  VFLOAT tmp_hi, tmp_lo;
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (x_hi, x_lo, 1.0f, tmp_hi, tmp_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (tmp_hi, tmp_lo, x_hi, x_lo, y_hi, y_lo, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2
+    (y_hi, y_lo, y_hi, y_lo, vlen);
+
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (x_hi, x_lo, 2.0f, tmp_hi, tmp_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (tmp_hi, tmp_lo, y_hi, y_lo, y_hi, y_lo, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2
+    (y_hi, y_lo, y_hi, y_lo, vlen);
+
+  VBOOL o = __riscv_vmand
+    (o2, __riscv_vmfle (x_hi, RVV_TGAMMAF_GAMMA_O2_HI_F, vlen), vlen);
+  clln_hi = VMERGE_VVM_F (clln_hi, y_hi, o, vlen);
+  clln_lo = VMERGE_VVM_F (clln_lo, y_lo, o, vlen);
+
+  VFLOAT x3_hi, x3_lo;
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (x_hi, x_lo, 3.0f, x3_hi, x3_lo, vlen);
+  x_hi = VMERGE_VVM_F (x_hi, x3_hi, o, vlen);
+  x_lo = VMERGE_VVM_F (x_lo, x3_lo, o, vlen);
+
+  VFLOAT t1 = VFDIV_VV (VFMV_VF (1.0f, vlen), x_hi, vlen);
+  VFLOAT add = VFMERGE_VFM
+    (VFMV_VF (-2.0f, vlen), -1.0f, o0, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF
+    (x_hi, x_lo, add, tmp_hi, tmp_lo, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2
+    (tmp_hi, tmp_lo, tmp_hi, tmp_lo, vlen);
+  t = VMERGE_VVM_F (tmp_hi, t1, o2, vlen);
+
+# define RVV_SLEEF_ORIG_TGAMMAF_COEFF(i)                                  \
+  VFMERGE_VFM                                                            \
+    (VFMV_VF (__PASTE3 (RVV_TGAMMAF_SOURCE_GAMMA_O1_, i, _F), vlen),      \
+     RVV_SLEEF_ORIG_F64_TO_F32                                           \
+       (__PASTE3 (RVV_TGAMMAF_SOURCE_GAMMA_O0_, i, _F)), o0, vlen)
+# define RVV_SLEEF_ORIG_TGAMMAF_COEFF2(i)                                 \
+  VFMERGE_VFM                                                            \
+    (RVV_SLEEF_ORIG_TGAMMAF_COEFF (i),                                    \
+     RVV_SLEEF_ORIG_F64_TO_F32                                           \
+       (__PASTE3 (RVV_TGAMMAF_SOURCE_GAMMA_O2_, i, _D)), o2, vlen)
+
+  u = RVV_SLEEF_ORIG_TGAMMAF_COEFF2 (0);
+  u = VFMADD_VV (u, t, RVV_SLEEF_ORIG_TGAMMAF_COEFF2 (1), vlen);
+  u = VFMADD_VV (u, t, RVV_SLEEF_ORIG_TGAMMAF_COEFF2 (2), vlen);
+  u = VFMADD_VV (u, t, RVV_SLEEF_ORIG_TGAMMAF_COEFF2 (3), vlen);
+  u = VFMADD_VV (u, t, RVV_SLEEF_ORIG_TGAMMAF_COEFF2 (4), vlen);
+  u = VFMADD_VV (u, t, RVV_SLEEF_ORIG_TGAMMAF_COEFF2 (5), vlen);
+  u = VFMADD_VV (u, t, RVV_SLEEF_ORIG_TGAMMAF_COEFF2 (6), vlen);
+  u = VFMADD_VV (u, t, RVV_SLEEF_ORIG_TGAMMAF_COEFF2 (7), vlen);
+  u = VFMADD_VV (u, t, RVV_SLEEF_ORIG_TGAMMAF_COEFF2 (8), vlen);
+
+# undef RVV_SLEEF_ORIG_TGAMMAF_COEFF2
+# undef RVV_SLEEF_ORIG_TGAMMAF_COEFF
+
+  VFLOAT logx_hi, logx_lo;
+  RVV_SLEEF_ORIG_TGAMMAF_MANGLE (rvv_sleef_orig_tgammaf_logk2f_m)
+    (x_hi, x_lo, &logx_hi, &logx_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (x_hi, x_lo, -0.5f, tmp_hi, tmp_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (tmp_hi, tmp_lo, logx_hi, logx_lo, y_hi, y_lo, vlen);
+  VFLOAT neg_x_hi, neg_x_lo;
+  RVV_SLEEF_ORIG_DFNEG_VF2
+    (x_hi, x_lo, neg_x_hi, neg_x_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (y_hi, y_lo, neg_x_hi, neg_x_lo, y_hi, y_lo, vlen);
+
+  float log_sqrt_hi_s
+    = RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_LOG_SQRT_2PI_D);
+  float log_sqrt_lo_s
+    = RVV_SLEEF_ORIG_F64_TO_F32
+      (RVV_TGAMMAF_LOG_SQRT_2PI_D - (double) log_sqrt_hi_s);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (y_hi, y_lo, VFMV_VF (log_sqrt_hi_s, vlen),
+     VFMV_VF (log_sqrt_lo_s, vlen), y_hi, y_lo, vlen);
+
+  VFLOAT ut_hi, ut_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF_VF (u, t, ut_hi, ut_lo, vlen);
+  VFLOAT c = VFMERGE_VFM
+    (VFMV_VF (RVV_TGAMMAF_SOURCE_GAMMA_C_0_1_F, vlen),
+     RVV_TGAMMAF_SOURCE_GAMMA_C_0_0_F, o0, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF
+    (ut_hi, ut_lo, c, z_hi, z_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF
+    (z_hi, z_lo, t, z_hi, z_lo, vlen);
+  c = VFMERGE_VFM
+    (VFMV_VF (RVV_TGAMMAF_SOURCE_GAMMA_C_1_1_F, vlen),
+     RVV_TGAMMAF_SOURCE_GAMMA_C_1_0_F, o0, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF
+    (z_hi, z_lo, c, z_hi, z_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF
+    (z_hi, z_lo, t, z_hi, z_lo, vlen);
+  c = VFMERGE_VFM
+    (VFMV_VF (RVV_TGAMMAF_SOURCE_GAMMA_C_2_1_F, vlen),
+     RVV_TGAMMAF_SOURCE_GAMMA_C_2_0_F, o0, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF
+    (z_hi, z_lo, c, z_hi, z_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF
+    (z_hi, z_lo, t, z_hi, z_lo, vlen);
+
+  clc_hi = VMERGE_VVM_F (z_hi, y_hi, o2, vlen);
+  clc_lo = VMERGE_VVM_F (z_lo, y_lo, o2, vlen);
+
+  VFLOAT one_ut_hi, one_ut_lo;
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (ut_hi, ut_lo, 1.0f, one_ut_hi, one_ut_lo, vlen);
+  clld_hi = VMERGE_VVM_F (clld_hi, one_ut_hi, o2, vlen);
+  clld_lo = VMERGE_VVM_F (clld_lo, one_ut_lo, o2, vlen);
+
+  float logpi_hi_s = RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_LOG_PI_D);
+  float logpi_lo_s = RVV_SLEEF_ORIG_F64_TO_F32
+    (RVV_TGAMMAF_LOG_PI_D - (double) logpi_hi_s);
+  VFLOAT logpi_hi = VFMV_VF (logpi_hi_s, vlen);
+  VFLOAT logpi_lo = VFMV_VF (logpi_lo_s, vlen);
+  RVV_SLEEF_ORIG_DFNEG_VF2
+    (clc_hi, clc_lo, neg_x_hi, neg_x_lo, vlen);
+  VFLOAT clc_ref_hi, clc_ref_lo;
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (logpi_hi, logpi_lo, neg_x_hi, neg_x_lo, clc_ref_hi, clc_ref_lo, vlen);
+  clc_hi = VMERGE_VVM_F (clc_hi, clc_ref_hi, oref, vlen);
+  clc_lo = VMERGE_VVM_F (clc_lo, clc_ref_lo, oref, vlen);
+
+  float log2_60_hi_s
+    = RVV_SLEEF_ORIG_F64_TO_F32 (RVV_TGAMMAF_LOG2_60_D);
+  float log2_60_lo_s = RVV_SLEEF_ORIG_F64_TO_F32
+    (RVV_TGAMMAF_LOG2_60_D - (double) log2_60_hi_s);
+  clc_hi = VMERGE_VVM_F
+    (clc_hi, VFMV_VF (log2_60_hi_s, vlen), otiny, vlen);
+  clc_lo = VMERGE_VVM_F
+    (clc_lo, VFMV_VF (log2_60_lo_s, vlen), otiny, vlen);
+
+  VFLOAT y_base_hi = clln_hi;
+  VFLOAT y_base_lo = clln_lo;
+  VFLOAT clln_sel_hi = VMERGE_VVM_F (clld_hi, clln_hi, oref, vlen);
+  VFLOAT clln_sel_lo = VMERGE_VVM_F (clld_lo, clln_lo, oref, vlen);
+  clln_hi = VMERGE_VVM_F
+    (clln_sel_hi, VFMV_VF (1.0f, vlen), otiny, vlen);
+  clln_lo = VMERGE_VVM_F
+    (clln_sel_lo, VFMV_VF (0.0f, vlen), otiny, vlen);
+
+  VFLOAT x_ref_hi = VFMV_VF (0.0f, vlen);
+  VFLOAT x_ref_lo = VFMV_VF (0.0f, vlen);
+  if (__riscv_vcpop (oref, vlen) > 0)
+    {
+      VFLOAT a_q = VFMUL_VF (a, RVV_TGAMMAF_SIN_SCALE_F, vlen);
+      VINT q = RVV_SLEEF_ORIG_TGAMMAF_MANGLE
+        (rvv_sleef_orig_tgammaf_truncate_m) (a_q, vlen);
+      VFLOAT q_f = __riscv_vfcvt_f (q, vlen);
+      VFLOAT t_rem = VFSUB_VV
+        (a, VFMUL_VF (q_f, RVV_TGAMMAF_SIN_UNSCALE_F, vlen), vlen);
+      VFLOAT sin_hi, sin_lo;
+      RVV_SLEEF_ORIG_TGAMMAF_MANGLE
+        (rvv_sleef_orig_tgammaf_sinpifk_m)
+        (t_rem, &sin_hi, &sin_lo, vlen);
+      RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+        (clld_hi, clld_lo, sin_hi, sin_lo, x_ref_hi, x_ref_lo, vlen);
+    }
+
+  VFLOAT clld_sel_hi = VMERGE_VVM_F
+    (y_base_hi, x_ref_hi, oref, vlen);
+  VFLOAT clld_sel_lo = VMERGE_VVM_F
+    (y_base_lo, x_ref_lo, oref, vlen);
+  VFLOAT a_scaled = VFMUL_VF (a, RVV_TGAMMAF_TINY_SCALE_F, vlen);
+  clld_hi = VMERGE_VVM_F
+    (clld_sel_hi, a_scaled, otiny, vlen);
+  clld_lo = VMERGE_VVM_F
+    (clld_sel_lo, VFMV_VF (0.0f, vlen), otiny, vlen);
+
+  *out_clc_hi = clc_hi;
+  *out_clc_lo = clc_lo;
+  *out_clln_hi = clln_hi;
+  *out_clln_lo = clln_lo;
+  *out_clld_hi = clld_hi;
+  *out_clld_lo = clld_lo;
+}
+
+#  undef RVV_SLEEF_ORIG_TGAMMAF_HELPERS_THIS_LMUL
+# endif
+#endif
 
 /* Target-owned source-shaped log2f exponent helpers.  The clean log2f path,
    the log2f comparator, and the log2p1f component composites share these
