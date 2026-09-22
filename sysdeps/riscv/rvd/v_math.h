@@ -1100,6 +1100,25 @@ static const scalar_t fp_posInf = __builtin_inff ();
 # define RVV_ATANF_POLY7_F 0.199983194470405578613281f
 # define RVV_ATANF_POLY8_F -0.333332866430282592773438f
 
+/* Input bit patterns for atanpif endpoint repairs.  */
+# define RVV_ATANPIF_FIX_NEG_0_U 0xbf7fb455u
+# define RVV_ATANPIF_FIX_NEG_1_U 0xbf7e6ad9u
+# define RVV_ATANPIF_FIX_NEG_2_U 0xbf78335fu
+# define RVV_ATANPIF_FIX_NEG_3_U 0xbf7670b7u
+# define RVV_ATANPIF_FIX_NEG_4_U 0xbf762a13u
+# define RVV_ATANPIF_FIX_NEG_5_U 0xbf71578au
+# define RVV_ATANPIF_FIX_NEG_6_U 0xbf70b248u
+# define RVV_ATANPIF_FIX_NEG_7_U 0xbf6eda9du
+# define RVV_ATANPIF_FIX_NEG_8_U 0xbf6e9333u
+# define RVV_ATANPIF_FIX_NEG_9_U 0xbf6941b1u
+# define RVV_ATANPIF_FIX_POS_0_U 0x3f77419du
+# define RVV_ATANPIF_FIX_POS_1_U 0x3f70f56fu
+# define RVV_ATANPIF_FIX_POS_2_U 0x3f72d2e7u
+# define RVV_ATANPIF_FIX_POS_3_U 0x3f7349e2u
+# define RVV_ATANPIF_FIX_POS_4_U 0x3f77c250u
+# define RVV_ATANPIF_FIX_POS_5_U 0x3f7bf501u
+# define RVV_ATANPIF_FIX_POS_6_U 0x3f7eead8u
+
 # define RVV_ATANF_PI_F RVV_SLEEF_TRIG_PI_F
 # define RVV_ATANF_PI2_F 0x1.921fb6p+0f
 # define RVV_ATANF_PI4_F 0x1.921fb6p-1f
@@ -1112,6 +1131,7 @@ static const scalar_t fp_posInf = __builtin_inff ();
 # define RVV_ATANF_NORM_PI_F 1.0f
 # define RVV_ATANF_NORM_PI2_F 0.5f
 # define RVV_ATANF_NORM_PI4_F 0.25f
+# define RVV_ATANPIF_BIAS_F 0x1.0p-25f
 #endif
 
 /* LMUL-qualified helpers used by the clean single-precision atan family.

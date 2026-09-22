@@ -29,6 +29,7 @@ libmvec-float-funcs-bare = \
   atanf \
   atanhf \
   atan2f \
+  atanpif \
 
 libmvec-float-funcs-with-data = \
 
@@ -113,6 +114,7 @@ libmvec-float-bench-funcs = \
   atanf \
   atanhf \
   atan2f \
+  atanpif \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \
