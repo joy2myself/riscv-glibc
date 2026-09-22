@@ -113,6 +113,15 @@ __BEGIN_DECLS
   identity_mask = __riscv_vmsgtu (__riscv_vand ((vclass), (stencil), (vlen)), \
                                   0, (vlen))
 
+#define FAST2SUM(x, y, sum_hi, sum_lo, vlen)                                  \
+  do                                                                          \
+    {                                                                         \
+      (sum_hi) = __riscv_vfadd ((x), (y), (vlen));                            \
+      (sum_lo) = __riscv_vfsub ((x), (sum_hi), (vlen));                       \
+      (sum_lo) = __riscv_vfadd ((sum_lo), (y), (vlen));                       \
+    }                                                                         \
+  while (0)
+
 /* Define the table for table-driven implementations.  Scalar constants live
    in v_math.h.  */
 #define V_LOG_TABLE_BITS 7
@@ -120,6 +129,35 @@ extern const struct v_log_data
 {
   const int64_t table[1 << V_LOG_TABLE_BITS];
 } __v_log_data attribute_hidden;
+
+#define FAST2SUM(x, y, sum_hi, sum_lo, vlen)                                  \
+  do                                                                          \
+    {                                                                         \
+      (sum_hi) = __riscv_vfadd ((x), (y), (vlen));                            \
+      (sum_lo) = __riscv_vfsub ((x), (sum_hi), (vlen));                       \
+      (sum_lo) = __riscv_vfadd ((sum_lo), (y), (vlen));                       \
+    }                                                                         \
+  while (0)
+
+#define PROD_X1Y1(x, y, prod_hi, prod_lo, vlen)                               \
+  do                                                                          \
+    {                                                                         \
+      (prod_hi) = __riscv_vfmul ((x), (y), (vlen));                           \
+      (prod_lo) = __riscv_vfmsub ((x), (y), (prod_hi), (vlen));               \
+    }                                                                         \
+  while (0)
+
+#define DIV2_N2D2(numer, delta_n, denom, delta_d, q_hi, q_lo, vlen)          \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _q;                                                              \
+      (q_hi) = __riscv_vfdiv ((numer), (denom), (vlen));                      \
+      _q = __riscv_vfnmsub ((q_hi), (denom), (numer), (vlen));                \
+      _q = __riscv_vfnmsac (_q, (q_hi), (delta_d), (vlen));                   \
+      _q = __riscv_vfadd (_q, (delta_n), (vlen));                             \
+      (q_lo) = __riscv_vfmul (_q, __riscv_vfrec7 ((denom), (vlen)), (vlen));  \
+    }                                                                         \
+  while (0)
 
 #define __MAKE_VFADD_VV \
   __VCFG_PASTE4 (__riscv_vfadd_vv_f, BIT_WIDTH, m, LMUL)

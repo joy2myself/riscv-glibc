@@ -28,6 +28,7 @@ libmvec-float-funcs-with-data = \
 
 libmvec-double-funcs-bare = \
   acos \
+  acosh \
 
 libmvec-double-funcs-with-data = \
   log \
@@ -73,6 +74,7 @@ $(common-objpfx)libmvec.mk: $(common-objpfx)config.make
 libmvec-double-bench-funcs = \
   log \
   acos \
+  acosh \
 
 libmvec-float-bench-funcs = \
   logf \

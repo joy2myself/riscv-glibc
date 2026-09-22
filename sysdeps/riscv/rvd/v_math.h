@@ -44,6 +44,8 @@ _Static_assert (0, "NaN not available on this architecture");
 #define __PASTE5_BASE(A, B, C, D, E) A##B##C##D##E
 #define __PASTE5(A, B, C, D, E) __PASTE5_BASE (A, B, C, D, E)
 static const uint64_t class_NaN = 0x300;
+static const uint64_t class_Inf = 0x81;
+static const uint64_t class_Zero = 0x18;
 static const uint64_t class_posZero = 0x10;
 static const uint64_t class_posDenorm = 0x20;
 static const uint64_t class_negative = 0x7;
@@ -191,6 +193,8 @@ static const scalar_t fp_posOne = 0x1.0p0f;
 #define RVV_PIBY2_Q60 0x1921fb54442d1847LL
 #define RVV_LN2_HI_D 0x1.62e42fefa39efp-1
 #define RVV_LN2_LO_D 0x1.abc9e3b39803fp-56
+#define RVV_LOG2_HI_D 0x1.62e42fefa4000p-1
+#define RVV_LOG2_LO_D -0x1.8432a1b0e2634p-43
 #define RVV_SLEEF_LOG_U1_LN2_HI_F 0.69314718246459960938f
 #define RVV_SLEEF_LOG_U1_LN2_LO_F -1.904654323148236017e-09f
 #define RVV_SLEEF_LOG_U1_POLY0_F 0.3027294874e+0f
