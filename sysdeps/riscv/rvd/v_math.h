@@ -350,11 +350,15 @@ RVV_SLEEF_ORIG_F64_TO_F32 (double value)
 #undef MAKE_REINTERPRET
 #undef FLOAT
 #undef VFLOAT
+#undef VFLOAT_F
 #undef INT
 #undef VINT
+#undef VINT_F
 #undef UINT
 #undef VUINT
+#undef VUINT_F
 #undef VBOOL
+#undef VBOOL_F
 #undef F_AS_I
 #undef F_AS_I_F
 #undef F_AS_U
@@ -470,11 +474,15 @@ static const scalar_t fp_posInf = __builtin_inff ();
 
 #define FLOAT MAKE_TYPE (float)
 #define VFLOAT MAKE_VTYPE (vfloat)
+#define VFLOAT_F VFLOAT
 #define INT MAKE_TYPE (int)
 #define VINT MAKE_VTYPE (vint)
+#define VINT_F VINT
 #define UINT MAKE_TYPE (uint)
 #define VUINT MAKE_VTYPE (vuint)
+#define VUINT_F VUINT
 #define VBOOL MAKE_VBOOL (vbool)
+#define VBOOL_F VBOOL
 
 #define F_AS_I MAKE_REINTERPRET (f, i)
 #define F_AS_U MAKE_REINTERPRET (f, u)

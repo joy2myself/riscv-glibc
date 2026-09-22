@@ -913,5 +913,27 @@ libmvec {
     _ZGVr8N16v_fastcosf_original;
     _ZGVr8N32v_fastcosf_original;
     _ZGVr8N64v_fastcosf_original;
+    _ZGVr1N4vv_fastpowf;
+    _ZGVr1N8vv_fastpowf;
+    _ZGVr2N4vv_fastpowf;
+    _ZGVr2N8vv_fastpowf;
+    _ZGVr2N16vv_fastpowf;
+    _ZGVr4N8vv_fastpowf;
+    _ZGVr4N16vv_fastpowf;
+    _ZGVr4N32vv_fastpowf;
+    _ZGVr8N16vv_fastpowf;
+    _ZGVr8N32vv_fastpowf;
+    _ZGVr8N64vv_fastpowf;
+    _ZGVr1N4vv_fastpowf_original;
+    _ZGVr1N8vv_fastpowf_original;
+    _ZGVr2N4vv_fastpowf_original;
+    _ZGVr2N8vv_fastpowf_original;
+    _ZGVr2N16vv_fastpowf_original;
+    _ZGVr4N8vv_fastpowf_original;
+    _ZGVr4N16vv_fastpowf_original;
+    _ZGVr4N32vv_fastpowf_original;
+    _ZGVr8N16vv_fastpowf_original;
+    _ZGVr8N32vv_fastpowf_original;
+    _ZGVr8N64vv_fastpowf_original;
   }
 }

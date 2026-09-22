@@ -63,6 +63,10 @@ __BEGIN_DECLS
   __VCFG_PASTE5 (__riscv_vfnmsub_vv_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VFMACC_VV_M \
   __VCFG_PASTE5 (__riscv_vfmacc_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VAND_VV_I \
+  __VCFG_PASTE4 (__riscv_vand_vv_i, BIT_WIDTH, m, LMUL)
+#define __MAKE_VXOR_VV \
+  __VCFG_PASTE4 (__riscv_vxor_vv_u, BIT_WIDTH, m, LMUL)
 
 #define VMERGE_VVM_F(op1, op2, mask, vlen) \
   __MAKE_VMERGE_VVM (f) ((op1), (op2), (mask), (vlen))
@@ -102,6 +106,10 @@ __BEGIN_DECLS
   __MAKE_VFNMSUB_VV_M ((mask), (op1), (op2), (op3), (vlen))
 #define VFMACC_VV_M(mask, op1, op2, op3, vlen) \
   __MAKE_VFMACC_VV_M ((mask), (op1), (op2), (op3), (vlen))
+#define VAND_VV_I(op1, op2, vlen) \
+  __MAKE_VAND_VV_I ((op1), (op2), (vlen))
+#define VXOR_VV(op1, op2, vlen) \
+  __MAKE_VXOR_VV ((op1), (op2), (vlen))
 
 #define RVV_VLUXEI32_F(base, index, vlen) \
   __VCFG_PASTE4 (__riscv_vluxei32_v_f, BIT_WIDTH, m, LMUL) \
