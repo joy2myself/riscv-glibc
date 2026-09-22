@@ -158,6 +158,31 @@ static const uint64_t class_finite_pos = 0x60;
   (-8.7422776573475857731e-08f * -0.5f)
 #define RVV_SLEEF_COSF_REDUCE_NEG_HALF -0.5f
 
+/* Fixed coefficients for the fastcosf clean and source-original paths.
+   Keep float and double spellings distinct for source scalar conversions.  */
+#ifndef RVV_FASTCOSF_CONSTANTS
+# define RVV_FASTCOSF_CONSTANTS
+# define RVV_FASTCOSF_CLEAN_POLY0_F -0.1881748176e-3f
+# define RVV_FASTCOSF_CLEAN_POLY1_F +0.8323502727e-2f
+# define RVV_FASTCOSF_CLEAN_POLY2_F -0.1666651368e+0f
+# define RVV_FASTCOSF_SOURCE_POLY0_D -0.1881748176e-3
+# define RVV_FASTCOSF_SOURCE_POLY1_D +0.8323502727e-2
+# define RVV_FASTCOSF_SOURCE_POLY2_D -0.1666651368e+0
+# define RVV_FASTCOSF_CLEAN_M1_PI_F RVV_SLEEF_TRIG_ONE_OVER_PI
+# define RVV_FASTCOSF_CLEAN_PI_F RVV_SLEEF_TRIG_PI_F
+# define RVV_FASTCOSF_SOURCE_M1_PI_D 0.318309886183790671537767526745028724
+# define RVV_FASTCOSF_SOURCE_PI_D 3.141592653589793238462643383279502884
+# define RVV_FASTCOSF_FAST_RANGE_F 30.0f
+# define RVV_FASTCOSF_XCOSF_NEG_PI_A_HALF (-3.140625f * 0.5f)
+# define RVV_FASTCOSF_XCOSF_NEG_PI_B_HALF \
+  (-0.0009670257568359375f * 0.5f)
+# define RVV_FASTCOSF_XCOSF_NEG_PI_C_HALF \
+  (-6.2771141529083251953e-07f * 0.5f)
+# define RVV_FASTCOSF_XCOSF_NEG_PI_D_HALF \
+  (-1.2154201256553420762e-10f * 0.5f)
+# define RVV_FASTCOSF_XCOSF_TRIG_RANGE_MAX_F 39000.0f
+#endif
+
 /* Fixed coefficients shared by the erff clean and source-original paths.  */
 #ifndef RVV_ERFF_CONSTANTS
 # define RVV_ERFF_CONSTANTS
@@ -1313,6 +1338,28 @@ static const scalar_t fp_posInf = __builtin_inff ();
   RVV_MATH_IS_COSF_HELPERS_ONLY_##name
 # define RVV_MATH_IS_COSF_HELPERS_ONLY(name) \
   RVV_MATH_IS_COSF_HELPERS_ONLY_INNER (name)
+#endif
+
+/* The fastcosf source skeleton is embedded by the clean fastcosf skeleton.
+   Its source-original public body is therefore emitted only for the
+   fastcosf_original importer.  */
+#ifndef RVV_MATH_IS_FASTCOSF_HELPERS_ONLY_fastcosf
+# define RVV_MATH_IS_FASTCOSF_HELPERS_ONLY_fastcosf 1
+# define RVV_MATH_IS_FASTCOSF_HELPERS_ONLY_INNER(name) \
+  RVV_MATH_IS_FASTCOSF_HELPERS_ONLY_##name
+# define RVV_MATH_IS_FASTCOSF_HELPERS_ONLY(name) \
+  RVV_MATH_IS_FASTCOSF_HELPERS_ONLY_INNER (name)
+#endif
+
+/* The private xcosf fallback needs the clean quarantine only when it is used
+   as a provider by clean fastcosf.  The source-original fastcosf retains the
+   source's late conversion and special-value ordering.  */
+#ifndef RVV_MATH_IS_FASTCOSF_CLEAN_EH_fastcosf
+# define RVV_MATH_IS_FASTCOSF_CLEAN_EH_fastcosf 1
+# define RVV_MATH_IS_FASTCOSF_CLEAN_EH_INNER(name) \
+  RVV_MATH_IS_FASTCOSF_CLEAN_EH_##name
+# define RVV_MATH_IS_FASTCOSF_CLEAN_EH(name) \
+  RVV_MATH_IS_FASTCOSF_CLEAN_EH_INNER (name)
 #endif
 
 /* Shared source-shaped acosf names and constants.  The clean finite kernel
