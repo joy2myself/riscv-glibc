@@ -64,6 +64,21 @@ static const uint64_t class_finite_pos = 0x60;
 #define RVV_SLEEF_TRIG_ONE_OVER_PI 0x1.45f306p-2f
 #define RVV_SLEEF_TRIG_PI_F 0x1.921fb6p+1f
 
+/* SLEEF's vcast_vf_f converts unsuffixed double expressions to float at the
+   source operation point.  Keep that conversion tied to the surrounding
+   source-shaped graph: GCC otherwise may hoist a data-backed conversion
+   across the explicit-RNE vector-conversion window.  */
+static inline float
+RVV_SLEEF_ORIG_F64_TO_F32 (double value)
+{
+  float result;
+  __asm__ __volatile__ ("fcvt.s.d %0, %1"
+                        : "=f" (result)
+                        : "f" (value)
+                        : "memory");
+  return result;
+}
+
 #ifdef _NEED_UNDEF_GNU_SOURCE_V_MATH
 #undef _GNU_SOURCE
 #undef _NEED_UNDEF_GNU_SOURCE_V_MATH
@@ -144,6 +159,8 @@ static const scalar_t fp_posInf = __builtin_inff ();
 
 #define EXP_BIAS_F EXP_BIAS
 #define MAN_LEN_F MAN_LEN
+#define fp_posZero_f fp_posZero
+#define fp_posInf_f fp_posInf
 
 /* For MAKE_VBOOL, the value is BIT_WIDTH/LMUL for the current element size. */
 #if (BIT_WIDTH == 64)
@@ -264,6 +281,24 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_EXP2_POLY_MID_LO_A1_D 0.1333355814670499073e-2
 #define RVV_EXP2_POLY_MID_LO_B0_D 0.2402265069591012214e+0
 #define RVV_EXP2_POLY_MID_LO_B1_D 0.5550410866482046596e-1
+#define RVV_EXP2F_CLEAN_MAX_INPUT_F 128.0f
+#define RVV_EXP2F_CLEAN_MIN_INPUT_F -150.0f
+#define RVV_EXP2F_CLEAN_MAX_FINITE_F 0x1.fffffep127f
+#define RVV_EXP2F_CLEAN_MIN_NORMAL_F 0x1.0p-126f
+#define RVV_EXP2F_SOURCE_MAX_INPUT_F 128.0f
+#define RVV_EXP2F_SOURCE_MIN_INPUT_F -150.0f
+#define RVV_EXP2F_CLEAN_POLY0_F 0.1535920892e-3f
+#define RVV_EXP2F_CLEAN_POLY1_F 0.1339262701e-2f
+#define RVV_EXP2F_CLEAN_POLY2_F 0.9618384764e-2f
+#define RVV_EXP2F_CLEAN_POLY3_F 0.5550347269e-1f
+#define RVV_EXP2F_CLEAN_POLY4_F 0.2402264476e+0f
+#define RVV_EXP2F_CLEAN_POLY5_F 0.6931471825e+0f
+#define RVV_EXP2F_SOURCE_POLY0_D +0.1535920892e-3
+#define RVV_EXP2F_SOURCE_POLY1_D +0.1339262701e-2
+#define RVV_EXP2F_SOURCE_POLY2_D +0.9618384764e-2
+#define RVV_EXP2F_SOURCE_POLY3_D +0.5550347269e-1
+#define RVV_EXP2F_SOURCE_POLY4_D +0.2402264476e+0
+#define RVV_EXP2F_SOURCE_POLY5_D +0.6931471825e+0
 #define RVV_SLEEF_LOG_U1_LN2_HI_F 0.69314718246459960938f
 #define RVV_SLEEF_LOG_U1_LN2_LO_F -1.904654323148236017e-09f
 #define RVV_SLEEF_LOG_U1_POLY0_F 0.3027294874e+0f
