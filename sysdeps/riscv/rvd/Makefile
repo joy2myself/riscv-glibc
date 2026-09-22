@@ -12,7 +12,8 @@ libmvec-source-original-routines = \
   v_f_asinhf_original \
   v_f_asinpif_original \
   v_f_atanf_original \
-  v_f_atanhf_original
+  v_f_atanhf_original \
+  v_f_atan2f_original
 
 libmvec-sysdep_routines += $(libmvec-source-original-routines)
 

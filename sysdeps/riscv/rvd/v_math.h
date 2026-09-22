@@ -1099,12 +1099,19 @@ static const scalar_t fp_posInf = __builtin_inff ();
 # define RVV_ATANF_POLY6_F -0.142626821994781494140625f
 # define RVV_ATANF_POLY7_F 0.199983194470405578613281f
 # define RVV_ATANF_POLY8_F -0.333332866430282592773438f
+
+# define RVV_ATANF_PI_F RVV_SLEEF_TRIG_PI_F
 # define RVV_ATANF_PI2_F 0x1.921fb6p+0f
+# define RVV_ATANF_PI4_F 0x1.921fb6p-1f
 # define RVV_ATANF_PI2_HI_F 1.5707963705062866211f
 # define RVV_ATANF_PI2_LO_F -4.3711388286737928865e-08f
 # define RVV_ATANF_INV_PI_HI_F RVV_SLEEF_TRIG_ONE_OVER_PI
 # define RVV_ATANF_INV_PI_LO_F 0x1.b93910p-27f
+# define RVV_ATANF_TINY_F 2.9387372783541830947e-39f
+# define RVV_ATANF_SCALE_F 16777216.0f
+# define RVV_ATANF_NORM_PI_F 1.0f
 # define RVV_ATANF_NORM_PI2_F 0.5f
+# define RVV_ATANF_NORM_PI4_F 0.25f
 #endif
 
 /* LMUL-qualified helpers used by the clean single-precision atan family.
@@ -1151,6 +1158,18 @@ RVV_LIBMVEC_IMPL_NAME (vsel_vi2_vf_vf_vi2_vi2, LMUL)
 {
   VBOOL m = __riscv_vmflt (f0, f1, vlen);
   return __riscv_vmerge (y, x, m, vlen);
+}
+
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (visinf2_f, LMUL)
+  (VFLOAT d, VFLOAT m, size_t vlen)
+{
+  VUINT abs_d = __riscv_vand (F_AS_U (d), 0x7fffffff, vlen);
+  VBOOL is_inf = __riscv_vmseq (abs_d, 0x7f800000, vlen);
+  VUINT sign = __riscv_vand (F_AS_U (d), 0x80000000, vlen);
+  VUINT out_bits = __riscv_vor (F_AS_U (m), sign, vlen);
+  VFLOAT out = U_AS_F (out_bits);
+  return __riscv_vmerge (VFMV_VF (0.0f, vlen), out, is_inf, vlen);
 }
 
 static inline void
