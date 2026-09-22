@@ -1001,5 +1001,16 @@ libmvec {
     _ZGVr8N16vv_hypotf_original;
     _ZGVr8N32vv_hypotf_original;
     _ZGVr8N64vv_hypotf_original;
+    _ZGVr1N2v_lgamma;
+    _ZGVr1N4v_lgamma;
+    _ZGVr2N2v_lgamma;
+    _ZGVr2N4v_lgamma;
+    _ZGVr2N8v_lgamma;
+    _ZGVr4N4v_lgamma;
+    _ZGVr4N8v_lgamma;
+    _ZGVr4N16v_lgamma;
+    _ZGVr8N8v_lgamma;
+    _ZGVr8N16v_lgamma;
+    _ZGVr8N32v_lgamma;
   }
 }

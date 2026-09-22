@@ -43,6 +43,10 @@ __BEGIN_DECLS
   __VCFG_PASTE5 (__riscv_vfadd_vf_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VFRSUB_VF_M \
   __VCFG_PASTE5 (__riscv_vfrsub_vf_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFSUB_VV_M \
+  __VCFG_PASTE5 (__riscv_vfsub_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFSUB_VF_M \
+  __VCFG_PASTE5 (__riscv_vfsub_vf_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VFSUB_VV \
   __VCFG_PASTE4 (__riscv_vfsub_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFSUB_VF \
@@ -57,12 +61,24 @@ __BEGIN_DECLS
   __VCFG_PASTE4 (__riscv_vfmul_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMUL_VV_M \
   __VCFG_PASTE5 (__riscv_vfmul_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFMSUB_VV_M \
+  __VCFG_PASTE5 (__riscv_vfmsub_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFMSUB_VF_M \
+  __VCFG_PASTE5 (__riscv_vfmsub_vf_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VFMADD_VV_M \
   __VCFG_PASTE5 (__riscv_vfmadd_vv_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VFNMSUB_VV_M \
   __VCFG_PASTE5 (__riscv_vfnmsub_vv_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VFMACC_VV_M \
   __VCFG_PASTE5 (__riscv_vfmacc_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFMACC_VF_M \
+  __VCFG_PASTE5 (__riscv_vfmacc_vf_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFDIV_VV_M \
+  __VCFG_PASTE5 (__riscv_vfdiv_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFNMSAC_VV_M \
+  __VCFG_PASTE5 (__riscv_vfnmsac_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFRDIV_VF_M \
+  __VCFG_PASTE5 (__riscv_vfrdiv_vf_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VAND_VV_I \
   __VCFG_PASTE4 (__riscv_vand_vv_i, BIT_WIDTH, m, LMUL)
 #define __MAKE_VXOR_VV \
@@ -86,6 +102,10 @@ __BEGIN_DECLS
   __MAKE_VFADD_VF_M ((mask), (op1), (scalar), (vlen))
 #define VFRSUB_VF_M(mask, op1, scalar, vlen) \
   __MAKE_VFRSUB_VF_M ((mask), (op1), (scalar), (vlen))
+#define VFSUB_VV_M(mask, op1, op2, vlen) \
+  __MAKE_VFSUB_VV_M ((mask), (op1), (op2), (vlen))
+#define VFSUB_VF_M(mask, op1, scalar, vlen) \
+  __MAKE_VFSUB_VF_M ((mask), (op1), (scalar), (vlen))
 #define VFSUB_VV(op1, op2, vlen) \
   __MAKE_VFSUB_VV ((op1), (op2), (vlen))
 #define VFSUB_VF(op1, scalar, vlen) \
@@ -100,12 +120,24 @@ __BEGIN_DECLS
   __MAKE_VFMUL_VV ((op1), (op2), (vlen))
 #define VFMUL_VV_M(mask, op1, op2, vlen) \
   __MAKE_VFMUL_VV_M ((mask), (op1), (op2), (vlen))
+#define VFMSUB_VV_M(mask, op1, op2, op3, vlen) \
+  __MAKE_VFMSUB_VV_M ((mask), (op1), (op2), (op3), (vlen))
+#define VFMSUB_VF_M(mask, op1, scalar, op3, vlen) \
+  __MAKE_VFMSUB_VF_M ((mask), (op1), (scalar), (op3), (vlen))
 #define VFMADD_VV_M(mask, op1, op2, op3, vlen) \
   __MAKE_VFMADD_VV_M ((mask), (op1), (op2), (op3), (vlen))
 #define VFNMSUB_VV_M(mask, op1, op2, op3, vlen) \
   __MAKE_VFNMSUB_VV_M ((mask), (op1), (op2), (op3), (vlen))
 #define VFMACC_VV_M(mask, op1, op2, op3, vlen) \
   __MAKE_VFMACC_VV_M ((mask), (op1), (op2), (op3), (vlen))
+#define VFMACC_VF_M(mask, op1, scalar, op2, vlen) \
+  __MAKE_VFMACC_VF_M ((mask), (op1), (scalar), (op2), (vlen))
+#define VFDIV_VV_M(mask, op1, op2, vlen) \
+  __MAKE_VFDIV_VV_M ((mask), (op1), (op2), (vlen))
+#define VFNMSAC_VV_M(mask, op1, op2, op3, vlen) \
+  __MAKE_VFNMSAC_VV_M ((mask), (op1), (op2), (op3), (vlen))
+#define VFRDIV_VF_M(mask, op1, scalar, vlen) \
+  __MAKE_VFRDIV_VF_M ((mask), (op1), (scalar), (vlen))
 #define VAND_VV_I(op1, op2, vlen) \
   __MAKE_VAND_VV_I ((op1), (op2), (vlen))
 #define VXOR_VV(op1, op2, vlen) \
@@ -181,6 +213,11 @@ __BEGIN_DECLS
 #define PSTEP_I_SLL(coeff_j, x, k, poly, vlen)                                \
   __riscv_vsadd (                                                             \
       __riscv_vsll (__riscv_vsmul ((poly), (x), 1, (vlen)), (k), (vlen)),     \
+      (coeff_j), (vlen))
+
+#define PSTEP_I_SRA(coeff_j, x, k, poly, vlen)                                \
+  __riscv_vsadd (                                                             \
+      __riscv_vsra (__riscv_vsmul ((poly), (x), 1, (vlen)), (k), (vlen)),     \
       (coeff_j), (vlen))
 
 #define PSTEPN_I(coeff_j, x, poly, vlen)                                      \
@@ -290,6 +327,12 @@ extern const struct v_exp2m1_data
   const uint64_t exp2_tab[2 * V_EXP2M1_N];
   const uint64_t scalem1_tab[88];
 } __v_exp2m1_data attribute_hidden;
+/* Indexed coefficient tables for the double-precision lgamma implementation.  */
+extern const struct v_lgamma_data
+{
+  const double neg_bnd_to_2_c[26][2];
+  const double neg_3_to_bnd_c[27][2];
+} __v_lgamma_data attribute_hidden;
 
 /* Lookup tables for the double-precision exp10m1 implementation.  */
 extern const struct v_exp10m1_data

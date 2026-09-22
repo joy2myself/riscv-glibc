@@ -1089,6 +1089,9 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_COSPIF_DF_SECOND_COS_LO_F -2.1857338617566484855e-08f
 #define RVV_COSPIF_DF_SECOND_SIN_HI_F -0.30842512845993041992f
 #define RVV_COSPIF_DF_SECOND_SIN_LO_F -9.0728339030733922277e-09f
+#define RVV_LGAMMA_OVERFLOW_X_D 0x1.754d9278b51a7p+1014
+#define RVV_LGAMMA_NEG_BND_TO_2_SC_D 0x1p+3
+#define RVV_LGAMMA_NEG_3_TO_BND_SC_D 0x1p+4
 
 /* Fixed coefficients for the single-precision gamma helpers.  Preserve
    the source float/double types and the explicit conversion points.  */
@@ -3949,4 +3952,760 @@ RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_sinf_rempif, LMUL)
 
 #  undef RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
 # endif
+#endif
+#ifndef RVV_MATH_IS_LGAMMA_lgamma
+# define RVV_MATH_IS_LGAMMA_lgamma 1
+# define RVV_MATH_IS_LGAMMA_INNER(name) RVV_MATH_IS_LGAMMA_##name
+# define RVV_MATH_IS_LGAMMA(name) RVV_MATH_IS_LGAMMA_INNER (name)
+#endif
+#if RVV_MATH_IS_LGAMMA (V_MATH_FUNC)
+#ifndef V_D_LGAMMA_SKELETON_ONCE
+#define V_D_LGAMMA_SKELETON_ONCE
+
+#define RVV_LGAMMA_P_LEFT0_I ((int64_t) 0x717ad571ef5dc61)
+#define RVV_LGAMMA_P_LEFT1_I ((int64_t) 0x13b685202b6fd6a4)
+#define RVV_LGAMMA_P_LEFT2_I ((int64_t) 0x16296a1296488970)
+#define RVV_LGAMMA_P_LEFT3_I ((int64_t) 0x19ca4fa8bc759bde)
+#define RVV_LGAMMA_P_LEFT4_I ((int64_t) 0x1079dccb79c3089c)
+#define RVV_LGAMMA_P_LEFT5_I ((int64_t) 0x16847f57936dc8fb)
+#define RVV_LGAMMA_P_LEFT6_I ((int64_t) 0x1d546ec89ba5d14e)
+#define RVV_LGAMMA_P_LEFT7_I ((int64_t) 0x1ad0cdf5663cfacf)
+#define RVV_LGAMMA_P_LEFT8_I ((int64_t) 0x1f1f571e9999b6c7)
+#define RVV_LGAMMA_Q_LEFT0_I ((int64_t) 0x3877618277fdb07)
+#define RVV_LGAMMA_Q_LEFT1_I ((int64_t) 0x15e97ae7797617d9)
+#define RVV_LGAMMA_Q_LEFT2_I ((int64_t) 0x1c1a630c4311e499)
+#define RVV_LGAMMA_Q_LEFT3_I ((int64_t) 0x133731ff844280b6)
+#define RVV_LGAMMA_Q_LEFT4_I ((int64_t) 0x1e248b8ebb59488b)
+#define RVV_LGAMMA_Q_LEFT5_I ((int64_t) 0x1b1f236d04a448b5)
+#define RVV_LGAMMA_Q_LEFT6_I ((int64_t) 0x1a6052955f6252ac)
+#define RVV_LGAMMA_Q_LEFT7_I ((int64_t) 0x17e477b664d95b52)
+#define RVV_LGAMMA_Q_LEFT8_I ((int64_t) 0x1b97bd09b9b48410)
+#define RVV_LGAMMA_P_LOG0_I ((int64_t) 0x5555555555555090)
+#define RVV_LGAMMA_P_LOG1_I ((int64_t) 0x666666666686863a)
+#define RVV_LGAMMA_P_LOG2_I ((int64_t) 0x49249248fc99ba4b)
+#define RVV_LGAMMA_P_LOG3_I ((int64_t) 0x71c71ca402e164fa)
+#define RVV_LGAMMA_P_LOG4_I ((int64_t) 0x5d1733e3ae94dde0)
+#define RVV_LGAMMA_P_LOG5_I ((int64_t) 0x4ec8b69784234032)
+#define RVV_LGAMMA_P_LOG6_I ((int64_t) 0x43cc44a056dc3c93)
+#define RVV_LGAMMA_P_LOG7_I ((int64_t) 0x4432439bb76e7d74)
+#define RVV_LGAMMA_P_LS_CORR0_I ((int64_t) 0x13eb19ce38760e4)
+#define RVV_LGAMMA_P_LS_CORR1_I ((int64_t) 0x54ebdd91a33a236)
+#define RVV_LGAMMA_P_LS_CORR2_I ((int64_t) 0xf5302c2f3171924)
+#define RVV_LGAMMA_P_LS_CORR3_I ((int64_t) 0x17e6ca6c67d42c45)
+#define RVV_LGAMMA_P_LS_CORR4_I ((int64_t) 0x18e683b7eb793968)
+#define RVV_LGAMMA_P_LS_CORR5_I ((int64_t) 0xe6a7d68df697b37)
+#define RVV_LGAMMA_P_LS_CORR6_I ((int64_t) 0x48f07444527e095)
+#define RVV_LGAMMA_P_LS_CORR7_I ((int64_t) 0x5ac3ca10d36d7d)
+#define RVV_LGAMMA_P_LS_CORR8_I ((int64_t) -0x115718edb07d53)
+#define RVV_LGAMMA_Q_LS_CORR0_I ((int64_t) 0x2f8b7a297052f62)
+#define RVV_LGAMMA_Q_LS_CORR1_I ((int64_t) 0xc13fa37f8190cf5)
+#define RVV_LGAMMA_Q_LS_CORR2_I ((int64_t) 0x222d203fd991122d)
+#define RVV_LGAMMA_Q_LS_CORR3_I ((int64_t) 0x32462b6d38e0bfd3)
+#define RVV_LGAMMA_Q_LS_CORR4_I ((int64_t) 0x31844bff55d6561a)
+#define RVV_LGAMMA_Q_LS_CORR5_I ((int64_t) 0x18c83406788ab40e)
+#define RVV_LGAMMA_Q_LS_CORR6_I ((int64_t) 0x643329f595fac69)
+#define RVV_LGAMMA_Q_LS_CORR7_I ((int64_t) -0x21b0b1bff373cd)
+#define RVV_LGAMMA_Q_LS_CORR8_I ((int64_t) -0xc9c05b696db07)
+#define RVV_LGAMMA_P_LOGSIN0_I ((int64_t) -0x34a34cc4a60fa863)
+#define RVV_LGAMMA_P_LOGSIN1_I ((int64_t) -0x1151322ac7d51d2e)
+#define RVV_LGAMMA_P_LOGSIN2_I ((int64_t) -0xada0658820c4e34)
+#define RVV_LGAMMA_P_LOGSIN3_I ((int64_t) -0x80859b50a7b1918)
+#define RVV_LGAMMA_P_LOGSIN4_I ((int64_t) -0x66807a019daf246)
+#define RVV_LGAMMA_P_LOGSIN5_I ((int64_t) -0x555a97e7d8482c8)
+#define RVV_LGAMMA_P_LOGSIN6_I ((int64_t) -0x4927ceefdc18f62)
+#define RVV_LGAMMA_P_LOGSIN7_I ((int64_t) -0x3fe5862d4e702a2)
+#define RVV_LGAMMA_P_LOGSIN8_I ((int64_t) -0x39da522c5099734)
+#define RVV_LGAMMA_P_LOGSIN9_I ((int64_t) -0x2cbb6825e3efaad)
+#define RVV_LGAMMA_P_LOGSIN10_I ((int64_t) -0x4df815d2f21e674)
+#define RVV_LGAMMA_P_LOGSIN11_I ((int64_t) 0x41cf7e791cb446c)
+#define RVV_LGAMMA_P_LOGSIN12_I ((int64_t) -0x126ea0159b1a7052)
+#define RVV_LGAMMA_P_LOGSIN13_I ((int64_t) 0x155103f2634da2c6)
+#define RVV_LGAMMA_P_LOGSIN14_I ((int64_t) -0x13e497482ec6dff4)
+#define RVV_LGAMMA_P_EXP3_I ((int64_t) 0x1111111110ec10d)
+#define RVV_LGAMMA_P_EXP4_I ((int64_t) 0x2d82d82d87a9b5)
+#define RVV_LGAMMA_P_EXP5_I ((int64_t) 0x6806806ce6d6f)
+#define RVV_LGAMMA_P_EXP6_I ((int64_t) 0xd00d00841fcf)
+#define RVV_LGAMMA_P_EXP7_I ((int64_t) 0x171ddefda54b)
+#define RVV_LGAMMA_P_EXP8_I ((int64_t) 0x24fcc01d627)
+#define RVV_LGAMMA_P_EXP9_I ((int64_t) 0x35ed8bbd24)
+#define RVV_LGAMMA_P_EXP10_I ((int64_t) 0x477745b6c)
+
+#define RVV_LGAMMA_NEG_BND_TO_2_X0_0_D 0x1.3a7fc9600f86cp+1
+#define RVV_LGAMMA_NEG_BND_TO_2_X0_1_D 0x1.55f64f98af8dp-55
+#define RVV_LGAMMA_NEG_BND_TO_2_X0_2_D 0x1.c4b0cd201366ap-110
+#define RVV_LGAMMA_NEG_3_TO_BND_X0_0_D 0x1.5fb410a1bd901p+1
+#define RVV_LGAMMA_NEG_3_TO_BND_X0_1_D -0x1.a19a96d2e6f85p-54
+#define RVV_LGAMMA_NEG_3_TO_BND_X0_2_D -0x1.140b4ff4b7d6p-108
+
+/* Gamma(x) ~ (x-1)(x-2) * P(t)/Q(t), t = x - (3/2 - 1/8) x in [1-1/4, 2+1/4]
+   Coefficients P in ascending order */
+#define P_left_0 RVV_LGAMMA_P_LEFT0_I
+#define P_left_1 RVV_LGAMMA_P_LEFT1_I
+#define P_left_2 RVV_LGAMMA_P_LEFT2_I
+#define P_left_3 RVV_LGAMMA_P_LEFT3_I
+#define P_left_4 RVV_LGAMMA_P_LEFT4_I
+#define P_left_5 RVV_LGAMMA_P_LEFT5_I
+#define P_left_6 RVV_LGAMMA_P_LEFT6_I
+#define P_left_7 RVV_LGAMMA_P_LEFT7_I
+#define P_left_8 RVV_LGAMMA_P_LEFT8_I
+
+#define Q_left_0 RVV_LGAMMA_Q_LEFT0_I
+#define Q_left_1 RVV_LGAMMA_Q_LEFT1_I
+#define Q_left_2 RVV_LGAMMA_Q_LEFT2_I
+#define Q_left_3 RVV_LGAMMA_Q_LEFT3_I
+#define Q_left_4 RVV_LGAMMA_Q_LEFT4_I
+#define Q_left_5 RVV_LGAMMA_Q_LEFT5_I
+#define Q_left_6 RVV_LGAMMA_Q_LEFT6_I
+#define Q_left_7 RVV_LGAMMA_Q_LEFT7_I
+#define Q_left_8 RVV_LGAMMA_Q_LEFT8_I
+
+/* Approximate log(x) by w + w^3 poly(w^2)
+   w = 2(x-1)/(x+1), x roughly in [1/rt(2), rt(2)] */
+#define P_log_0 RVV_LGAMMA_P_LOG0_I
+#define P_log_1 RVV_LGAMMA_P_LOG1_I
+#define P_log_2 RVV_LGAMMA_P_LOG2_I
+#define P_log_3 RVV_LGAMMA_P_LOG3_I
+#define P_log_4 RVV_LGAMMA_P_LOG4_I
+#define P_log_5 RVV_LGAMMA_P_LOG5_I
+#define P_log_6 RVV_LGAMMA_P_LOG6_I
+#define P_log_7 RVV_LGAMMA_P_LOG7_I
+
+#define LOG2_HI RVV_LOG2_HI_D
+#define LOG2_LO RVV_LOG2_LO_D
+
+/* lgamma(x) overflows for |x| >= ~2.56e305 (loggamma > DBL_MAX). */
+#define LGAMMA_OVERFLOW_X RVV_LGAMMA_OVERFLOW_X_D
+
+/* Correction to log_stirling formula
+   logGamma(x) - log_sterling(x) ~ P(t)/Q(t), t = 1/x
+   x in [2.25 x_max], t in (0, 1/2.25) */
+#define P_LS_corr_0 RVV_LGAMMA_P_LS_CORR0_I
+#define P_LS_corr_1 RVV_LGAMMA_P_LS_CORR1_I
+#define P_LS_corr_2 RVV_LGAMMA_P_LS_CORR2_I
+#define P_LS_corr_3 RVV_LGAMMA_P_LS_CORR3_I
+#define P_LS_corr_4 RVV_LGAMMA_P_LS_CORR4_I
+#define P_LS_corr_5 RVV_LGAMMA_P_LS_CORR5_I
+#define P_LS_corr_6 RVV_LGAMMA_P_LS_CORR6_I
+#define P_LS_corr_7 RVV_LGAMMA_P_LS_CORR7_I
+#define P_LS_corr_8 RVV_LGAMMA_P_LS_CORR8_I
+
+#define Q_LS_corr_0 RVV_LGAMMA_Q_LS_CORR0_I
+#define Q_LS_corr_1 RVV_LGAMMA_Q_LS_CORR1_I
+#define Q_LS_corr_2 RVV_LGAMMA_Q_LS_CORR2_I
+#define Q_LS_corr_3 RVV_LGAMMA_Q_LS_CORR3_I
+#define Q_LS_corr_4 RVV_LGAMMA_Q_LS_CORR4_I
+#define Q_LS_corr_5 RVV_LGAMMA_Q_LS_CORR5_I
+#define Q_LS_corr_6 RVV_LGAMMA_Q_LS_CORR6_I
+#define Q_LS_corr_7 RVV_LGAMMA_Q_LS_CORR7_I
+#define Q_LS_corr_8 RVV_LGAMMA_Q_LS_CORR8_I
+
+/* Approximate log(sin(pi x)/(pi x)) as x^2 poly(x^2) */
+#define P_logsin_0 RVV_LGAMMA_P_LOGSIN0_I
+#define P_logsin_1 RVV_LGAMMA_P_LOGSIN1_I
+#define P_logsin_2 RVV_LGAMMA_P_LOGSIN2_I
+#define P_logsin_3 RVV_LGAMMA_P_LOGSIN3_I
+#define P_logsin_4 RVV_LGAMMA_P_LOGSIN4_I
+#define P_logsin_5 RVV_LGAMMA_P_LOGSIN5_I
+#define P_logsin_6 RVV_LGAMMA_P_LOGSIN6_I
+#define P_logsin_7 RVV_LGAMMA_P_LOGSIN7_I
+#define P_logsin_8 RVV_LGAMMA_P_LOGSIN8_I
+#define P_logsin_9 RVV_LGAMMA_P_LOGSIN9_I
+#define P_logsin_10 RVV_LGAMMA_P_LOGSIN10_I
+#define P_logsin_11 RVV_LGAMMA_P_LOGSIN11_I
+#define P_logsin_12 RVV_LGAMMA_P_LOGSIN12_I
+#define P_logsin_13 RVV_LGAMMA_P_LOGSIN13_I
+#define P_logsin_14 RVV_LGAMMA_P_LOGSIN14_I
+#define P_exp_3 RVV_LGAMMA_P_EXP3_I
+#define P_exp_4 RVV_LGAMMA_P_EXP4_I
+#define P_exp_5 RVV_LGAMMA_P_EXP5_I
+#define P_exp_6 RVV_LGAMMA_P_EXP6_I
+#define P_exp_7 RVV_LGAMMA_P_EXP7_I
+#define P_exp_8 RVV_LGAMMA_P_EXP8_I
+#define P_exp_9 RVV_LGAMMA_P_EXP9_I
+#define P_exp_10 RVV_LGAMMA_P_EXP10_I
+
+#define LGAMMA_NEG_BND_TO_2_SC RVV_LGAMMA_NEG_BND_TO_2_SC_D
+#define LGAMMA_NEG_3_TO_BND_SC RVV_LGAMMA_NEG_3_TO_BND_SC_D
+
+/* The finite lgamma kernel is evaluated only for lanes selected by the
+   importer-owned `lgamma_mask`.  Masked RVV arithmetic has agnostic inactive
+   destinations on this toolchain, so every masked result is immediately
+   sanitized to +0 before it can feed an unmasked integer conversion or the
+   next reduction step.  Active-lane order and operation selection remain the
+   source order.  */
+#define LGAMMA_MASKED_RESULT(mask, value, vlen)                              \
+  VMERGE_VVM_F (VFMV_VF (fp_posZero, (vlen)), (value), (mask), (vlen))
+#define LGAMMA_VFADD_VV_M(mask, x, y, vlen)                                  \
+  LGAMMA_MASKED_RESULT ((mask), VFADD_VV_M ((mask), (x), (y), (vlen)),        \
+                        (vlen))
+#define LGAMMA_VFADD_VF_M(mask, x, y, vlen)                                  \
+  LGAMMA_MASKED_RESULT ((mask), VFADD_VF_M ((mask), (x), (y), (vlen)),        \
+                        (vlen))
+#define LGAMMA_VFSUB_VV_M(mask, x, y, vlen)                                  \
+  LGAMMA_MASKED_RESULT ((mask), VFSUB_VV_M ((mask), (x), (y), (vlen)),        \
+                        (vlen))
+#define LGAMMA_VFSUB_VF_M(mask, x, y, vlen)                                  \
+  LGAMMA_MASKED_RESULT ((mask), VFSUB_VF_M ((mask), (x), (y), (vlen)),        \
+                        (vlen))
+#define LGAMMA_VFMUL_VV_M(mask, x, y, vlen)                                  \
+  LGAMMA_MASKED_RESULT ((mask), VFMUL_VV_M ((mask), (x), (y), (vlen)),        \
+                        (vlen))
+#define LGAMMA_VFMUL_VF_M(mask, x, y, vlen)                                  \
+  LGAMMA_MASKED_RESULT ((mask), VFMUL_VF_M ((mask), (x), (y), (vlen)),        \
+                        (vlen))
+#define LGAMMA_VFMSUB_VV_M(mask, x, y, z, vlen)                               \
+  LGAMMA_MASKED_RESULT ((mask), VFMSUB_VV_M ((mask), (x), (y), (z), (vlen)),  \
+                        (vlen))
+#define LGAMMA_VFMSUB_VF_M(mask, x, y, z, vlen)                               \
+  LGAMMA_MASKED_RESULT ((mask), VFMSUB_VF_M ((mask), (x), (y), (z), (vlen)),  \
+                        (vlen))
+#define LGAMMA_VFMACC_VV_M(mask, x, y, z, vlen)                               \
+  LGAMMA_MASKED_RESULT ((mask), VFMACC_VV_M ((mask), (x), (y), (z), (vlen)),  \
+                        (vlen))
+#define LGAMMA_VFMACC_VF_M(mask, x, y, z, vlen)                               \
+  LGAMMA_MASKED_RESULT ((mask), VFMACC_VF_M ((mask), (x), (y), (z), (vlen)),  \
+                        (vlen))
+#define LGAMMA_VFDIV_VV_M(mask, x, y, vlen)                                  \
+  LGAMMA_MASKED_RESULT ((mask), VFDIV_VV_M ((mask), (x), (y), (vlen)),        \
+                        (vlen))
+#define LGAMMA_VFNMSUB_VV_M(mask, x, y, z, vlen)                              \
+  LGAMMA_MASKED_RESULT ((mask), VFNMSUB_VV_M ((mask), (x), (y), (z), (vlen)), \
+                        (vlen))
+#define LGAMMA_VFNMSAC_VV_M(mask, x, y, z, vlen)                              \
+  LGAMMA_MASKED_RESULT ((mask), VFNMSAC_VV_M ((mask), (x), (y), (z), (vlen)), \
+                        (vlen))
+#define LGAMMA_VFRDIV_VF_M(mask, x, y, vlen)                                  \
+  LGAMMA_MASKED_RESULT ((mask), VFRDIV_VF_M ((mask), (x), (y), (vlen)),       \
+                        (vlen))
+#define LGAMMA_VFREC7_M(mask, x, vlen)                                       \
+  LGAMMA_MASKED_RESULT ((mask), VFREC7_M ((mask), (x), (vlen)), (vlen))
+
+#define LGAMMA_VFADD(x, y, vlen)                                             \
+  LGAMMA_VFADD_VV_M (lgamma_mask, (x), (y), (vlen))
+#define LGAMMA_VFSUB(x, y, vlen)                                             \
+  LGAMMA_VFSUB_VV_M (lgamma_mask, (x), (y), (vlen))
+#define LGAMMA_VFMUL(x, y, vlen)                                             \
+  LGAMMA_VFMUL_VV_M (lgamma_mask, (x), (y), (vlen))
+#define LGAMMA_VFMUL_VF(x, y, vlen)                                          \
+  LGAMMA_VFMUL_VF_M (lgamma_mask, (x), (y), (vlen))
+#define LGAMMA_VFMSUB(x, y, z, vlen)                                         \
+  LGAMMA_VFMSUB_VV_M (lgamma_mask, (x), (y), (z), (vlen))
+#define LGAMMA_VFNMSUB(x, y, z, vlen)                                        \
+  LGAMMA_VFNMSUB_VV_M (lgamma_mask, (x), (y), (z), (vlen))
+
+#define LGAMMA_PROD_X1Y1_M(mask, x, y, prod_hi, prod_lo, vlen)               \
+  do                                                                          \
+    {                                                                         \
+      (prod_hi) = LGAMMA_VFMUL_VV_M ((mask), (x), (y), (vlen));              \
+      (prod_lo) = LGAMMA_VFMSUB_VV_M ((mask), (x), (y), (prod_hi), (vlen));   \
+    }                                                                         \
+  while (0)
+
+#define LGAMMA_PROD_X1Y2_M(mask, x, y_hi, y_lo, prod_hi, prod_lo, vlen)       \
+  do                                                                          \
+    {                                                                         \
+      (prod_hi) = LGAMMA_VFMUL_VV_M ((mask), (x), (y_hi), (vlen));            \
+      (prod_lo) = LGAMMA_VFMSUB_VV_M ((mask), (x), (y_hi), (prod_hi),        \
+                                      (vlen));                                \
+      (prod_lo) = LGAMMA_VFMACC_VV_M ((mask), (prod_lo), (x), (y_lo),        \
+                                      (vlen));                                \
+    }                                                                         \
+  while (0)
+
+#define LGAMMA_PROD_X2Y2_M(mask, x_hi, x_lo, y_hi, y_lo, prod_hi, prod_lo,   \
+                           vlen)                                              \
+  do                                                                          \
+    {                                                                         \
+      (prod_hi) = LGAMMA_VFMUL_VV_M ((mask), (x_hi), (y_hi), (vlen));         \
+      (prod_lo) = LGAMMA_VFMSUB_VV_M ((mask), (x_hi), (y_hi), (prod_hi),     \
+                                      (vlen));                                \
+      (prod_lo) = LGAMMA_VFMACC_VV_M ((mask), (prod_lo), (x_hi), (y_lo),     \
+                                      (vlen));                                \
+      (prod_lo) = LGAMMA_VFMACC_VV_M ((mask), (prod_lo), (x_lo), (y_hi),     \
+                                      (vlen));                                \
+    }                                                                         \
+  while (0)
+
+#define LGAMMA_KNUTH2SUM_M(mask, x, y, sum_hi, sum_lo, vlen)                 \
+  do                                                                          \
+    {                                                                         \
+      (sum_hi) = LGAMMA_VFADD_VV_M ((mask), (x), (y), (vlen));                \
+      VFLOAT _x_hat = LGAMMA_VFSUB_VV_M ((mask), (sum_hi), (y), (vlen));      \
+      VFLOAT _y_hat = LGAMMA_VFSUB_VV_M ((mask), (sum_hi), _x_hat, (vlen));   \
+      (sum_lo) = LGAMMA_VFADD_VV_M                                          \
+        ((mask), LGAMMA_VFSUB_VV_M ((mask), (x), _x_hat, (vlen)),             \
+         LGAMMA_VFSUB_VV_M ((mask), (y), _y_hat, (vlen)), (vlen));              \
+    }                                                                         \
+  while (0)
+
+#define LGAMMA_FAST2SUM_M(mask, x, y, sum_hi, sum_lo, vlen)                  \
+  do                                                                          \
+    {                                                                         \
+      (sum_hi) = LGAMMA_VFADD_VV_M ((mask), (x), (y), (vlen));                \
+      (sum_lo) = LGAMMA_VFADD_VV_M                                         \
+        ((mask), LGAMMA_VFSUB_VV_M ((mask), (x), (sum_hi), (vlen)), (y),     \
+         (vlen));                                                             \
+    }                                                                         \
+  while (0)
+
+#define LGAMMA_DIV2_N2D2_M(mask, numer, delta_n, denom, delta_d, q_hi,       \
+                           q_lo, vlen)                                       \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _q;                                                             \
+      (q_hi) = LGAMMA_VFDIV_VV_M ((mask), (numer), (denom), (vlen));         \
+      _q = LGAMMA_VFNMSUB_VV_M ((mask), (q_hi), (denom), (numer), (vlen));    \
+      _q = LGAMMA_VFNMSAC_VV_M ((mask), _q, (q_hi), (delta_d), (vlen));       \
+      _q = LGAMMA_VFADD_VV_M ((mask), _q, (delta_n), (vlen));                 \
+      (q_lo) = LGAMMA_VFMUL_VV_M                                            \
+        ((mask), _q, LGAMMA_VFREC7_M ((mask), (denom), (vlen)), (vlen));      \
+    }                                                                         \
+  while (0)
+
+#define LGAMMA_ACC_DIV2_N2D2_M(mask, numer, delta_n, denom, delta_d, q_hi,   \
+                               q_lo, vlen)                                    \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _recip;                                                         \
+      VFLOAT _q;                                                             \
+      _recip = LGAMMA_VFRDIV_VF_M ((mask), (denom), 0x1.0p0, (vlen));        \
+      (q_hi) = LGAMMA_VFMUL_VV_M ((mask), (numer), _recip, (vlen));           \
+      _q = LGAMMA_VFNMSUB_VV_M ((mask), (q_hi), (denom), (numer), (vlen));    \
+      _q = LGAMMA_VFNMSAC_VV_M ((mask), _q, (q_hi), (delta_d), (vlen));       \
+      _q = LGAMMA_VFADD_VV_M ((mask), _q, (delta_n), (vlen));                 \
+      (q_lo) = LGAMMA_VFMUL_VV_M ((mask), _q, _recip, (vlen));                \
+    }                                                                         \
+  while (0)
+
+/* This macro computes loggamma(x) for 0 < x <= 2.25
+   It uses a rational approximation for x in [0.75, 2.25]
+   For x < 0.75, it uses the relation gamma(x) = gamma(x+1)/x */
+#define LGAMMA_LE_225(x, logx_hi, logx_lo, y_hi, y_lo, vlen)                   \
+  do                                                                           \
+    {                                                                          \
+      VBOOL x_lt_75 = __riscv_vmflt ((x), 0x1.8p-1, (vlen));                   \
+      VFLOAT c = VFMV_VF (0x1.6p63, (vlen));                                   \
+      c = __riscv_vfmerge (c, 0x1.8p61, x_lt_75, (vlen));                      \
+      VFLOAT rt1 = VFMV_VF (0x1.0p0, (vlen));                                  \
+      VFLOAT rt2 = VFMV_VF (0x1.0p1, (vlen));                                  \
+      rt1 = __riscv_vfmerge (rt1, fp_posZero, x_lt_75, (vlen));                \
+      rt2 = __riscv_vfmerge (rt2, fp_posOne, x_lt_75, (vlen));                 \
+      VFLOAT t_hi = LGAMMA_VFMSUB_VF_M                                      \
+        (lgamma_mask, (x), 0x1.0p63, c, (vlen));                              \
+      VFLOAT t_lo = LGAMMA_VFADD (t_hi, c, (vlen));                           \
+      t_lo = LGAMMA_VFMSUB_VF_M (lgamma_mask, (x), 0x1.0p63, t_lo,           \
+                                 (vlen));                                     \
+      VFLOAT fact1 = LGAMMA_VFSUB ((x), rt1, (vlen));                         \
+      VINT T = __riscv_vfcvt_x (t_hi, (vlen));                                 \
+      T = __riscv_vadd (T, __riscv_vfcvt_x (t_lo, (vlen)), (vlen));            \
+      VFLOAT fact2_hi = LGAMMA_VFSUB ((x), rt2, (vlen));                      \
+      VFLOAT fact2_lo = LGAMMA_VFADD (fact2_hi, rt2, (vlen));                 \
+      fact2_lo = LGAMMA_VFSUB ((x), fact2_lo, (vlen));                        \
+      VFLOAT fact_hi, fact_lo;                                                 \
+      LGAMMA_PROD_X1Y2_M (lgamma_mask, fact1, fact2_hi, fact2_lo, fact_hi,    \
+                          fact_lo, (vlen));                                   \
+      VINT P = PSTEP_I_SRA (P_left_7, P_left_8, 9, T, (vlen));                 \
+      P = PSTEP_I_SRA (P_left_6, T, 5, P, (vlen));                             \
+      P = PSTEP_I_SRA (P_left_5, T, 4, P, (vlen));                             \
+      P = PSTEP_I_SRA (P_left_4, T, 3, P, (vlen));                             \
+      P = PSTEP_I_SRA (P_left_3, T, 1, P, (vlen));                             \
+      P = PSTEP_I_SRA (P_left_2, T, 1, P, (vlen));                             \
+      P = PSTEP_I (P_left_1, T, P, (vlen));                                    \
+      P = PSTEP_I (P_left_0, T, P, (vlen));                                    \
+      VINT Q = PSTEP_I_SRA (Q_left_7, Q_left_8, 6, T, (vlen));                 \
+      Q = PSTEP_I_SRA (Q_left_6, T, 4, Q, (vlen));                             \
+      Q = PSTEP_I_SRA (Q_left_5, T, 3, Q, (vlen));                             \
+      Q = PSTEP_I_SRA (Q_left_4, T, 2, Q, (vlen));                             \
+      Q = PSTEP_I_SRA (Q_left_3, T, 2, Q, (vlen));                             \
+      Q = PSTEP_I (Q_left_1, T, PSTEP_I (Q_left_2, T, Q, (vlen)), (vlen));     \
+      Q = PSTEP_I_SRA (Q_left_0, T, 1, Q, (vlen));                             \
+      /* P is in Q69 and Q is in Q67 */                                        \
+      P = VMERGE_VVM_I (VMVI_VX (0, (vlen)), P, lgamma_mask, (vlen));           \
+      Q = VMERGE_VVM_I (VMVI_VX (0, (vlen)), Q, lgamma_mask, (vlen));           \
+      VFLOAT p_hi = __riscv_vfcvt_f (P, (vlen));                               \
+      VFLOAT p_lo = __riscv_vfcvt_f (                                          \
+          __riscv_vsub (P, __riscv_vfcvt_x (p_hi, (vlen)), (vlen)), (vlen));   \
+      VFLOAT q_hi = __riscv_vfcvt_f (Q, (vlen));                               \
+      VFLOAT q_lo = __riscv_vfcvt_f (                                          \
+          __riscv_vsub (Q, __riscv_vfcvt_x (q_hi, (vlen)), (vlen)), (vlen));   \
+      VFLOAT z_hi, z_lo;                                                       \
+      LGAMMA_DIV2_N2D2_M (lgamma_mask, p_hi, p_lo, q_hi, q_lo, z_hi, z_lo,   \
+                          (vlen));                                           \
+      z_hi = LGAMMA_VFMUL_VF (z_hi, 0x1.0p-2, (vlen));                        \
+      z_lo = LGAMMA_VFMUL_VF (z_lo, 0x1.0p-2, (vlen));                        \
+      LGAMMA_PROD_X2Y2_M (lgamma_mask, z_hi, z_lo, fact_hi, fact_lo,           \
+                          (y_hi), (y_lo), (vlen));                            \
+      /* if original input is in (0, 3/4), need to add -log(x) */             \
+      VFLOAT A = VFMV_VF (fp_posZero, (vlen));                                \
+      VFLOAT a = VFMV_VF (fp_posZero, (vlen));                                \
+      A = __riscv_vmerge (A, (logx_hi), x_lt_75, (vlen));                      \
+      a = __riscv_vmerge (a, (logx_lo), x_lt_75, (vlen));                      \
+      /* y_hi + y_lo - (A + a), A is either 0 or dominates */                 \
+      z_hi = LGAMMA_VFSUB ((y_hi), A, (vlen));                                 \
+      z_lo = LGAMMA_VFADD (z_hi, A, (vlen));                                   \
+      z_lo = LGAMMA_VFSUB ((y_hi), z_lo, (vlen));                              \
+      (y_lo) = LGAMMA_VFADD ((y_lo), z_lo, (vlen));                            \
+      (y_lo) = LGAMMA_VFSUB ((y_lo), a, (vlen));                               \
+      (y_hi) = z_hi;                                                           \
+    }                                                                          \
+  while (0)
+
+/* Compute log(x/e) or log(x) to 2^(-65) absolute accuracy.
+   log(x) - c, c is 1 or 0; x > 0. */
+#define LGAMMA_LOG(x_hi, x_lo, c, y_hi, y_lo, vlen)                            \
+  do                                                                           \
+    {                                                                          \
+      /* need x_hi, x_lo as input */                                           \
+      VFLOAT x_in_hi = (x_hi);                                                 \
+      VFLOAT x_in_lo = (x_lo);                                                 \
+      VINT n_adjust = VMVI_VX (0, (vlen));                                    \
+      VBOOL x_tiny = __riscv_vmflt (x_in_hi, 0x1.0p-1020, (vlen));             \
+      if (__riscv_vcpop (x_tiny, (vlen)) > 0)                                  \
+        {                                                                      \
+          VBOOL x_tiny_active = __riscv_vmand                         \
+            (lgamma_mask, x_tiny, (vlen));                                     \
+          VFLOAT x_adjust = LGAMMA_VFMUL_VF_M                                  \
+            (x_tiny_active, x_in_hi, 0x1.0p60, (vlen));                         \
+          x_in_hi = __riscv_vmerge (x_in_hi, x_adjust, x_tiny, (vlen));        \
+          x_adjust = LGAMMA_VFMUL_VF_M                                         \
+            (x_tiny_active, x_in_lo, 0x1.0p60, (vlen));                        \
+          x_in_lo = __riscv_vmerge (x_in_lo, x_adjust, x_tiny, (vlen));        \
+          n_adjust = __riscv_vmerge (n_adjust, 60, x_tiny, (vlen));            \
+        }                                                                      \
+      VINT n = __riscv_vadd (                                                  \
+          __riscv_vsra (F_AS_I (x_in_hi), MAN_LEN - 8, (vlen)), 0x96, vlen);   \
+      n = __riscv_vsub (__riscv_vsra (n, 8, vlen), EXP_BIAS, vlen);            \
+      VFLOAT scale = I_AS_F (                                                  \
+          __riscv_vsll (__riscv_vrsub (n, EXP_BIAS, (vlen)), MAN_LEN, (vlen)));\
+      x_in_hi = LGAMMA_VFMUL (x_in_hi, scale, (vlen));                         \
+      x_in_lo = LGAMMA_VFMUL (x_in_lo, scale, (vlen));                         \
+      n = __riscv_vsub (n, n_adjust, (vlen));                                  \
+      /* x is scaled, and log(x) is 2 atanh(w/2); w = 2(x-1)/(x+1) */         \
+                                                                             \
+      VFLOAT numer, denom, denom_delta;                                       \
+      numer = LGAMMA_VFSUB_VF_M (lgamma_mask, x_in_hi, fp_posOne, (vlen));     \
+      denom = LGAMMA_VFADD_VF_M (lgamma_mask, x_in_hi, fp_posOne, (vlen));     \
+      denom_delta                                                              \
+          = LGAMMA_VFADD_VV_M (lgamma_mask,                                   \
+              __riscv_vfrsub (denom, fp_posOne, (vlen)), x_in_hi, (vlen));     \
+      denom_delta = LGAMMA_VFADD (denom_delta, x_in_lo, (vlen));               \
+      VFLOAT w_hi, w_lo;                                                      \
+      LGAMMA_ACC_DIV2_N2D2_M (lgamma_mask, numer, x_in_lo, denom,             \
+                              denom_delta, w_hi, w_lo, vlen);                  \
+      /* w_hi + w_lo is at this point (x-1)/(x+1) */                          \
+      /* Next get 2(x-1)/(x+1) in Q64 fixed point */                          \
+      VINT W = __riscv_vfcvt_x                                         \
+        (LGAMMA_VFMUL_VF (w_hi, 0x1.0p65, (vlen)), (vlen));                    \
+      W = __riscv_vadd (                                                       \
+          W, __riscv_vfcvt_x (LGAMMA_VFMUL_VF (w_lo, 0x1.0p65, (vlen)),       \
+                              (vlen)),                                       \
+          (vlen));                                                            \
+      /* W is in Q64 because W is 2(x-1)/(x+1) */                             \
+                                                                             \
+      n = VMERGE_VVM_I (VMVI_VX (0, (vlen)), n, lgamma_mask, (vlen));           \
+      VFLOAT n_flt = __riscv_vfcvt_f (n, (vlen));                              \
+      VINT W2 = __riscv_vsmul (W, W, 1, (vlen)); /* Q65 */                     \
+                                                                             \
+      VINT P_right, P_left, W8;                                               \
+      P_right = PSTEP_I_SRA (P_log_6, P_log_7, 4, W2, (vlen));                 \
+      P_right = PSTEP_I_SRA (P_log_5, W2, 4, P_right, (vlen));                 \
+      P_right = PSTEP_I_SRA (P_log_4, W2, 4, P_right, (vlen));                 \
+      /* P_right in Q76 */                                                    \
+      P_left = PSTEP_I_SRA (P_log_2, P_log_3, 5, W2, (vlen));                  \
+      P_left = PSTEP_I_SRA (P_log_1, W2, 4, P_left, (vlen));                   \
+      P_left = PSTEP_I_SRA (P_log_0, W2, 5, P_left, (vlen));                   \
+      /* P_left in Q66 */                                                     \
+      W8 = __riscv_vsmul (W2, W2, 1, (vlen));           /* Q67 */             \
+      W8 = __riscv_vsmul (W8, W8, 1, (vlen));           /* Q71 */             \
+      P_right = __riscv_vsmul (P_right, W8, 1, (vlen)); /* Q84 */             \
+      P_right = __riscv_vsra (P_right, 18, (vlen));     /* Q66 */             \
+      P_left = __riscv_vadd (P_left, P_right, (vlen));  /* Q66 */             \
+                                                                             \
+      VINT W3 = __riscv_vsmul (W2, W, 1, (vlen));     /* Q66 */                \
+      P_left = __riscv_vsmul (P_left, W3, 1, (vlen)); /* Q69 */                \
+      P_left = VMERGE_VVM_I (VMVI_VX (0, (vlen)), P_left, lgamma_mask,         \
+                             (vlen));                                         \
+      VFLOAT poly_hi = __riscv_vfcvt_f (P_left, (vlen));                       \
+      P_left = __riscv_vsub (P_left, __riscv_vfcvt_x (poly_hi, (vlen)), (vlen));\
+      VFLOAT poly_lo = __riscv_vfcvt_f (P_left, (vlen));                       \
+      poly_hi = LGAMMA_VFMUL_VF (poly_hi, 0x1.0p-69, (vlen));                  \
+      poly_lo = LGAMMA_VFMUL_VF (poly_lo, 0x1.0p-69, (vlen));                  \
+                                                                             \
+      /* n*log(2) - c + w + poly is the desired result */                     \
+      VFLOAT A, B;                                                            \
+      A = LGAMMA_VFMUL_VF (n_flt, LOG2_HI, (vlen)); /* exact */               \
+      A = LGAMMA_VFSUB (A, (c), (vlen)); /* exact due to A's range */         \
+      w_hi = LGAMMA_VFADD (w_hi, w_hi, (vlen));                               \
+      w_lo = LGAMMA_VFADD (w_lo, w_lo, (vlen));                               \
+      LGAMMA_FAST2SUM_M (lgamma_mask, A, w_hi, B, (y_lo), (vlen));             \
+      w_lo = LGAMMA_VFADD ((y_lo), w_lo, (vlen));                             \
+      w_lo = LGAMMA_VFMACC_VF_M (lgamma_mask, w_lo, LOG2_LO, n_flt,           \
+                                 (vlen));                                     \
+      poly_lo = LGAMMA_VFADD (poly_lo, w_lo, (vlen));                         \
+      LGAMMA_FAST2SUM_M (lgamma_mask, B, poly_hi, (y_hi), (y_lo), (vlen));    \
+      (y_lo) = LGAMMA_VFADD ((y_lo), poly_lo, (vlen));                        \
+    }                                                                          \
+  while (0)
+
+/* Use Stirling approximation with correction when x >= 9/4.
+   On input logx_hi, logx_lo is log(x)-1. Result is returned in y_hi, y_lo. */
+#define LGAMMA_LOG_STIRLING(x, logx_hi, logx_lo, y_hi, y_lo, expo_adj, vlen)   \
+  do                                                                           \
+    {                                                                          \
+      VFLOAT x_in = (x);                                                       \
+      VBOOL adjust_x = __riscv_vmfge (x_in, 0x1.0p+200, (vlen));               \
+      (expo_adj) = __riscv_vmerge ((expo_adj), 100, adjust_x, (vlen));         \
+      VINT m = __riscv_vrsub ((expo_adj), EXP_BIAS, (vlen));                   \
+      VFLOAT scale = I_AS_F (__riscv_vsll (m, MAN_LEN, (vlen)));               \
+      x_in = LGAMMA_VFMUL (x_in, scale, (vlen));                               \
+      VFLOAT w_hi, w_lo;                                                       \
+      w_hi = LGAMMA_VFSUB_VF_M (lgamma_mask, x_in, 0x1.0p-1, (vlen));           \
+      w_lo = LGAMMA_VFSUB (x_in, w_hi, (vlen));                                \
+      w_lo = LGAMMA_VFSUB_VF_M (lgamma_mask, w_lo, 0x1.0p-1, (vlen));           \
+      LGAMMA_PROD_X2Y2_M (lgamma_mask, w_hi, w_lo, (logx_hi), (logx_lo),       \
+                          (y_hi), (y_lo), (vlen));                             \
+    }                                                                          \
+  while (0)
+
+/* Compute log(x*r) + log(|sin(pi r)/(pi r)|) where x = N + r, |r| <= 1/2.
+   Used for negative arguments: log(|x sin(pi x)/pi|) term. */
+#define LGAMMA_LOGSIN(x, y_hi, y_lo, vy_special, special_args, vlen)           \
+  do                                                                           \
+    {                                                                          \
+      VFLOAT x_in = __riscv_vfmin ((x), 0x1.0p+52, (vlen));                    \
+      VFLOAT n_flt;                                                            \
+      VINT n = __riscv_vfcvt_x (x_in, (vlen));                                 \
+      n_flt = __riscv_vfcvt_f (n, (vlen));                                     \
+      VFLOAT r = LGAMMA_VFSUB (x_in, n_flt, (vlen));                            \
+      VBOOL pole = __riscv_vmand (lgamma_mask,                              \
+                                  __riscv_vmfeq (r, fp_posZero, (vlen)),       \
+                                  (vlen));                                     \
+      if (__riscv_vcpop (pole, (vlen)) > 0)                                    \
+        {                                                                      \
+          r = __riscv_vfmerge (r, 0x1.0p-1, pole, (vlen));                      \
+          (special_args) = __riscv_vmor ((special_args), pole, (vlen));        \
+          (vy_special) = __riscv_vfmerge ((vy_special), fp_posInf, pole,       \
+                                          (vlen));                             \
+        }                                                                      \
+      VFLOAT rsq = LGAMMA_VFMUL (r, r, (vlen));                                \
+      VFLOAT rsq_lo = LGAMMA_VFMSUB (r, r, rsq, (vlen));                       \
+      VINT Rsq = __riscv_vfcvt_x (LGAMMA_VFMUL_VF (rsq, 0x1.0p63, (vlen)),    \
+                                  (vlen));                                      \
+      Rsq = __riscv_vadd (                                                     \
+          Rsq, __riscv_vfcvt_x (LGAMMA_VFMUL_VF (rsq_lo, 0x1.0p63, (vlen)),    \
+                                (vlen)),                                       \
+          (vlen));                                                             \
+      VINT P_right                                                            \
+          = PSTEP_I (P_logsin_8, Rsq,                                          \
+                     PSTEP_I (P_logsin_9, Rsq,                                 \
+                              PSTEP_I (P_logsin_10, Rsq,                       \
+                                       PSTEP_I (P_logsin_11, Rsq,              \
+                                                PSTEP_I (P_logsin_12, Rsq,     \
+                                                         PSTEP_I (P_logsin_13,\
+                                                                  P_logsin_14, \
+                                                                  Rsq, (vlen)),\
+                                                         (vlen)),             \
+                                                (vlen)),                      \
+                                       (vlen)),                               \
+                              (vlen)),                                        \
+                     (vlen));                                                 \
+                                                                             \
+      VINT P_left = PSTEP_I (                                                 \
+          P_logsin_0, Rsq,                                                    \
+          PSTEP_I (                                                           \
+              P_logsin_1, Rsq,                                                \
+              PSTEP_I (P_logsin_2, Rsq,                                       \
+                       PSTEP_I (P_logsin_3, Rsq,                              \
+                                PSTEP_I (P_logsin_4, Rsq,                     \
+                                         PSTEP_I (P_logsin_5, Rsq,            \
+                                                  PSTEP_I (P_logsin_6,        \
+                                                           P_logsin_7, Rsq,   \
+                                                           (vlen)),           \
+                                                  (vlen)),                    \
+                                         (vlen)),                             \
+                                (vlen)),                                      \
+                       (vlen)),                                               \
+              (vlen)),                                                        \
+          (vlen));                                                            \
+      VINT R16 = __riscv_vsmul (Rsq, Rsq, 1, (vlen));                          \
+      R16 = __riscv_vsmul (R16, R16, 1, (vlen));                               \
+      R16 = __riscv_vsmul (R16, R16, 1, (vlen));                               \
+      P_right = __riscv_vsmul (R16, P_right, 1, (vlen));                       \
+      P_left = __riscv_vadd (P_left, P_right, (vlen));                         \
+      P_left = VMERGE_VVM_I (VMVI_VX (0, (vlen)), P_left, lgamma_mask,         \
+                             (vlen));                                         \
+      VFLOAT z_hi = __riscv_vfcvt_f (P_left, (vlen));                          \
+      P_right = __riscv_vfcvt_x (z_hi, (vlen));                                \
+      VFLOAT z_lo = __riscv_vfcvt_f (                                         \
+          __riscv_vsub (P_left, P_right, (vlen)), (vlen));                     \
+      z_hi = LGAMMA_VFMUL_VF (z_hi, 0x1.0p-61, (vlen));                        \
+      z_lo = LGAMMA_VFMUL_VF (z_lo, 0x1.0p-61, (vlen));                        \
+      VFLOAT ls_hi, ls_lo;                                                    \
+      LGAMMA_PROD_X2Y2_M (lgamma_mask, z_hi, z_lo, rsq, rsq_lo, ls_hi,        \
+                          ls_lo, (vlen));                                     \
+      /* At this point we have log|sin(pi r)/(pi r)| */                       \
+                                                                             \
+      /* we now compute log(|x r|); 2^(-60) <= x <= 2^52 by design */         \
+      VFLOAT xr_hi, xr_lo;                                                    \
+      r = __riscv_vfsgnj (r, fp_posOne, (vlen));                               \
+      LGAMMA_PROD_X1Y1_M (lgamma_mask, r, x_in, xr_hi, xr_lo, (vlen));         \
+      VFLOAT logx_hi, logx_lo;                                                 \
+      VFLOAT c = VFMV_VF (fp_posZero, (vlen));                                 \
+      LGAMMA_LOG (xr_hi, xr_lo, c, logx_hi, logx_lo, (vlen));                  \
+      VFLOAT S_hi, S_lo;                                                      \
+      LGAMMA_KNUTH2SUM_M (lgamma_mask, ls_hi, logx_hi, S_hi, S_lo, (vlen));    \
+      logx_lo = LGAMMA_VFADD (logx_lo, ls_lo, (vlen));                         \
+      (y_lo) = LGAMMA_VFADD (S_lo, logx_lo, (vlen));                          \
+      (y_hi) = S_hi;                                                          \
+    }                                                                         \
+  while (0)
+
+/* LogGamma based on Stirling formula:
+   logGamma(x) ~ (x-1/2)*(log(x)-1) + poly(1/x) */
+#define LOG_STIRLING_CORRECTION(x, y_hi, y_lo, vlen)                           \
+  do                                                                           \
+    {                                                                          \
+      VFLOAT x_in = __riscv_vfmin ((x), 0x1.0p80, (vlen));                     \
+      VFLOAT z_hi = LGAMMA_VFRDIV_VF_M (lgamma_mask, x_in, 0x1.0p0, (vlen));  \
+      VFLOAT z_lo = VFMV_VF (fp_posOne, (vlen));                               \
+      z_lo = LGAMMA_VFNMSUB (x_in, z_hi, z_lo, (vlen));                        \
+      z_lo = LGAMMA_VFMUL (z_hi, z_lo, (vlen));                                \
+      z_hi = LGAMMA_VFMUL_VF (z_hi, 0x1.0p63, (vlen));                         \
+      z_lo = LGAMMA_VFMUL_VF (z_lo, 0x1.0p63, (vlen));                         \
+      VINT R = __riscv_vfcvt_x (z_hi, (vlen));                                 \
+      R = __riscv_vadd (R, __riscv_vfcvt_x (z_lo, (vlen)), (vlen));            \
+      VINT P_SC, Q_SC;                                                        \
+      /* R is 1/x in Q63 */                                                   \
+      P_SC = PSTEP_I (                                                        \
+          P_LS_corr_4, R,                                                     \
+          PSTEP_I (P_LS_corr_5, R,                                            \
+                   PSTEP_I (P_LS_corr_6, R,                                   \
+                            PSTEP_I (P_LS_corr_7, P_LS_corr_8, R, (vlen)),     \
+                            (vlen)),                                          \
+                   (vlen)),                                                   \
+          (vlen));                                                            \
+      P_SC = PSTEP_I (                                                        \
+          P_LS_corr_0, R,                                                     \
+          PSTEP_I (P_LS_corr_1, R,                                            \
+                   PSTEP_I (P_LS_corr_2, R,                                   \
+                            PSTEP_I (P_LS_corr_3, R, P_SC, (vlen)), (vlen)),  \
+                   (vlen)),                                                   \
+          (vlen));                                                            \
+      Q_SC = PSTEP_I (                                                        \
+          Q_LS_corr_4, R,                                                     \
+          PSTEP_I (Q_LS_corr_5, R,                                            \
+                   PSTEP_I (Q_LS_corr_6, R,                                   \
+                            PSTEP_I (Q_LS_corr_7, Q_LS_corr_8, R, (vlen)),     \
+                            (vlen)),                                          \
+                   (vlen)),                                                   \
+          (vlen));                                                            \
+      Q_SC = PSTEP_I (                                                        \
+          Q_LS_corr_0, R,                                                     \
+          PSTEP_I (Q_LS_corr_1, R,                                            \
+                   PSTEP_I (Q_LS_corr_2, R,                                   \
+                            PSTEP_I (Q_LS_corr_3, R, Q_SC, (vlen)), (vlen)),  \
+                   (vlen)),                                                   \
+          (vlen));                                                            \
+      VFLOAT p_hi, p_lo, q_hi, q_lo;                                          \
+      VINT P_tmp, Q_tmp;                                                      \
+      P_SC = VMERGE_VVM_I (VMVI_VX (0, (vlen)), P_SC, lgamma_mask, (vlen));    \
+      Q_SC = VMERGE_VVM_I (VMVI_VX (0, (vlen)), Q_SC, lgamma_mask, (vlen));    \
+      p_hi = __riscv_vfcvt_f (P_SC, (vlen));                                   \
+      P_tmp = __riscv_vfcvt_x (p_hi, (vlen));                                  \
+      p_lo = __riscv_vfcvt_f (                                                 \
+          __riscv_vsub (P_SC, P_tmp, (vlen)), (vlen));                         \
+      q_hi = __riscv_vfcvt_f (Q_SC, (vlen));                                   \
+      Q_tmp = __riscv_vfcvt_x (q_hi, (vlen));                                  \
+      q_lo = __riscv_vfcvt_f (                                                 \
+          __riscv_vsub (Q_SC, Q_tmp, (vlen)), (vlen));                         \
+      LGAMMA_ACC_DIV2_N2D2_M (lgamma_mask, p_hi, p_lo, q_hi, q_lo,             \
+                              (y_hi), (y_lo), (vlen));                         \
+    }                                                                          \
+  while (0)
+
+#endif
+
+#if (LMUL == 1)
+# ifndef RVV_LIBMVEC_LGAMMA_HELPERS_M1
+#  define RVV_LIBMVEC_LGAMMA_HELPERS_M1
+#  define RVV_LIBMVEC_LGAMMA_HELPERS_THIS_LMUL
+# endif
+#elif (LMUL == 2)
+# ifndef RVV_LIBMVEC_LGAMMA_HELPERS_M2
+#  define RVV_LIBMVEC_LGAMMA_HELPERS_M2
+#  define RVV_LIBMVEC_LGAMMA_HELPERS_THIS_LMUL
+# endif
+#elif (LMUL == 4)
+# ifndef RVV_LIBMVEC_LGAMMA_HELPERS_M4
+#  define RVV_LIBMVEC_LGAMMA_HELPERS_M4
+#  define RVV_LIBMVEC_LGAMMA_HELPERS_THIS_LMUL
+# endif
+#elif (LMUL == 8)
+# ifndef RVV_LIBMVEC_LGAMMA_HELPERS_M8
+#  define RVV_LIBMVEC_LGAMMA_HELPERS_M8
+#  define RVV_LIBMVEC_LGAMMA_HELPERS_THIS_LMUL
+# endif
+#endif
+#ifdef RVV_LIBMVEC_LGAMMA_HELPERS_THIS_LMUL
+/* This helper is instantiated once per importer LMUL.  Keeping the vector
+   types in the generated name avoids reusing the m1 signature for m2/m4/m8.  */
+static inline void
+RVV_LIBMVEC_IMPL_NAME (lgamma_zero_apply, LMUL)
+  (VFLOAT sx, VBOOL mask, double root_hi, double root_lo1, double root_lo2,
+   const double c[][2], int c_len, double sc,
+   VFLOAT *out_hi, VFLOAT *out_lo, size_t vlen)
+{
+  if (__riscv_vcpop (mask, vlen) == 0)
+    return;
+  VFLOAT z_hi = VFMV_VF (fp_posZero, vlen);
+  VFLOAT z_lo = VFMV_VF (fp_posZero, vlen);
+  VFLOAT x0_hi = VFMV_VF (root_hi, vlen);
+  VFLOAT x0_lo1 = VFMV_VF (root_lo1, vlen);
+  VFLOAT x0_lo2 = VFMV_VF (root_lo2, vlen);
+  z_hi = VFADD_VV_M (mask, sx, x0_hi, vlen);
+  VFLOAT x_hat = VFSUB_VV_M (mask, z_hi, x0_hi, vlen);
+  VFLOAT y_hat = VFSUB_VV_M (mask, z_hi, x_hat, vlen);
+  VFLOAT x_delta = VFSUB_VV_M (mask, sx, x_hat, vlen);
+  VFLOAT y_delta = VFSUB_VV_M (mask, x0_hi, y_hat, vlen);
+  z_lo = VFADD_VV_M (mask, x_delta, y_delta, vlen);
+  z_lo = VFADD_VV_M (mask, z_lo, x0_lo1, vlen);
+  z_lo = VFADD_VV_M (mask, z_lo, x0_lo2, vlen);
+
+  VFLOAT scv = VFMV_VF (sc, vlen);
+  VFLOAT sh = VFMUL_VV_M (mask, z_hi, scv, vlen);
+  VFLOAT sl = VFMUL_VV_M (mask, z_lo, scv, vlen);
+
+  VFLOAT ph = VFMV_VF (c[c_len - 1][0], vlen);
+  VFLOAT pl = VFMV_VF (c[c_len - 1][1], vlen);
+  for (int i = c_len - 2; i >= 0; --i)
+    {
+      VFLOAT prod_hi, prod_lo;
+      prod_hi = VFMUL_VV_M (mask, sh, ph, vlen);
+      prod_lo = VFMSUB_VV_M (mask, sh, ph, prod_hi, vlen);
+      prod_lo = VFMACC_VV_M (mask, prod_lo, sh, pl, vlen);
+      prod_lo = VFMACC_VV_M (mask, prod_lo, sl, ph, vlen);
+      VFLOAT ch = VFMV_VF (c[i][0], vlen);
+      VFLOAT cl = VFMV_VF (c[i][1], vlen);
+      VFLOAT sum_hi = VFADD_VV_M (mask, prod_hi, ch, vlen);
+      x_hat = VFSUB_VV_M (mask, sum_hi, ch, vlen);
+      y_hat = VFSUB_VV_M (mask, sum_hi, x_hat, vlen);
+      x_delta = VFSUB_VV_M (mask, prod_hi, x_hat, vlen);
+      y_delta = VFSUB_VV_M (mask, ch, y_hat, vlen);
+      VFLOAT sum_lo = VFADD_VV_M (mask, x_delta, y_delta, vlen);
+      sum_lo = VFADD_VV_M (mask, sum_lo, prod_lo, vlen);
+      sum_lo = VFADD_VV_M (mask, sum_lo, cl, vlen);
+      ph = sum_hi;
+      pl = sum_lo;
+    }
+
+  VFLOAT lgamma_zero_hi = VFMUL_VV_M (mask, z_hi, ph, vlen);
+  VFLOAT lgamma_zero_lo = VFMSUB_VV_M (mask, z_hi, ph,
+                                       lgamma_zero_hi, vlen);
+  lgamma_zero_lo = VFMACC_VV_M (mask, lgamma_zero_lo, z_hi, pl, vlen);
+  lgamma_zero_lo = VFMACC_VV_M (mask, lgamma_zero_lo, z_lo, ph, vlen);
+  *out_hi = __riscv_vmerge (*out_hi, lgamma_zero_hi, mask, vlen);
+  *out_lo = __riscv_vmerge (*out_lo, lgamma_zero_lo, mask, vlen);
+}
+# undef RVV_LIBMVEC_LGAMMA_HELPERS_THIS_LMUL
+#endif
 #endif
