@@ -51,6 +51,7 @@ libmvec-float-funcs-bare = \
   fastsinf \
   hypotf \
   lgammaf \
+  log10f \
 
 libmvec-float-funcs-with-data = \
 
@@ -199,6 +200,7 @@ libmvec-float-bench-funcs = \
   fastsinf \
   hypotf \
   lgammaf \
+  log10f \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \

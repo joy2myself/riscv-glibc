@@ -41,7 +41,8 @@ libmvec-source-original-routines = \
   v_f_fastsinf_original \
   v_d_hypot_original \
   v_f_hypotf_original \
-  v_f_lgammaf_original
+  v_f_lgammaf_original \
+  v_f_log10f_original
 
 libmvec-sysdep_routines += $(libmvec-source-original-routines)
 
