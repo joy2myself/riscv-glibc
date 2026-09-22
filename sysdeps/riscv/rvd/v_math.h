@@ -47,6 +47,7 @@ _Static_assert (0, "NaN not available on this architecture");
 static const uint64_t class_sNaN = 0x100;
 static const uint64_t class_NaN = 0x300;
 static const uint64_t class_negInf = 0x1;
+static const uint64_t class_posInf = 0x80;
 static const uint64_t class_Inf = 0x81;
 static const uint64_t class_negZero = 0x8;
 static const uint64_t class_Zero = 0x18;
@@ -408,6 +409,50 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_COSH_P_ODD1_D 0x1.6c16c17a09506p-10
 #define RVV_COSH_P_ODD2_D 0x1.a019b37a2b3dfp-16
 #define RVV_COSH_P_ODD3_D 0x1.289788d8bdadfp-22
+#define RVV_ERF_T_D 0x1.0p+1
+#define RVV_ERF_ALPHA_HI_D 0x1.20dd750429b6dp+0
+#define RVV_ERF_ALPHA_LO_D 0x1.1ae3a914fed80p-56
+#define RVV_ERF_POLY_SCALE_D 0x1.0p+78
+#define RVV_ERF_R_SCALE_D 0x1.0p+60
+#define RVV_ERF_P_FIXED0_I 0x120dd750429b6d0fLL
+#define RVV_ERF_P_FIXED1_I -0x1812746b0379e00cLL
+#define RVV_ERF_P_FIXED2_I 0x1ce2f21a04292b5fLL
+#define RVV_ERF_P_FIXED3_I -0x1b82ce31281b38e1LL
+#define RVV_ERF_P_FIXED4_I 0x1565bcd0dd0bcd58LL
+#define RVV_ERF_P_FIXED5_I -0xe016d9f815a019dLL
+#define RVV_ERF_P_FIXED6_I 0x7e68c976c0ebcdcLL
+#define RVV_ERF_P_FIXED7_I -0x3e9a49c76e6ee9aLL
+#define RVV_ERF_P_FIXED8_I 0x1b9e64a589f8da9LL
+#define RVV_ERF_P_TAIL0_D -0x1.5f70cd90f1878p-23
+#define RVV_ERF_P_TAIL1_D 0x1.fca2b5f17c85ap-27
+#define RVV_ERF_P_TAIL2_D -0x1.514eafaeffc30p-30
+#define RVV_ERF_P_TAIL3_D 0x1.9b3583b6b826dp-34
+#define RVV_ERF_P_TAIL4_D -0x1.c97ffcf4f4e22p-38
+#define RVV_ERF_P_TAIL5_D 0x1.c2f4a46d3297dp-42
+#define RVV_ERF_P_TAIL6_D -0x1.6ef3c7000b58bp-46
+#define RVV_ERF_P_TAIL7_D 0x1.ac36453182837p-51
+#define RVV_ERF_P_TAIL8_D -0x1.0482966738f0ep-56
+#define RVV_ERF_Q_FIXED0_I 0xffff87b6641370fLL
+#define RVV_ERF_Q_FIXED1_I -0x9062a79f9b29022LL
+#define RVV_ERF_Q_FIXED2_I -0x11dc7e40e4efb77dLL
+#define RVV_ERF_Q_FIXED3_I -0x1dd1004e1f59ed4LL
+#define RVV_ERF_Q_FIXED4_I 0x1980c051527d41e7LL
+#define RVV_ERF_Q_FIXED5_I 0x902cddcb829790bLL
+#define RVV_ERF_Q_FIXED6_I -0x33d6f572cdbfa228LL
+#define RVV_ERF_Q_FIXED7_I 0x425f9974bef87221LL
+#define RVV_ERF_Q_FIXED8_I -0x5363e91dfca5d4dfLL
+#define RVV_ERF_Q_TAIL0_D 0x1.b5eea4ad8cdbfp-16
+#define RVV_ERF_Q_TAIL1_D -0x1.ded0a34468c8cp-18
+#define RVV_ERF_Q_TAIL2_D 0x1.af4968b4d634ap-20
+#define RVV_ERF_Q_TAIL3_D -0x1.51de51c57f11ap-22
+#define RVV_ERF_Q_TAIL4_D 0x1.cbbf535e64b65p-25
+#define RVV_ERF_Q_TAIL5_D -0x1.025a03d4fdf7bp-27
+#define RVV_ERF_Q_TAIL6_D 0x1.c735f1e16e8cdp-31
+#define RVV_ERF_Q_TAIL7_D -0x1.2de00f5eeee49p-34
+#define RVV_ERF_Q_TAIL8_D 0x1.219bdcb68d070p-38
+#define RVV_ERF_Q_TAIL9_D -0x1.7b5fc54357bcfp-43
+#define RVV_ERF_Q_TAIL10_D 0x1.301ac8caec6e3p-48
+#define RVV_ERF_Q_TAIL11_D -0x1.c3232aa28d427p-55
 #define RVV_EXP2_OVERFLOW_BOUND_D 0x1.0p10
 #define RVV_EXP2_UNDERFLOW_BOUND_D -0x1.f4p10
 #define RVV_EXP2_POLY_HI0_D 0.7073164598085707425e-8
