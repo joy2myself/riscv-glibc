@@ -130,6 +130,19 @@ extern const struct v_log_data
   const int64_t table[1 << V_LOG_TABLE_BITS];
 } __v_log_data attribute_hidden;
 
+/* Large-argument reduction table for the double-precision cos
+   implementation.  */
+extern const struct v_cos_data
+{
+  const double two_over_pi[28];
+} __v_cos_data attribute_hidden;
+
+#define PSTEP_ab(pick_a, coeff_a, coeff_b, x, poly, vlen)                     \
+  __riscv_vfmadd ((poly), (x),                                                \
+                  VFMERGE_VFM (VFMV_VF ((coeff_b), (vlen)), (coeff_a),        \
+                               (pick_a), (vlen)),                             \
+                  (vlen))
+
 #define FAST2SUM(x, y, sum_hi, sum_lo, vlen)                                  \
   do                                                                          \
     {                                                                         \

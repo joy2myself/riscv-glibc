@@ -86,6 +86,7 @@ static const uint64_t class_negative = 0x7;
 #undef I_AS_U
 #undef U_AS_I
 #undef VMVI_VX
+#undef VMVU_VX
 #undef VFMV_VF
 #undef EXP_BIAS
 #undef MAN_LEN
@@ -170,6 +171,7 @@ static const scalar_t fp_posOne = 0x1.0p0f;
 #define U_AS_I MAKE_REINTERPRET (u, i)
 
 #define VMVI_VX MAKE_FUNC (__riscv_vmv_v_x_i)
+#define VMVU_VX MAKE_FUNC (__riscv_vmv_v_x_u)
 #define VFMV_VF MAKE_FUNC (__riscv_vfmv_v_f_f)
 
 #define IDENTIFY_F IDENTIFY
@@ -187,8 +189,11 @@ static const scalar_t fp_posOne = 0x1.0p0f;
 
 #ifndef RVV_LIBMVEC_TRIG_DOUBLE_HELPERS
 #define RVV_LIBMVEC_TRIG_DOUBLE_HELPERS
+
+#define PIBY2_INV 0x1.45f306dc9c883p-1
 #define PIBY2_HI 0x1.921fb54442d18p+0
 #define PIBY2_MID 0x1.1a62633145c07p-54
+#define PIBY2_LO -0x1.f1976b7ed8fbcp-110
 #define RVV_PI_Q60 0x3243f6a8885a308dLL
 #define RVV_PIBY2_Q60 0x1921fb54442d1847LL
 #define RVV_LN2_HI_D 0x1.62e42fefa39efp-1
@@ -200,6 +205,161 @@ static const scalar_t fp_posOne = 0x1.0p0f;
 #define RVV_SLEEF_LOG_U1_POLY0_F 0.3027294874e+0f
 #define RVV_SLEEF_LOG_U1_POLY1_F 0.3996108174e+0f
 #define RVV_SLEEF_LOG_U1_POLY2_F 0.6666694880e+0f
+
+#define EXCEPTION_HANDLING_TRIG(vx, expo_x, special_args, vy_special, vlen)  \
+  do                                                                          \
+    {                                                                         \
+      VUINT vclass = __riscv_vfclass ((vx), (vlen));                          \
+      VBOOL nan_inf;                                                          \
+      IDENTIFY (vclass, class_NaN | class_Inf, nan_inf, (vlen));             \
+      VBOOL small_x                                                           \
+        = __riscv_vmsleu ((expo_x), EXP_BIAS - MAN_LEN - 5, (vlen));         \
+      (special_args) = __riscv_vmor (nan_inf, small_x, (vlen));               \
+      if (__riscv_vcpop ((special_args), (vlen)) > 0)                         \
+        {                                                                     \
+          VBOOL id_mask;                                                      \
+          IDENTIFY (vclass, class_Inf, id_mask, (vlen));                      \
+          (vy_special)                                                        \
+            = __riscv_vfmadd (small_x, (vx), 0x1.0p-60, (vx), (vlen));        \
+          VFLOAT vy_nan_inf                                                   \
+            = __riscv_vfmerge ((vx), fp_sNaN, id_mask, (vlen));               \
+          vy_nan_inf                                                          \
+            = __riscv_vfadd (nan_inf, vy_nan_inf, vy_nan_inf, (vlen));        \
+          (vy_special)                                                        \
+            = __riscv_vmerge ((vy_special), vy_nan_inf, nan_inf, (vlen));     \
+          (vx) = __riscv_vfmerge ((vx), fp_posZero, (special_args), (vlen));  \
+        }                                                                     \
+    }                                                                         \
+  while (0)
+
+/* The 2^500 * (2/pi) table is owned by v_d_cos_data.c.  */
+
+/* Trigonometric argument reduction for |x| >= 2^24.  */
+#define LARGE_ARGUMENT_REDUCTION_Piby2(vx, vlen, x_large, n_xlarge, r_xlarge, \
+                                       r_delta_xlarge)                        \
+  do                                                                          \
+    {                                                                         \
+      VBOOL x_not_large = __riscv_vmnot ((x_large), vlen);                    \
+      VFLOAT vx_work = __riscv_vfmerge ((vx), 0x1.0p30, x_not_large, vlen);   \
+      VINT lsb_x = U_AS_I (__riscv_vsrl (F_AS_U (vx_work), 52, vlen));        \
+      lsb_x = __riscv_vand (lsb_x, 0x7ff, vlen);                              \
+      lsb_x = __riscv_vsub (lsb_x, 1075, vlen);                               \
+      VUINT expo_mask = VMVU_VX (0x7ff, vlen);                                \
+      expo_mask = __riscv_vsll (expo_mask, 52, vlen);                         \
+      VFLOAT scale = U_AS_F (__riscv_vand (F_AS_U (vx_work), expo_mask,       \
+                                           vlen));                            \
+      scale = __riscv_vfmul (scale, 0x1.0p-500, vlen);                        \
+      expo_mask = __riscv_vnot (expo_mask, vlen);                             \
+      VUINT expo_1 = VMVU_VX (0x3ff, vlen);                                   \
+      expo_1 = __riscv_vsll (expo_1, 52, vlen);                               \
+      vx_work = U_AS_F (__riscv_vand (F_AS_U (vx_work), expo_mask, vlen));    \
+      vx_work = U_AS_F (__riscv_vor (F_AS_U (vx_work), expo_1, vlen));        \
+      VUINT j_start = I_AS_U (__riscv_vmax (lsb_x, 2, vlen));                 \
+      j_start = __riscv_vsub (j_start, 2, vlen);                              \
+      j_start = __riscv_vmul (j_start, 20165, vlen);                          \
+      j_start = __riscv_vsrl (j_start, 20, vlen);                             \
+      VUINT ind = __riscv_vsll (j_start, 3, vlen);                            \
+      VFLOAT two_by_pi = __riscv_vluxei64 (__v_cos_data.two_over_pi, ind,    \
+                                           vlen);                             \
+      VUINT peg_expo = VMVU_VX (1524, vlen);                                  \
+      peg_expo = __riscv_vnmsac (peg_expo, 52, j_start, vlen);                \
+      VFLOAT peg = U_AS_F (__riscv_vsll (peg_expo, 52, vlen));                \
+      peg = __riscv_vfsgnj (peg, two_by_pi, vlen);                            \
+      peg = __riscv_vfsgnjx (peg, vx_work, vlen);                             \
+      VFLOAT s = __riscv_vfmadd (vx_work, two_by_pi, peg, vlen);              \
+      s = __riscv_vfsub (s, peg, vlen);                                       \
+      VFLOAT ss = __riscv_vfmsub (vx_work, two_by_pi, s, vlen);               \
+      VFLOAT prod_0 = s;                                                      \
+      VFLOAT prod_1 = ss;                                                     \
+      prod_0 = __riscv_vfmul (prod_0, scale, vlen);                           \
+      ind = __riscv_vadd (ind, 8, vlen);                                      \
+      two_by_pi = __riscv_vluxei64 (__v_cos_data.two_over_pi, ind, vlen);     \
+      peg_expo = __riscv_vsub (peg_expo, 52, vlen);                           \
+      peg = U_AS_F (__riscv_vsll (peg_expo, 52, vlen));                       \
+      peg = __riscv_vfsgnj (peg, two_by_pi, vlen);                            \
+      peg = __riscv_vfsgnjx (peg, vx_work, vlen);                             \
+      s = __riscv_vfmadd (vx_work, two_by_pi, peg, vlen);                     \
+      s = __riscv_vfsub (s, peg, vlen);                                       \
+      ss = __riscv_vfmsub (vx_work, two_by_pi, s, vlen);                      \
+      prod_1 = __riscv_vfadd (prod_1, s, vlen);                               \
+      VFLOAT prod_2 = I_AS_F (__riscv_vor (F_AS_I (ss), F_AS_I (ss), vlen));  \
+      prod_1 = __riscv_vfmul (prod_1, scale, vlen);                           \
+      ind = __riscv_vadd (ind, 8, vlen);                                      \
+      two_by_pi = __riscv_vluxei64 (__v_cos_data.two_over_pi, ind, vlen);     \
+      peg_expo = __riscv_vsub (peg_expo, 52, vlen);                           \
+      peg = U_AS_F (__riscv_vsll (peg_expo, 52, vlen));                       \
+      peg = __riscv_vfsgnj (peg, two_by_pi, vlen);                            \
+      peg = __riscv_vfsgnjx (peg, vx_work, vlen);                             \
+      s = __riscv_vfmadd (vx_work, two_by_pi, peg, vlen);                     \
+      s = __riscv_vfsub (s, peg, vlen);                                       \
+      ss = __riscv_vfmsub (vx_work, two_by_pi, s, vlen);                      \
+      prod_2 = __riscv_vfadd (prod_2, s, vlen);                               \
+      VFLOAT prod_3 = I_AS_F (__riscv_vor (F_AS_I (ss), F_AS_I (ss), vlen));  \
+      prod_2 = __riscv_vfmul (prod_2, scale, vlen);                           \
+      VBOOL ignore_prod_0 = __riscv_vmfge (scale, 0x1.0p-446, vlen);          \
+      prod_0 = __riscv_vfmerge (prod_0, 0.0, ignore_prod_0, vlen);            \
+      VFLOAT flt_n = __riscv_vfmul (prod_0, 0x1.0p-12, vlen);                 \
+      (n_xlarge) = __riscv_vfcvt_x (flt_n, vlen);                             \
+      flt_n = __riscv_vfcvt_f ((n_xlarge), vlen);                             \
+      prod_0 = __riscv_vfnmsac (prod_0, 0x1.0p12, flt_n, vlen);               \
+      flt_n = __riscv_vfmul (prod_1, 0x1.0p-12, vlen);                        \
+      (n_xlarge) = __riscv_vfcvt_x (flt_n, vlen);                             \
+      flt_n = __riscv_vfcvt_f ((n_xlarge), vlen);                             \
+      prod_1 = __riscv_vfnmsac (prod_1, 0x1.0p12, flt_n, vlen);               \
+      flt_n = __riscv_vfadd (prod_1, prod_2, vlen);                           \
+      flt_n = __riscv_vfadd (flt_n, prod_0, vlen);                            \
+      (n_xlarge) = __riscv_vfcvt_x (flt_n, vlen);                             \
+      flt_n = __riscv_vfcvt_f ((n_xlarge), vlen);                             \
+      prod_0 = __riscv_vfsub (prod_0, flt_n, vlen);                           \
+      VFLOAT r_hi_local = __riscv_vfadd (prod_0, prod_1, vlen);               \
+      VFLOAT r_lo_local = __riscv_vfsub (prod_0, r_hi_local, vlen);           \
+      r_lo_local = __riscv_vfadd (r_lo_local, prod_1, vlen);                  \
+      VFLOAT tmp_1 = __riscv_vfadd (r_hi_local, prod_2, vlen);                \
+      VFLOAT tmp_2 = __riscv_vfsub (r_hi_local, tmp_1, vlen);                 \
+      tmp_2 = __riscv_vfadd (tmp_2, prod_2, vlen);                            \
+      r_hi_local = tmp_1;                                                     \
+      r_lo_local = __riscv_vfadd (r_lo_local, tmp_2, vlen);                   \
+      ind = __riscv_vadd (ind, 8, vlen);                                      \
+      two_by_pi = __riscv_vluxei64 (__v_cos_data.two_over_pi, ind, vlen);     \
+      peg_expo = __riscv_vsub (peg_expo, 52, vlen);                           \
+      peg = U_AS_F (__riscv_vsll (peg_expo, 52, vlen));                       \
+      peg = __riscv_vfsgnj (peg, two_by_pi, vlen);                            \
+      peg = __riscv_vfsgnjx (peg, vx_work, vlen);                             \
+      s = __riscv_vfmadd (vx_work, two_by_pi, peg, vlen);                     \
+      s = __riscv_vfsub (s, peg, vlen);                                       \
+      ss = __riscv_vfmsub (vx_work, two_by_pi, s, vlen);                      \
+      prod_3 = __riscv_vfadd (prod_3, s, vlen);                               \
+      VFLOAT prod_4 = I_AS_F (__riscv_vor (F_AS_I (ss), F_AS_I (ss), vlen));  \
+      prod_3 = __riscv_vfmul (prod_3, scale, vlen);                           \
+      tmp_1 = __riscv_vfadd (r_hi_local, prod_3, vlen);                       \
+      tmp_2 = __riscv_vfsub (r_hi_local, tmp_1, vlen);                        \
+      tmp_2 = __riscv_vfadd (tmp_2, prod_3, vlen);                            \
+      r_hi_local = tmp_1;                                                     \
+      r_lo_local = __riscv_vfadd (r_lo_local, tmp_2, vlen);                   \
+      ind = __riscv_vadd (ind, 8, vlen);                                      \
+      two_by_pi = __riscv_vluxei64 (__v_cos_data.two_over_pi, ind, vlen);     \
+      peg_expo = __riscv_vsub (peg_expo, 52, vlen);                           \
+      peg = U_AS_F (__riscv_vsll (peg_expo, 52, vlen));                       \
+      peg = __riscv_vfsgnj (peg, two_by_pi, vlen);                            \
+      peg = __riscv_vfsgnjx (peg, vx_work, vlen);                             \
+      s = __riscv_vfmadd (vx_work, two_by_pi, peg, vlen);                     \
+      s = __riscv_vfsub (s, peg, vlen);                                       \
+      prod_4 = __riscv_vfadd (prod_4, s, vlen);                               \
+      prod_4 = __riscv_vfmul (prod_4, scale, vlen);                           \
+      tmp_1 = __riscv_vfadd (r_hi_local, prod_4, vlen);                       \
+      tmp_2 = __riscv_vfsub (r_hi_local, tmp_1, vlen);                        \
+      tmp_2 = __riscv_vfadd (tmp_2, prod_4, vlen);                            \
+      r_hi_local = tmp_1;                                                     \
+      r_lo_local = __riscv_vfadd (r_lo_local, tmp_2, vlen);                   \
+      (r_xlarge) = __riscv_vfmul (r_hi_local, PIBY2_HI, vlen);                \
+      (r_delta_xlarge)                                                        \
+        = __riscv_vfmsub (r_hi_local, PIBY2_HI, (r_xlarge), vlen);            \
+      (r_delta_xlarge)                                                        \
+        = __riscv_vfmacc ((r_delta_xlarge), PIBY2_MID, r_hi_local, vlen);     \
+      (r_delta_xlarge)                                                        \
+        = __riscv_vfmacc ((r_delta_xlarge), PIBY2_HI, r_lo_local, vlen);      \
+    }                                                                         \
+  while (0)
 
 #endif /* RVV_LIBMVEC_TRIG_DOUBLE_HELPERS */
 
