@@ -519,6 +519,16 @@ static const scalar_t fp_posInf = __builtin_inff ();
     }                                                                         \
   while (0)
 
+#define RVV_SLEEF_ORIG_DFNEG_VF2(a_hi, a_lo, r_hi, r_lo, vlen)                \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _a_hi = (a_hi);                                                  \
+      VFLOAT _a_lo = (a_lo);                                                  \
+      (r_hi) = VFNEG_V (_a_hi, (vlen));                                      \
+      (r_lo) = VFNEG_V (_a_lo, (vlen));                                      \
+    }                                                                         \
+  while (0)
+
 #define RVV_SLEEF_ORIG_DFADD_VF_VF(x, y, r_hi, r_lo, vlen)                   \
   do                                                                          \
     {                                                                         \
@@ -576,6 +586,19 @@ static const scalar_t fp_posInf = __builtin_inff ();
       VFLOAT _t = VFADD_VV (VFSUB_VV (_x_hi, _s, (vlen)), _y, (vlen));        \
       (r_hi) = _s;                                                            \
       (r_lo) = VFADD_VV (_t, _x_lo, (vlen));                                  \
+    }                                                                         \
+  while (0)
+
+#define RVV_SLEEF_ORIG_DFADD_VF_VF2(x, y_hi, y_lo, r_hi, r_lo, vlen)          \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x = (x);                                                        \
+      VFLOAT _y_hi = (y_hi);                                                  \
+      VFLOAT _y_lo = (y_lo);                                                  \
+      VFLOAT _s = VFADD_VV (_x, _y_hi, (vlen));                               \
+      VFLOAT _t = VFADD_VV (VFSUB_VV (_x, _s, (vlen)), _y_hi, (vlen));        \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (_t, _y_lo, (vlen));                                  \
     }                                                                         \
   while (0)
 
@@ -899,6 +922,31 @@ static const scalar_t fp_posInf = __builtin_inff ();
 
 #endif /* RVV_ASINHF_CLEAN_DF_HELPERS */
 
+/* The atanf family uses these two generic float-float operations from the
+   common helper family.  Keep them in v_math.h so the routine skeletons do
+   not need a private helper header; the remaining generic operations can be
+   added here by their first real user.  */
+#ifndef RVV_VFLOAT2_COMMON_HELPERS
+# define RVV_VFLOAT2_COMMON_HELPERS
+
+# define VSEL_VF2_VO(o, a_hi, a_lo, b_hi, b_lo, r_hi, r_lo, vlen)             \
+  do                                                                          \
+    {                                                                         \
+      (r_hi) = __riscv_vmerge ((b_hi), (a_hi), (o), (vlen));                   \
+      (r_lo) = __riscv_vmerge ((b_lo), (a_lo), (o), (vlen));                   \
+    }                                                                         \
+  while (0)
+
+# define DFNEG_VF2_VF2(a_hi, a_lo, r_hi, r_lo, vlen)                           \
+  do                                                                          \
+    {                                                                         \
+      (r_hi) = VFNEG_V ((a_hi), (vlen));                                       \
+      (r_lo) = VFNEG_V ((a_lo), (vlen));                                       \
+    }                                                                         \
+  while (0)
+
+#endif /* RVV_VFLOAT2_COMMON_HELPERS */
+
 /* Float-float operations used by the clean cosf kernel.  Keep these
    importer-dependent operations in the common math header; the skeleton
    itself should expose only the algorithm and its data accesses.  */
@@ -920,3 +968,266 @@ static const scalar_t fp_posInf = __builtin_inff ();
   while (0)
 
 #endif /* RVV_COSF_CLEAN_DF_HELPERS */
+
+/* Fixed scalar coefficients and endpoint constants for the single-precision
+   atan family.  */
+#ifndef RVV_ATANF_CONSTANTS
+# define RVV_ATANF_CONSTANTS
+/* Polynomial shared by the single-precision atan kernels.  */
+# define RVV_ATANF_POLY0_F -0.00176397908944636583328247f
+# define RVV_ATANF_POLY1_F 0.0107900900766253471374512f
+# define RVV_ATANF_POLY2_F -0.0309564601629972457885742f
+# define RVV_ATANF_POLY3_F 0.0577365085482597351074219f
+# define RVV_ATANF_POLY4_F -0.0838950723409652709960938f
+# define RVV_ATANF_POLY5_F 0.109463557600975036621094f
+# define RVV_ATANF_POLY6_F -0.142626821994781494140625f
+# define RVV_ATANF_POLY7_F 0.199983194470405578613281f
+# define RVV_ATANF_POLY8_F -0.333332866430282592773438f
+# define RVV_ATANF_PI2_F 0x1.921fb6p+0f
+# define RVV_ATANF_PI2_HI_F 1.5707963705062866211f
+# define RVV_ATANF_PI2_LO_F -4.3711388286737928865e-08f
+# define RVV_ATANF_INV_PI_HI_F RVV_SLEEF_TRIG_ONE_OVER_PI
+# define RVV_ATANF_INV_PI_LO_F 0x1.b93910p-27f
+# define RVV_ATANF_NORM_PI2_F 0.5f
+#endif
+
+/* LMUL-qualified helpers used by the clean single-precision atan family.
+   Importer wrappers may explicitly activate the block, while direct
+   skeleton users select it from V_MATH_FUNC.  Per-LMUL guards are required
+   because v_math.h is re-included for every importer instantiation.  */
+#ifndef RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG_atanf
+# define RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG_atanf 1
+# define RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG_atan2f 1
+# define RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG_atan2pif 1
+# define RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG_INNER(name)                  \
+  RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG_##name
+# define RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG(name)                        \
+  RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG_INNER (name)
+#endif
+
+#if defined(RVV_LIBMVEC_ATAN2F_HELPERS)                                        \
+  || RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG (V_MATH_FUNC)
+# if (LMUL == 1)
+#  ifndef RVV_LIBMVEC_ATAN2F_HELPERS_M1
+#   define RVV_LIBMVEC_ATAN2F_HELPERS_M1
+#   define RVV_LIBMVEC_ATAN2F_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_LIBMVEC_ATAN2F_HELPERS_M2
+#   define RVV_LIBMVEC_ATAN2F_HELPERS_M2
+#   define RVV_LIBMVEC_ATAN2F_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_LIBMVEC_ATAN2F_HELPERS_M4
+#   define RVV_LIBMVEC_ATAN2F_HELPERS_M4
+#   define RVV_LIBMVEC_ATAN2F_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_LIBMVEC_ATAN2F_HELPERS_M8
+#   define RVV_LIBMVEC_ATAN2F_HELPERS_M8
+#   define RVV_LIBMVEC_ATAN2F_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_LIBMVEC_ATAN2F_HELPERS_THIS_LMUL
+static inline VINT
+RVV_LIBMVEC_IMPL_NAME (vsel_vi2_vf_vf_vi2_vi2, LMUL)
+  (VFLOAT f0, VFLOAT f1, VINT x, VINT y, size_t vlen)
+{
+  VBOOL m = __riscv_vmflt (f0, f1, vlen);
+  return __riscv_vmerge (y, x, m, vlen);
+}
+
+static inline void
+RVV_LIBMVEC_IMPL_NAME (atan2kf_u1, LMUL)
+  (VFLOAT y_hi, VFLOAT y_lo, VFLOAT x_hi, VFLOAT x_lo, VFLOAT *r_hi,
+   VFLOAT *r_lo, size_t vlen)
+{
+  VINT q = RVV_LIBMVEC_IMPL_NAME (vsel_vi2_vf_vf_vi2_vi2, LMUL)
+    (x_hi, VFMV_VF (0.0f, vlen), VMVI_VX (-2, vlen), VMVI_VX (0, vlen),
+     vlen);
+  VBOOL p = __riscv_vmflt (x_hi, 0.0f, vlen);
+  VUINT sign = VMVU_VX (0x80000000, vlen);
+  VUINT flip = __riscv_vmerge (VMVU_VX (0, vlen), sign, p, vlen);
+  x_hi = U_AS_F (__riscv_vxor (F_AS_U (x_hi), flip, vlen));
+  x_lo = U_AS_F (__riscv_vxor (F_AS_U (x_lo), flip, vlen));
+
+  q = RVV_LIBMVEC_IMPL_NAME (vsel_vi2_vf_vf_vi2_vi2, LMUL)
+    (x_hi, y_hi, __riscv_vadd (q, 1, vlen), q, vlen);
+  p = __riscv_vmflt (x_hi, y_hi, vlen);
+
+  VFLOAT neg_x_hi, neg_x_lo;
+  DFNEG_VF2_VF2 (x_hi, x_lo, neg_x_hi, neg_x_lo, vlen);
+
+  VFLOAT s_hi, s_lo, t_hi, t_lo;
+  VSEL_VF2_VO (p, neg_x_hi, neg_x_lo, y_hi, y_lo, s_hi, s_lo, vlen);
+  VSEL_VF2_VO (p, y_hi, y_lo, x_hi, x_lo, t_hi, t_lo, vlen);
+
+  RVV_SLEEF_ORIG_DFDIV_VF2_VF2
+    (s_hi, s_lo, t_hi, t_lo, s_hi, s_lo, vlen);
+  RVV_SLEEF_ORIG_DFSQU_VF2
+    (s_hi, s_lo, t_hi, t_lo, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2
+    (t_hi, t_lo, t_hi, t_lo, vlen);
+
+  VFLOAT u = VFMV_VF (RVV_ATANF_POLY0_F, vlen);
+  u = __riscv_vfmadd (u, t_hi, VFMV_VF (RVV_ATANF_POLY1_F, vlen), vlen);
+  u = __riscv_vfmadd (u, t_hi, VFMV_VF (RVV_ATANF_POLY2_F, vlen), vlen);
+  u = __riscv_vfmadd (u, t_hi, VFMV_VF (RVV_ATANF_POLY3_F, vlen), vlen);
+  u = __riscv_vfmadd (u, t_hi, VFMV_VF (RVV_ATANF_POLY4_F, vlen), vlen);
+  u = __riscv_vfmadd (u, t_hi, VFMV_VF (RVV_ATANF_POLY5_F, vlen), vlen);
+  u = __riscv_vfmadd (u, t_hi, VFMV_VF (RVV_ATANF_POLY6_F, vlen), vlen);
+  u = __riscv_vfmadd (u, t_hi, VFMV_VF (RVV_ATANF_POLY7_F, vlen), vlen);
+
+  VFLOAT u_t = __riscv_vfmul (u, t_hi, vlen);
+  VFLOAT poly_hi, poly_lo;
+  RVV_SLEEF_ORIG_DFADD_VF_VF
+    (VFMV_VF (RVV_ATANF_POLY8_F, vlen), u_t, poly_hi, poly_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (t_hi, t_lo, poly_hi, poly_lo, t_hi, t_lo, vlen);
+
+  VFLOAT sum_hi, sum_lo;
+  RVV_SLEEF_ORIG_DFADD_VF_VF2
+    (VFMV_VF (1.0f, vlen), t_hi, t_lo, sum_hi, sum_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (s_hi, s_lo, sum_hi, sum_lo, t_hi, t_lo, vlen);
+
+  VFLOAT qf = __riscv_vfcvt_f (q, vlen);
+  VFLOAT add_hi, add_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF
+    (VFMV_VF (RVV_ATANF_PI2_HI_F, vlen),
+     VFMV_VF (RVV_ATANF_PI2_LO_F, vlen), qf,
+     add_hi, add_lo, vlen);
+
+  RVV_SLEEF_ORIG_DFADD_VF2_VF2
+    (add_hi, add_lo, t_hi, t_lo, *r_hi, *r_lo, vlen);
+}
+#  undef RVV_LIBMVEC_ATAN2F_HELPERS_THIS_LMUL
+# endif
+#endif
+
+/* Source-shaped SLEEF atan-family helpers.  They are kept separately
+   mangled from the clean helper block so the comparison objects retain the
+   source operation graph while sharing the public math header.  */
+#ifndef RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG_atanpif
+# define RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG_atanpif 1
+# define RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG_atanf_original 1
+# define RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG_atanpif_original 1
+# define RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG_atan2f_original 1
+# define RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG_atan2pif_original 1
+# define RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG_INNER(name)                  \
+  RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG_##name
+# define RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG(name)                        \
+  RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG_INNER (name)
+#endif
+
+#if defined(RVV_SLEEF_ATAN_HELPERS)                                           \
+  || RVV_LIBMVEC_SLEEF_ATAN_HELPER_FUNC_FLAG (V_MATH_FUNC)
+# if (LMUL == 1)
+#  ifndef RVV_SLEEF_ATAN_HELPERS_M1
+#   define RVV_SLEEF_ATAN_HELPERS_M1
+#   define RVV_SLEEF_ATAN_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_SLEEF_ATAN_HELPERS_M2
+#   define RVV_SLEEF_ATAN_HELPERS_M2
+#   define RVV_SLEEF_ATAN_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_SLEEF_ATAN_HELPERS_M4
+#   define RVV_SLEEF_ATAN_HELPERS_M4
+#   define RVV_SLEEF_ATAN_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_SLEEF_ATAN_HELPERS_M8
+#   define RVV_SLEEF_ATAN_HELPERS_M8
+#   define RVV_SLEEF_ATAN_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_SLEEF_ATAN_HELPERS_THIS_LMUL
+static inline VINT
+RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_atan_select_m, LMUL)
+  (VFLOAT f0, VFLOAT f1, VINT x, VINT y, size_t vlen)
+{
+  VBOOL m = __riscv_vmflt (f0, f1, vlen);
+  return __riscv_vmerge (y, x, m, vlen);
+}
+
+static inline VFLOAT
+RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_visinf2_m, LMUL)
+  (VFLOAT d, VFLOAT m, size_t vlen)
+{
+  VUINT abs_d = __riscv_vand (F_AS_U (d), 0x7fffffff, vlen);
+  VBOOL is_inf = __riscv_vmseq (abs_d, 0x7f800000, vlen);
+  VUINT sign = __riscv_vand (F_AS_U (d), 0x80000000, vlen);
+  VUINT out_bits = __riscv_vor (F_AS_U (m), sign, vlen);
+  VUINT selected = __riscv_vmerge (VMVU_VX (0, vlen), out_bits, is_inf,
+                                   vlen);
+  return U_AS_F (selected);
+}
+
+static inline void
+RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_atan2kf_u1_m, LMUL)
+  (VFLOAT y_hi, VFLOAT y_lo, VFLOAT x_hi, VFLOAT x_lo,
+   VFLOAT *r_hi, VFLOAT *r_lo,
+   size_t vlen)
+{
+  VINT q = RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_atan_select_m, LMUL)
+    (x_hi, VFMV_VF (0.0f, vlen), VMVI_VX (-2, vlen), VMVI_VX (0, vlen),
+     vlen);
+  VBOOL p = __riscv_vmflt (x_hi, 0.0f, vlen);
+  VUINT sign = VMVU_VX (0x80000000, vlen);
+  VUINT flip = __riscv_vmerge (VMVU_VX (0, vlen), sign, p, vlen);
+  x_hi = U_AS_F (__riscv_vxor (F_AS_U (x_hi), flip, vlen));
+  x_lo = U_AS_F (__riscv_vxor (F_AS_U (x_lo), flip, vlen));
+
+  q = RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_atan_select_m, LMUL)
+    (x_hi, y_hi, __riscv_vadd (q, 1, vlen), q, vlen);
+  p = __riscv_vmflt (x_hi, y_hi, vlen);
+
+  VFLOAT neg_x_hi, neg_x_lo;
+  RVV_SLEEF_ORIG_DFNEG_VF2 (x_hi, x_lo, neg_x_hi, neg_x_lo, vlen);
+
+  VFLOAT s_hi = __riscv_vmerge (y_hi, neg_x_hi, p, vlen);
+  VFLOAT s_lo = __riscv_vmerge (y_lo, neg_x_lo, p, vlen);
+  VFLOAT t_hi = __riscv_vmerge (x_hi, y_hi, p, vlen);
+  VFLOAT t_lo = __riscv_vmerge (x_lo, y_lo, p, vlen);
+
+  RVV_SLEEF_ORIG_DFDIV_VF2_VF2 (s_hi, s_lo, t_hi, t_lo,
+                                s_hi, s_lo, vlen);
+  RVV_SLEEF_ORIG_DFSQU_VF2 (s_hi, s_lo, t_hi, t_lo, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2 (t_hi, t_lo, t_hi, t_lo, vlen);
+
+  VFLOAT u = VFMV_VF (RVV_ATANF_POLY0_F, vlen);
+  u = VFMADD_VV (u, t_hi, VFMV_VF (RVV_ATANF_POLY1_F, vlen), vlen);
+  u = VFMADD_VV (u, t_hi, VFMV_VF (RVV_ATANF_POLY2_F, vlen), vlen);
+  u = VFMADD_VV (u, t_hi, VFMV_VF (RVV_ATANF_POLY3_F, vlen), vlen);
+  u = VFMADD_VV (u, t_hi, VFMV_VF (RVV_ATANF_POLY4_F, vlen), vlen);
+  u = VFMADD_VV (u, t_hi, VFMV_VF (RVV_ATANF_POLY5_F, vlen), vlen);
+  u = VFMADD_VV (u, t_hi, VFMV_VF (RVV_ATANF_POLY6_F, vlen), vlen);
+  u = VFMADD_VV (u, t_hi, VFMV_VF (RVV_ATANF_POLY7_F, vlen), vlen);
+
+  VFLOAT u_t = VFMUL_VV (u, t_hi, vlen);
+  VFLOAT poly_hi, poly_lo;
+  RVV_SLEEF_ORIG_DFADD_VF_VF
+    (VFMV_VF (RVV_ATANF_POLY8_F, vlen), u_t, poly_hi, poly_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2 (t_hi, t_lo, poly_hi, poly_lo,
+                                t_hi, t_lo, vlen);
+
+  VFLOAT sum_hi, sum_lo;
+  RVV_SLEEF_ORIG_DFADD_VF_VF2 (VFMV_VF (1.0f, vlen), t_hi, t_lo,
+                               sum_hi, sum_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2 (s_hi, s_lo, sum_hi, sum_lo,
+                                t_hi, t_lo, vlen);
+
+  VFLOAT qf = __riscv_vfcvt_f (q, vlen);
+  VFLOAT add_hi, add_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF
+    (VFMV_VF (RVV_ATANF_PI2_HI_F, vlen),
+     VFMV_VF (RVV_ATANF_PI2_LO_F, vlen), qf,
+     add_hi, add_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD_VF2_VF2 (add_hi, add_lo, t_hi, t_lo,
+                                *r_hi, *r_lo, vlen);
+}
+#  undef RVV_SLEEF_ATAN_HELPERS_THIS_LMUL
+# endif
+#endif

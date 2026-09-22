@@ -227,6 +227,8 @@ extern const struct v_cos_data
   __VCFG_PASTE4 (__riscv_vfnmsub_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFNMSAC_VV \
   __VCFG_PASTE4 (__riscv_vfnmsac_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFNEG_V \
+  __VCFG_PASTE4 (__riscv_vfneg_v_f, BIT_WIDTH, m, LMUL)
 
 #define VFADD_VV(op1, op2, vlen) \
   __MAKE_VFADD_VV ((op1), (op2), (vlen))
@@ -250,6 +252,8 @@ extern const struct v_cos_data
   __MAKE_VFNMSUB_VV ((op1), (op2), (op3), (vlen))
 #define VFNMSAC_VV(op1, op2, op3, vlen) \
   __MAKE_VFNMSAC_VV ((op1), (op2), (op3), (vlen))
+#define VFNEG_V(op1, vlen) \
+  __MAKE_VFNEG_V ((op1), (vlen))
 
 __END_DECLS
 

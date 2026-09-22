@@ -220,5 +220,27 @@ libmvec {
     _ZGVr8N8v_atan;
     _ZGVr8N16v_atan;
     _ZGVr8N32v_atan;
+    _ZGVr1N4v_atanf;
+    _ZGVr1N8v_atanf;
+    _ZGVr2N4v_atanf;
+    _ZGVr2N8v_atanf;
+    _ZGVr2N16v_atanf;
+    _ZGVr4N8v_atanf;
+    _ZGVr4N16v_atanf;
+    _ZGVr4N32v_atanf;
+    _ZGVr8N16v_atanf;
+    _ZGVr8N32v_atanf;
+    _ZGVr8N64v_atanf;
+    _ZGVr1N4v_atanf_original;
+    _ZGVr1N8v_atanf_original;
+    _ZGVr2N4v_atanf_original;
+    _ZGVr2N8v_atanf_original;
+    _ZGVr2N16v_atanf_original;
+    _ZGVr4N8v_atanf_original;
+    _ZGVr4N16v_atanf_original;
+    _ZGVr4N32v_atanf_original;
+    _ZGVr8N16v_atanf_original;
+    _ZGVr8N32v_atanf_original;
+    _ZGVr8N64v_atanf_original;
   }
 }
