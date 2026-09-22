@@ -230,6 +230,13 @@ def _build_variants(
     variant_entries: List[str] = []
 
     variants_list = list(_make_vector_variants(func, elem_width, variants))
+    prefix = "v_d_" if elem_width == 64 else "v_f_"
+    original = Path(__file__).resolve().parent.parent / (
+        prefix + func + "_original.c"
+    )
+    if original.is_file():
+        variants_list.extend(_make_vector_variants(func + "_original", elem_width, variants))
+
     variants_list.append(
         {
             "name": "scalar",

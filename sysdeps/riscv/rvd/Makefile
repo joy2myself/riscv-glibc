@@ -6,6 +6,14 @@ libmvec-sysdep_routines = \
 	$(addprefix v_f_, $(libmvec-float-funcs)) \
 	$(addsuffix _data, $(addprefix v_f_, $(libmvec-float-funcs-with-data))) \
 
+libmvec-source-original-routines = \
+  v_f_acosf_original
+
+libmvec-sysdep_routines += $(libmvec-source-original-routines)
+
+$(foreach f,$(libmvec-source-original-routines), \
+  $(eval CFLAGS-$(f).c += -ffp-contract=off))
+
 define riscv64-vector-cflags-template
 CFLAGS-$(1).c += -march=rv64gcv -Wno-maybe-uninitialized -Wno-undef
 endef

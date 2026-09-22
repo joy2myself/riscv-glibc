@@ -43,9 +43,11 @@ _Static_assert (0, "NaN not available on this architecture");
 #define __PASTE4(A, B, C, D) __PASTE4_BASE (A, B, C, D)
 #define __PASTE5_BASE(A, B, C, D, E) A##B##C##D##E
 #define __PASTE5(A, B, C, D, E) __PASTE5_BASE (A, B, C, D, E)
+static const uint64_t class_NaN = 0x300;
 static const uint64_t class_posZero = 0x10;
 static const uint64_t class_posDenorm = 0x20;
 static const uint64_t class_negative = 0x7;
+#define RVV_SLEEF_TRIG_PI_F 0x1.921fb6p+1f
 
 #ifdef _NEED_UNDEF_GNU_SOURCE_V_MATH
 #undef _GNU_SOURCE
@@ -168,6 +170,19 @@ static const scalar_t fp_posOne = 0x1.0p0f;
 #define VMVI_VX MAKE_FUNC (__riscv_vmv_v_x_i)
 #define VFMV_VF MAKE_FUNC (__riscv_vfmv_v_f_f)
 
+#define IDENTIFY_F IDENTIFY
+
+/* The source-shaped acosf helper is embedded by the acospif comparator.
+   Select its public body from the importer function name so the helper
+   skeleton has no routine-local enable/disable macro.  */
+#ifndef RVV_MATH_IS_ACOSF_HELPERS_ONLY_acospif_original
+# define RVV_MATH_IS_ACOSF_HELPERS_ONLY_acospif_original 1
+# define RVV_MATH_IS_ACOSF_HELPERS_ONLY_INNER(name) \
+  RVV_MATH_IS_ACOSF_HELPERS_ONLY_##name
+# define RVV_MATH_IS_ACOSF_HELPERS_ONLY(name) \
+  RVV_MATH_IS_ACOSF_HELPERS_ONLY_INNER (name)
+#endif
+
 #ifndef RVV_LIBMVEC_TRIG_DOUBLE_HELPERS
 #define RVV_LIBMVEC_TRIG_DOUBLE_HELPERS
 #define PIBY2_HI 0x1.921fb54442d18p+0
@@ -183,3 +198,146 @@ static const scalar_t fp_posOne = 0x1.0p0f;
 #define RVV_SLEEF_LOG_U1_POLY2_F 0.6666694880e+0f
 
 #endif /* RVV_LIBMVEC_TRIG_DOUBLE_HELPERS */
+
+/* Shared source-shaped acosf names and constants.  The clean finite kernel
+   and the independent SLEEF comparator use distinct prefixes, but both
+   source operation graphs are instantiated by the same importer LMUL.  */
+#ifndef RVV_ACOSF_COMMON_DEFINITIONS
+# define RVV_ACOSF_COMMON_DEFINITIONS
+# define RVV_ACOSF_SOURCE_MANGLE(base) \
+  RVV_SLEEF_ORIG_MANGLE (base, LMUL)
+# define RVV_ACOSF_PIBY2_HI_F 0x1.921fb6p+0f
+# define RVV_ACOSF_PIBY2_LO_F -0x1.777a5cp-25f
+# define RVV_ACOSF_PI_HI_F RVV_SLEEF_TRIG_PI_F
+# define RVV_ACOSF_PI_LO_F -0x1.777a5cp-24f
+# define RVV_ACOSF_C0 0.1666677296e+0f
+# define RVV_ACOSF_C1 0.7495029271e-1f
+# define RVV_ACOSF_C2 0.4547423869e-1f
+# define RVV_ACOSF_C3 0.2424046025e-1f
+# define RVV_ACOSF_C4 0.4197454825e-1f
+
+/* The pinned SLEEF source passes the five polynomial literals as double
+   expressions to vcast_vf_f(float).  Keep them unsuffixed here so the
+   conversion remains observable under a non-RNE caller FRM.  */
+# define RVV_SLEEF_ORIG_ACOSF_MANGLE(base) \
+  RVV_SLEEF_ORIG_MANGLE (base, LMUL)
+# define RVV_SLEEF_ORIG_ACOSF_C0 0.1666677296e+0
+# define RVV_SLEEF_ORIG_ACOSF_C1 0.7495029271e-1
+# define RVV_SLEEF_ORIG_ACOSF_C2 0.4547423869e-1
+# define RVV_SLEEF_ORIG_ACOSF_C3 0.2424046025e-1
+# define RVV_SLEEF_ORIG_ACOSF_C4 0.4197454825e-1
+# define RVV_SLEEF_ORIG_ACOSF_PI2_HI 3.1415927410125732422f / 2
+# define RVV_SLEEF_ORIG_ACOSF_PI2_LO -8.7422776573475857731e-08f / 2
+# define RVV_SLEEF_ORIG_ACOSF_PI_HI 3.1415927410125732422f
+# define RVV_SLEEF_ORIG_ACOSF_PI_LO -8.7422776573475857731e-08f
+#endif
+
+/* Target-owned source-shaped SLEEF DF/FMA helpers.  These macros are
+   kept in the common math header so skeletons do not carry a private
+   helper header.  The operation graphs are unchanged from the former
+   former private SLEEF helper translation unit.  */
+#ifndef RVV_SLEEF_ORIGINAL_DF_HELPERS
+#define RVV_SLEEF_ORIGINAL_DF_HELPERS
+
+#define RVV_SLEEF_ORIG_MANGLE_INNER(base, lmul) base##lmul
+#define RVV_SLEEF_ORIG_MANGLE(base, lmul) \
+  RVV_SLEEF_ORIG_MANGLE_INNER (base, lmul)
+
+#define RVV_SLEEF_ORIG_DFADD_VF_VF(x, y, r_hi, r_lo, vlen)                   \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x = (x);                                                        \
+      VFLOAT _y = (y);                                                        \
+      VFLOAT _s = VFADD_VV (_x, _y, (vlen));                                  \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (VFSUB_VV (_x, _s, (vlen)), _y, (vlen));              \
+    }                                                                         \
+  while (0)
+
+#define RVV_SLEEF_ORIG_DFADD2_VF_VF2(x, y_hi, y_lo, r_hi, r_lo, vlen)         \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x = (x);                                                        \
+      VFLOAT _y_hi = (y_hi);                                                  \
+      VFLOAT _y_lo = (y_lo);                                                  \
+      VFLOAT _s = VFADD_VV (_x, _y_hi, (vlen));                               \
+      VFLOAT _v = VFSUB_VV (_s, _x, (vlen));                                  \
+      VFLOAT _t = VFADD_VV (                                                   \
+          VFSUB_VV (_x, VFSUB_VV (_s, _v, (vlen)), (vlen)),                   \
+          VFSUB_VV (_y_hi, _v, (vlen)), (vlen));                              \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (_t, _y_lo, (vlen));                                  \
+    }                                                                         \
+  while (0)
+
+#define RVV_SLEEF_ORIG_DFADD_VF2_VF2_VF(x_hi, x_lo, y, r_hi, r_lo, vlen)      \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x_hi = (x_hi);                                                  \
+      VFLOAT _x_lo = (x_lo);                                                  \
+      VFLOAT _y = (y);                                                        \
+      VFLOAT _s = VFADD_VV (_x_hi, _y, (vlen));                               \
+      VFLOAT _t = VFADD_VV (VFSUB_VV (_x_hi, _s, (vlen)), _y, (vlen));        \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFADD_VV (_t, _x_lo, (vlen));                                  \
+    }                                                                         \
+  while (0)
+
+/* Source dfsub_vf2_vf2_vf2: pair subtraction with the source's sequential
+   high-part subtraction and low-part correction order.  */
+#define RVV_SLEEF_ORIG_DFSUB_VF2_VF2(x_hi, x_lo, y_hi, y_lo, r_hi, r_lo,      \
+                                     vlen)                                    \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x_hi = (x_hi);                                                  \
+      VFLOAT _x_lo = (x_lo);                                                  \
+      VFLOAT _y_hi = (y_hi);                                                  \
+      VFLOAT _y_lo = (y_lo);                                                  \
+      VFLOAT _s = VFSUB_VV (_x_hi, _y_hi, (vlen));                            \
+      VFLOAT _t = VFSUB_VV (_x_hi, _s, (vlen));                               \
+      _t = VFSUB_VV (_t, _y_hi, (vlen));                                      \
+      _t = VFADD_VV (_t, _x_lo, (vlen));                                      \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFSUB_VV (_t, _y_lo, (vlen));                                  \
+    }                                                                         \
+  while (0)
+
+#define RVV_SLEEF_ORIG_DFSCALE_VF2_VF(x_hi, x_lo, scale, r_hi, r_lo, vlen)   \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x_hi = (x_hi);                                                  \
+      VFLOAT _x_lo = (x_lo);                                                  \
+      VFLOAT _scale = (scale);                                                \
+      (r_hi) = VFMUL_VV (_x_hi, _scale, (vlen));                              \
+      (r_lo) = VFMUL_VV (_x_lo, _scale, (vlen));                              \
+    }                                                                         \
+  while (0)
+
+#define RVV_SLEEF_ORIG_DFMUL_VF_VF(x, y, r_hi, r_lo, vlen)                   \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x = (x);                                                        \
+      VFLOAT _y = (y);                                                        \
+      VFLOAT _s = VFMUL_VV (_x, _y, (vlen));                                  \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFMSUB_VV (_x, _y, _s, (vlen));                                \
+    }                                                                         \
+  while (0)
+
+#define RVV_SLEEF_ORIG_DFMUL_VF2_VF2(x_hi, x_lo, y_hi, y_lo, r_hi, r_lo,      \
+                                     vlen)                                    \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x_hi = (x_hi);                                                  \
+      VFLOAT _x_lo = (x_lo);                                                  \
+      VFLOAT _y_hi = (y_hi);                                                  \
+      VFLOAT _y_lo = (y_lo);                                                  \
+      VFLOAT _s = VFMUL_VV (_x_hi, _y_hi, (vlen));                            \
+      VFLOAT _residual = VFMSUB_VV (_x_hi, _y_hi, _s, (vlen));                \
+      VFLOAT _cross_hi = VFMADD_VV (_x_lo, _y_hi, _residual, (vlen));         \
+      (r_hi) = _s;                                                            \
+      (r_lo) = VFMADD_VV (_x_hi, _y_lo, _cross_hi, (vlen));                   \
+    }                                                                         \
+  while (0)
+
+#endif /* RVV_SLEEF_ORIGINAL_DF_HELPERS */

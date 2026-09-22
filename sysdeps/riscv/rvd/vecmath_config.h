@@ -39,6 +39,12 @@ __BEGIN_DECLS
   __VCFG_PASTE5 (__riscv_vfrec7_v_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VFADD_VV_M \
   __VCFG_PASTE5 (__riscv_vfadd_vv_f, BIT_WIDTH, m, LMUL, _m)
+#define __MAKE_VFSUB_VV \
+  __VCFG_PASTE4 (__riscv_vfsub_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFMADD_VV \
+  __VCFG_PASTE4 (__riscv_vfmadd_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFMUL_VV \
+  __VCFG_PASTE4 (__riscv_vfmul_vv_f, BIT_WIDTH, m, LMUL)
 
 #define VMERGE_VVM_F(op1, op2, mask, vlen) \
   __MAKE_VMERGE_VVM (f) ((op1), (op2), (mask), (vlen))
@@ -52,6 +58,12 @@ __BEGIN_DECLS
   __MAKE_VFREC7_M ((mask), (op1), (vlen))
 #define VFADD_VV_M(mask, op1, op2, vlen) \
   __MAKE_VFADD_VV_M ((mask), (op1), (op2), (vlen))
+#define VFSUB_VV(op1, op2, vlen) \
+  __MAKE_VFSUB_VV ((op1), (op2), (vlen))
+#define VFMADD_VV(op1, op2, op3, vlen) \
+  __MAKE_VFMADD_VV ((op1), (op2), (op3), (vlen))
+#define VFMUL_VV(op1, op2, vlen) \
+  __MAKE_VFMUL_VV ((op1), (op2), (vlen))
 
 #ifndef FE_TONEAREST
 #define FE_TONEAREST 0x000
@@ -108,6 +120,36 @@ extern const struct v_log_data
 {
   const int64_t table[1 << V_LOG_TABLE_BITS];
 } __v_log_data attribute_hidden;
+
+#define __MAKE_VFADD_VV \
+  __VCFG_PASTE4 (__riscv_vfadd_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFSUB_VV \
+  __VCFG_PASTE4 (__riscv_vfsub_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFMUL_VV \
+  __VCFG_PASTE4 (__riscv_vfmul_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFDIV_VV \
+  __VCFG_PASTE4 (__riscv_vfdiv_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFMADD_VV \
+  __VCFG_PASTE4 (__riscv_vfmadd_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFMSUB_VV \
+  __VCFG_PASTE4 (__riscv_vfmsub_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFNMSUB_VV \
+  __VCFG_PASTE4 (__riscv_vfnmsub_vv_f, BIT_WIDTH, m, LMUL)
+
+#define VFADD_VV(op1, op2, vlen) \
+  __MAKE_VFADD_VV ((op1), (op2), (vlen))
+#define VFSUB_VV(op1, op2, vlen) \
+  __MAKE_VFSUB_VV ((op1), (op2), (vlen))
+#define VFMUL_VV(op1, op2, vlen) \
+  __MAKE_VFMUL_VV ((op1), (op2), (vlen))
+#define VFDIV_VV(op1, op2, vlen) \
+  __MAKE_VFDIV_VV ((op1), (op2), (vlen))
+#define VFMADD_VV(op1, op2, op3, vlen) \
+  __MAKE_VFMADD_VV ((op1), (op2), (op3), (vlen))
+#define VFMSUB_VV(op1, op2, op3, vlen) \
+  __MAKE_VFMSUB_VV ((op1), (op2), (op3), (vlen))
+#define VFNMSUB_VV(op1, op2, op3, vlen) \
+  __MAKE_VFNMSUB_VV ((op1), (op2), (op3), (vlen))
 
 __END_DECLS
 
