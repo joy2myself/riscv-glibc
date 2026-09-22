@@ -157,6 +157,19 @@ __BEGIN_DECLS
     }                                                                         \
   while (0)
 
+#define FAST_LDEXP(num, exp, vlen)                                            \
+  do                                                                          \
+    {                                                                         \
+      VINT _n1 = __riscv_vsra ((exp), 1, (vlen));                             \
+      VINT _n2 = __riscv_vsub ((exp), _n1, (vlen));                           \
+      _n1 = __riscv_vsll (_n1, MAN_LEN, (vlen));                              \
+      (num) = I_AS_F (__riscv_vadd (F_AS_I ((num)), _n1, (vlen)));            \
+      _n2 = __riscv_vadd (_n2, EXP_BIAS, (vlen));                             \
+      _n2 = __riscv_vsll (_n2, MAN_LEN, (vlen));                              \
+      (num) = __riscv_vfmul ((num), I_AS_F (_n2), (vlen));                    \
+    }                                                                         \
+  while (0)
+
 /* Define the table for table-driven implementations.  Scalar constants live
    in v_math.h.  */
 #define V_LOG_TABLE_BITS 7
