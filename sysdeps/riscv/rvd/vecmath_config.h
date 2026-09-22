@@ -323,6 +323,14 @@ extern const struct v_log_data
   const int64_t table[1 << V_LOG_TABLE_BITS];
 } __v_log_data attribute_hidden;
 
+/* Shared lookup tables for the glibc scalar-source powf vectorization.  */
+extern const struct v_powf_data
+{
+  const double log2_invc[16];
+  const double log2_logc[16];
+  const uint64_t exp2_tab[32];
+} __v_powf_data attribute_hidden;
+
 /* Shared constants and tables for the double-precision exp2m1 implementation.  */
 #define V_EXP2M1_TABLE_BITS 7
 #define V_EXP2M1_N (1 << V_EXP2M1_TABLE_BITS)

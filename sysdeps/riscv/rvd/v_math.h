@@ -537,6 +537,47 @@ static const scalar_t fp_posInf = __builtin_inff ();
 
 #define IDENTIFY_F IDENTIFY
 
+/* The scalar-source powf importer widens binary32 lanes to binary64 for its
+   log2/exp2 core.  Keep the LMUL-specific widened types and intrinsics in the
+   shared math header so the routine skeleton contains only the operation
+   graph.  LMUL=8 is handled by the importer through two LMUL=4 calls.  */
+#if (BIT_WIDTH == 32)
+# if (LMUL == 1)
+#  define RVV_POWF_VDOUBLE vfloat64m2_t
+#  define RVV_POWF_VU64 vuint64m2_t
+#  define RVV_POWF_VU32_IDX vuint32m1_t
+#  define RVV_POWF_VFWCVT __riscv_vfwcvt_f_f_v_f64m2
+#  define RVV_POWF_VFNCVT __riscv_vfncvt_f_f_w_f32m1
+#  define RVV_POWF_VDFMV_VF __riscv_vfmv_v_f_f64m2
+#  define RVV_POWF_VGATHER_F64 __riscv_vluxei32_v_f64m2
+#  define RVV_POWF_VGATHER_U64 __riscv_vluxei64_v_u64m2
+#  define RVV_POWF_F64_AS_U64 __riscv_vreinterpret_v_f64m2_u64m2
+#  define RVV_POWF_U64_AS_F64 __riscv_vreinterpret_v_u64m2_f64m2
+# elif (LMUL == 2)
+#  define RVV_POWF_VDOUBLE vfloat64m4_t
+#  define RVV_POWF_VU64 vuint64m4_t
+#  define RVV_POWF_VU32_IDX vuint32m2_t
+#  define RVV_POWF_VFWCVT __riscv_vfwcvt_f_f_v_f64m4
+#  define RVV_POWF_VFNCVT __riscv_vfncvt_f_f_w_f32m2
+#  define RVV_POWF_VDFMV_VF __riscv_vfmv_v_f_f64m4
+#  define RVV_POWF_VGATHER_F64 __riscv_vluxei32_v_f64m4
+#  define RVV_POWF_VGATHER_U64 __riscv_vluxei64_v_u64m4
+#  define RVV_POWF_F64_AS_U64 __riscv_vreinterpret_v_f64m4_u64m4
+#  define RVV_POWF_U64_AS_F64 __riscv_vreinterpret_v_u64m4_f64m4
+# elif (LMUL == 4)
+#  define RVV_POWF_VDOUBLE vfloat64m8_t
+#  define RVV_POWF_VU64 vuint64m8_t
+#  define RVV_POWF_VU32_IDX vuint32m4_t
+#  define RVV_POWF_VFWCVT __riscv_vfwcvt_f_f_v_f64m8
+#  define RVV_POWF_VFNCVT __riscv_vfncvt_f_f_w_f32m4
+#  define RVV_POWF_VDFMV_VF __riscv_vfmv_v_f_f64m8
+#  define RVV_POWF_VGATHER_F64 __riscv_vluxei32_v_f64m8
+#  define RVV_POWF_VGATHER_U64 __riscv_vluxei64_v_u64m8
+#  define RVV_POWF_F64_AS_U64 __riscv_vreinterpret_v_f64m8_u64m8
+#  define RVV_POWF_U64_AS_F64 __riscv_vreinterpret_v_u64m8_f64m8
+# endif
+#endif
+
 /* The source-shaped acosf helper is embedded by the acospif comparator.
    Select its public body from the importer function name so the helper
    skeleton has no routine-local enable/disable macro.  */
@@ -1231,6 +1272,40 @@ static const scalar_t fp_posInf = __builtin_inff ();
 # define RVV_TGAMMAF_GAMMA_O0_HI_F 1.2f
 # define RVV_TGAMMAF_GAMMA_O2_LO_F 2.3f
 # define RVV_TGAMMAF_GAMMA_O2_HI_F 7.0f
+#endif
+
+/* Scalar constants for the single-precision powf kernel.  The log2/exp2
+   lookup tables remain indexed data in v_f_powf_data.c.  */
+#ifndef RVV_POWF_CONSTANTS
+# define RVV_POWF_CONSTANTS
+# define RVV_POWF_LOG2_OFF 0x3f330000u
+# define RVV_POWF_LOG2_TOP_MASK 0xff800000u
+# define RVV_POWF_MIN_NORM 0x00800000u
+# define RVV_POWF_SIGN_MASK 0x80000000u
+# define RVV_POWF_ABS_MASK 0x7fffffffu
+# define RVV_POWF_ONE_BITS 0x3f800000u
+# define RVV_POWF_SUBNORM_EXPONENT_BIAS (23u << 23)
+# define RVV_POWF_LOG2_TABLE_MASK 15u
+# define RVV_POWF_EXP2_TABLE_MASK 31u
+# define RVV_POWF_FLOAT_MANTISSA_BITS 23u
+# define RVV_POWF_DOUBLE_MANTISSA_BITS 52u
+# define RVV_POWF_LOG2_TABLE_BITS 4u
+# define RVV_POWF_EXP2_TABLE_BITS 5u
+# define RVV_POWF_LOG2_POLY0_D 0x1.27616c9496e0bp-2
+# define RVV_POWF_LOG2_POLY1_D -0x1.71969a075c67ap-2
+# define RVV_POWF_LOG2_POLY2_D 0x1.ec70a6ca7baddp-2
+# define RVV_POWF_LOG2_POLY3_D -0x1.7154748bef6c8p-1
+# define RVV_POWF_LOG2_POLY4_D 0x1.71547652ab82bp0
+# define RVV_POWF_INT_BOUND_F 16777216.0f
+# define RVV_POWF_SUBNORM_SCALE_F 0x1.0p23f
+# define RVV_POWF_MIN_SUBNORMAL_F RVV_SLEEF_EXPM1F_MIN_SUBNORMAL
+# define RVV_POWF_MAX_FINITE_F RVV_SLEEF_EXPM1F_MAX_FINITE
+# define RVV_POWF_EXP2_SHIFT_D 0x1.8p+47
+# define RVV_POWF_EXP2_C0_D 0x1.c6af84b912394p-5
+# define RVV_POWF_EXP2_C1_D 0x1.ebfce50fac4f3p-3
+# define RVV_POWF_EXP2_C2_D 0x1.62e42ff0c52d6p-1
+# define RVV_POWF_YLOGX_UNDER_D -150.0
+# define RVV_POWF_YLOGX_OVER_D 0x1.fffffffd1d571p+6
 #endif
 
 #define EXCEPTION_HANDLING_TRIG(vx, expo_x, special_args, vy_special, vlen)  \

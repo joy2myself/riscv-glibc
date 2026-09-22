@@ -57,6 +57,7 @@ libmvec-float-funcs-bare = \
   log1pf \
 
 libmvec-float-funcs-with-data = \
+  powf \
 
 libmvec-double-funcs-bare = \
   acos \
@@ -215,6 +216,7 @@ libmvec-float-bench-funcs = \
   log10p1f \
   logp1f \
   log1pf \
+  powf \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \
