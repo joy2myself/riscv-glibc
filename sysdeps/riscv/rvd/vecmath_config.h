@@ -202,6 +202,14 @@ extern const struct v_log_data
   const int64_t table[1 << V_LOG_TABLE_BITS];
 } __v_log_data attribute_hidden;
 
+/* Lookup tables for the double-precision exp10m1 implementation.  */
+extern const struct v_exp10m1_data
+{
+  const uint64_t exp_data[128];
+  const uint64_t exp_tail[128];
+  const uint64_t scalem1[88];
+} __v_exp10m1_data attribute_hidden;
+
 /* Shared SLEEF rempif table for the single-precision trigonometric paths.  */
 #define V_SLEEF_REMPITABSP_LEN 416
 extern const struct v_sleef_trig_data
