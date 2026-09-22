@@ -90,6 +90,7 @@ libmvec-double-funcs-bare = \
   log10 \
   log10p1 \
   logp1 \
+  log1p \
 
 libmvec-double-funcs-with-data = \
   log \
@@ -174,6 +175,7 @@ libmvec-double-bench-funcs = \
   log10 \
   log10p1 \
   logp1 \
+  log1p \
 
 libmvec-float-bench-funcs = \
   logf \
