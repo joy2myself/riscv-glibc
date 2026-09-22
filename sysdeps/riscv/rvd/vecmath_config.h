@@ -75,6 +75,13 @@ __BEGIN_DECLS
 #define VFMUL_VV(op1, op2, vlen) \
   __MAKE_VFMUL_VV ((op1), (op2), (vlen))
 
+#define VMOR(op1, op2, vlen) \
+  __riscv_vmor ((op1), (op2), (vlen))
+
+#define RVV_VFCVT_X_F_RNE(value, vlen) \
+  __VCFG_PASTE5 (__riscv_vfcvt_x_f_v_i, BIT_WIDTH, m, LMUL, _rm) \
+    ((value), __RISCV_FRM_RNE, (vlen))
+
 /* Explicitly masked float/integer conversions used by the double atan2
    fixed-point core.  Keep the intrinsic spelling in the common framework so
    the routine skeleton contains only its operation graph.  */
@@ -137,6 +144,9 @@ __BEGIN_DECLS
 #define IDENTIFY(vclass, stencil, identity_mask, vlen)                        \
   identity_mask = __riscv_vmsgtu (__riscv_vand ((vclass), (stencil), (vlen)), \
                                   0, (vlen))
+
+#define FCLIP(x, min, max, vlen)                                              \
+  __riscv_vfmax (__riscv_vfmin ((x), (max), (vlen)), (min), (vlen))
 
 #define FAST2SUM(x, y, sum_hi, sum_lo, vlen)                                  \
   do                                                                          \
