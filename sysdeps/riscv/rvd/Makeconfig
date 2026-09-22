@@ -65,3 +65,15 @@ $(common-objpfx)libmvec.mk: $(common-objpfx)config.make
 	 done; \
 	 echo "endif";)> $@T
 	mv -f $@T $@
+
+# Define libmvec function for benchtests directory.
+libmvec-double-bench-funcs = \
+  log        \
+
+libmvec-float-bench-funcs = \
+
+bench-libmvec-double = \
+  $(addprefix double-, $(libmvec-double-bench-funcs)) \
+
+bench-libmvec-float = \
+  $(addprefix float-, $(libmvec-float-bench-funcs))  \
