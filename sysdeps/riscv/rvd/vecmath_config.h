@@ -45,6 +45,8 @@ __BEGIN_DECLS
   __VCFG_PASTE5 (__riscv_vfrsub_vf_f, BIT_WIDTH, m, LMUL, _m)
 #define __MAKE_VFSUB_VV \
   __VCFG_PASTE4 (__riscv_vfsub_vv_f, BIT_WIDTH, m, LMUL)
+#define __MAKE_VFSUB_VF \
+  __VCFG_PASTE4 (__riscv_vfsub_vf_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMADD_VV \
   __VCFG_PASTE4 (__riscv_vfmadd_vv_f, BIT_WIDTH, m, LMUL)
 #define __MAKE_VFMACC_VV \
@@ -80,6 +82,8 @@ __BEGIN_DECLS
   __MAKE_VFRSUB_VF_M ((mask), (op1), (scalar), (vlen))
 #define VFSUB_VV(op1, op2, vlen) \
   __MAKE_VFSUB_VV ((op1), (op2), (vlen))
+#define VFSUB_VF(op1, scalar, vlen) \
+  __MAKE_VFSUB_VF ((op1), (scalar), (vlen))
 #define VFMADD_VV(op1, op2, op3, vlen) \
   __MAKE_VFMADD_VV ((op1), (op2), (op3), (vlen))
 #define VFMACC_VV(op1, op2, op3, vlen) \
