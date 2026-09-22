@@ -12,6 +12,7 @@ GLIBC_2.43 _ZGVr1N2v_cos F
 GLIBC_2.43 _ZGVr1N2v_cosh F
 GLIBC_2.43 _ZGVr1N2v_cospi F
 GLIBC_2.43 _ZGVr1N2v_erf F
+GLIBC_2.43 _ZGVr1N2v_erfc F
 GLIBC_2.43 _ZGVr1N2v_exp2 F
 GLIBC_2.43 _ZGVr1N2v_exp2_original F
 GLIBC_2.43 _ZGVr1N2v_log F
@@ -55,6 +56,7 @@ GLIBC_2.43 _ZGVr1N4v_cospi F
 GLIBC_2.43 _ZGVr1N4v_cospif F
 GLIBC_2.43 _ZGVr1N4v_cospif_original F
 GLIBC_2.43 _ZGVr1N4v_erf F
+GLIBC_2.43 _ZGVr1N4v_erfc F
 GLIBC_2.43 _ZGVr1N4v_exp2 F
 GLIBC_2.43 _ZGVr1N4v_exp2_original F
 GLIBC_2.43 _ZGVr1N4v_exp2f F
@@ -141,6 +143,7 @@ GLIBC_2.43 _ZGVr2N2v_cos F
 GLIBC_2.43 _ZGVr2N2v_cosh F
 GLIBC_2.43 _ZGVr2N2v_cospi F
 GLIBC_2.43 _ZGVr2N2v_erf F
+GLIBC_2.43 _ZGVr2N2v_erfc F
 GLIBC_2.43 _ZGVr2N2v_exp2 F
 GLIBC_2.43 _ZGVr2N2v_exp2_original F
 GLIBC_2.43 _ZGVr2N2v_log F
@@ -184,6 +187,7 @@ GLIBC_2.43 _ZGVr2N4v_cospi F
 GLIBC_2.43 _ZGVr2N4v_cospif F
 GLIBC_2.43 _ZGVr2N4v_cospif_original F
 GLIBC_2.43 _ZGVr2N4v_erf F
+GLIBC_2.43 _ZGVr2N4v_erfc F
 GLIBC_2.43 _ZGVr2N4v_exp2 F
 GLIBC_2.43 _ZGVr2N4v_exp2_original F
 GLIBC_2.43 _ZGVr2N4v_exp2f F
@@ -234,6 +238,7 @@ GLIBC_2.43 _ZGVr2N8v_cospi F
 GLIBC_2.43 _ZGVr2N8v_cospif F
 GLIBC_2.43 _ZGVr2N8v_cospif_original F
 GLIBC_2.43 _ZGVr2N8v_erf F
+GLIBC_2.43 _ZGVr2N8v_erfc F
 GLIBC_2.43 _ZGVr2N8v_exp2 F
 GLIBC_2.43 _ZGVr2N8v_exp2_original F
 GLIBC_2.43 _ZGVr2N8v_exp2f F
@@ -284,6 +289,7 @@ GLIBC_2.43 _ZGVr4N16v_cospi F
 GLIBC_2.43 _ZGVr4N16v_cospif F
 GLIBC_2.43 _ZGVr4N16v_cospif_original F
 GLIBC_2.43 _ZGVr4N16v_erf F
+GLIBC_2.43 _ZGVr4N16v_erfc F
 GLIBC_2.43 _ZGVr4N16v_exp2 F
 GLIBC_2.43 _ZGVr4N16v_exp2_original F
 GLIBC_2.43 _ZGVr4N16v_exp2f F
@@ -341,6 +347,7 @@ GLIBC_2.43 _ZGVr4N4v_cos F
 GLIBC_2.43 _ZGVr4N4v_cosh F
 GLIBC_2.43 _ZGVr4N4v_cospi F
 GLIBC_2.43 _ZGVr4N4v_erf F
+GLIBC_2.43 _ZGVr4N4v_erfc F
 GLIBC_2.43 _ZGVr4N4v_exp2 F
 GLIBC_2.43 _ZGVr4N4v_exp2_original F
 GLIBC_2.43 _ZGVr4N4v_log F
@@ -384,6 +391,7 @@ GLIBC_2.43 _ZGVr4N8v_cospi F
 GLIBC_2.43 _ZGVr4N8v_cospif F
 GLIBC_2.43 _ZGVr4N8v_cospif_original F
 GLIBC_2.43 _ZGVr4N8v_erf F
+GLIBC_2.43 _ZGVr4N8v_erfc F
 GLIBC_2.43 _ZGVr4N8v_exp2 F
 GLIBC_2.43 _ZGVr4N8v_exp2_original F
 GLIBC_2.43 _ZGVr4N8v_exp2f F
@@ -434,6 +442,7 @@ GLIBC_2.43 _ZGVr8N16v_cospi F
 GLIBC_2.43 _ZGVr8N16v_cospif F
 GLIBC_2.43 _ZGVr8N16v_cospif_original F
 GLIBC_2.43 _ZGVr8N16v_erf F
+GLIBC_2.43 _ZGVr8N16v_erfc F
 GLIBC_2.43 _ZGVr8N16v_exp2 F
 GLIBC_2.43 _ZGVr8N16v_exp2_original F
 GLIBC_2.43 _ZGVr8N16v_exp2f F
@@ -484,6 +493,7 @@ GLIBC_2.43 _ZGVr8N32v_cospi F
 GLIBC_2.43 _ZGVr8N32v_cospif F
 GLIBC_2.43 _ZGVr8N32v_cospif_original F
 GLIBC_2.43 _ZGVr8N32v_erf F
+GLIBC_2.43 _ZGVr8N32v_erfc F
 GLIBC_2.43 _ZGVr8N32v_exp2 F
 GLIBC_2.43 _ZGVr8N32v_exp2_original F
 GLIBC_2.43 _ZGVr8N32v_exp2f F
@@ -541,6 +551,7 @@ GLIBC_2.43 _ZGVr8N8v_cos F
 GLIBC_2.43 _ZGVr8N8v_cosh F
 GLIBC_2.43 _ZGVr8N8v_cospi F
 GLIBC_2.43 _ZGVr8N8v_erf F
+GLIBC_2.43 _ZGVr8N8v_erfc F
 GLIBC_2.43 _ZGVr8N8v_exp2 F
 GLIBC_2.43 _ZGVr8N8v_exp2_original F
 GLIBC_2.43 _ZGVr8N8v_log F

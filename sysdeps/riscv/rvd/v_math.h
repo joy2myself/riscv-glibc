@@ -453,6 +453,49 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_ERF_Q_TAIL9_D -0x1.7b5fc54357bcfp-43
 #define RVV_ERF_Q_TAIL10_D 0x1.301ac8caec6e3p-48
 #define RVV_ERF_Q_TAIL11_D -0x1.c3232aa28d427p-55
+#define RVV_TWO_D 0x1.0p1
+#define RVV_Q63_SCALE_D 0x1.0p63
+#define RVV_Q60_SCALE_D 0x1.0p-60
+#define RVV_ERFC_NEG_A_SCALED_D -0x1.ep+64
+#define RVV_ERFC_B_FOR_TRANS_D 0x1.04p+2
+#define RVV_ERFC_MIN_CLIP_D 0x1.0p-60
+#define RVV_ERFC_MAX_CLIP_D 0x1.cp4
+#define RVV_ERFC_EXP_P_RIGHT_BASE_I 0x1acc4c50c4
+#define RVV_ERFC_EXP_P_LEFT_BASE_I 0x888888889fe9c4
+#define RVV_ERFC_P0_I 0x4f33682d757709e8LL
+#define RVV_ERFC_P1_I -0x95970864bc25c71LL
+#define RVV_ERFC_P2_I 0xa377a56796fd6fLL
+#define RVV_ERFC_P3_I 0x5ea2d221c412d2dLL
+#define RVV_ERFC_P4_I -0x8f0caa24847e2a3LL
+#define RVV_ERFC_P5_I 0x8ac6781d49af506LL
+#define RVV_ERFC_P6_I -0x67476ebb9bc1f58LL
+#define RVV_ERFC_P7_I 0x3d0ed00f93b86cbLL
+#define RVV_ERFC_P8_I -0x1c36fb9d9556ac0LL
+#define RVV_ERFC_P9_I 0x96c3f45eaad23bLL
+#define RVV_ERFC_P10_I -0x1a6d434ab9ada1LL
+#define RVV_ERFC_P11_I -0x4dd9356c9c3f8LL
+#define RVV_ERFC_P12_I 0x4bb31b11d0a1aLL
+#define RVV_ERFC_P13_I -0xf2d325083d5bLL
+#define RVV_ERFC_P14_I -0x52720383749fLL
+#define RVV_ERFC_P15_I 0x33f7f3f6cb7dLL
+#define RVV_ERFC_P16_I 0x4ed13a394fLL
+#define RVV_ERFC_P17_I -0x770e9d9af50LL
+#define RVV_ERFC_P18_I 0x108f3f3cf59LL
+#define RVV_ERFC_P19_I 0x101b7f3c485LL
+#define RVV_ERFC_P20_I -0x3ab6fb75adLL
+#define RVV_ERFC_P21_I -0x237088721cLL
+#define RVV_ERFC_P22_I 0x6ed93407eLL
+#define RVV_ERFC_P23_I 0x3dbfb2c72LL
+#define RVV_ERFC_EXP_P_RIGHT0_I 0x16c16c185646e2LL
+#define RVV_ERFC_EXP_P_RIGHT1_I 0x3403401a3f740LL
+#define RVV_ERFC_EXP_P_RIGHT2_I 0x680665cc2958LL
+#define RVV_ERFC_EXP_P_RIGHT3_I 0xb8efdcde680LL
+#define RVV_ERFC_EXP_P_RIGHT4_I 0x128afc94c08LL
+#define RVV_ERFC_EXP_P_LEFT0_I 0x4000000000000000LL
+#define RVV_ERFC_EXP_P_LEFT1_I 0x40000000000000edLL
+#define RVV_ERFC_EXP_P_LEFT2_I 0x2000000000001659LL
+#define RVV_ERFC_EXP_P_LEFT3_I 0xaaaaaaaaaaa201bLL
+#define RVV_ERFC_EXP_P_LEFT4_I 0x2aaaaaaaaa03367LL
 #define RVV_EXP2_OVERFLOW_BOUND_D 0x1.0p10
 #define RVV_EXP2_UNDERFLOW_BOUND_D -0x1.f4p10
 #define RVV_EXP2_POLY_HI0_D 0.7073164598085707425e-8
@@ -1895,3 +1938,153 @@ RVV_LIBMVEC_IMPL_NAME (rvv_cbrt_pstep_masked, LMUL)
   return VFMADD_VV_M (active, poly, x, VFMV_VF (coeff, vlen), vlen);
 }
 #endif
+
+/* The double-precision erfc importer keeps its source helper operation
+   graphs here so the skeleton contains only the main computation and its
+   data reference.  */
+#define RVV_MATH_IS_ERFC_erfc 1
+#define RVV_MATH_IS_ERFC_INNER(name) RVV_MATH_IS_ERFC_##name
+#define RVV_MATH_IS_ERFC(name) RVV_MATH_IS_ERFC_INNER (name)
+
+#if (BIT_WIDTH == 64) && RVV_MATH_IS_ERFC (V_MATH_FUNC)
+# define RVV_ERFC_PSTEP_I __PASTE2 (rvv_erfc_pstep_i_m, LMUL)
+# define RVV_ERFC_PSTEP_I_SCALAR \
+  __PASTE2 (rvv_erfc_pstep_i_scalar_m, LMUL)
+# define RVV_ERFC_EXCEPTION_HANDLING \
+  __PASTE2 (rvv_erfc_exception_handling_m, LMUL)
+# define RVV_ERFC_EXP_NEG_AB __PASTE2 (rvv_erfc_exp_neg_ab_m, LMUL)
+# define RVV_ERFC_X_TRANSFORM __PASTE2 (rvv_erfc_x_transform_m, LMUL)
+# define RVV_ERFC_RECIP_SCALE __PASTE2 (rvv_erfc_recip_scale_m, LMUL)
+
+static inline VINT
+RVV_ERFC_PSTEP_I (int64_t coeff, VINT x, VINT poly, size_t vlen)
+{
+  return __riscv_vsadd (__riscv_vsmul (poly, x, 1, vlen), coeff, vlen);
+}
+
+static inline VINT
+RVV_ERFC_PSTEP_I_SCALAR (int64_t coeff, int64_t x, VINT poly, size_t vlen)
+{
+  return __riscv_vsadd (__riscv_vsmul (poly, x, 1, vlen), coeff, vlen);
+}
+
+static inline void
+RVV_ERFC_EXCEPTION_HANDLING (VFLOAT *vx,
+                             VBOOL *special_args, VFLOAT *vy_special,
+                             size_t vlen)
+{
+  VUINT vclass = __riscv_vfclass (*vx, vlen);
+  IDENTIFY (vclass, class_NaN | class_Inf, *special_args, vlen);
+  if (__riscv_vcpop (*special_args, vlen) > 0)
+    {
+      VBOOL id_mask;
+      IDENTIFY (vclass, class_NaN, id_mask, vlen);
+      VFLOAT nan_val = __riscv_vfadd (id_mask, *vx, *vx, vlen);
+      *vy_special = __riscv_vmerge (*vy_special, nan_val, id_mask, vlen);
+      IDENTIFY (vclass, class_posInf, id_mask, vlen);
+      *vy_special = __riscv_vfmerge (*vy_special, fp_posZero, id_mask, vlen);
+      IDENTIFY (vclass, class_negInf, id_mask, vlen);
+      *vy_special = __riscv_vfmerge (*vy_special, RVV_TWO_D, id_mask, vlen);
+      *vx = __riscv_vfmerge (*vx, fp_posZero, *special_args, vlen);
+    }
+}
+
+static inline void
+RVV_ERFC_EXP_NEG_AB (VFLOAT va, VFLOAT vb, VINT *n, VINT *z, size_t vlen)
+{
+  VFLOAT r = __riscv_vfmul (va, vb, vlen);
+  VFLOAT delta_r = __riscv_vfmsub (va, vb, r, vlen);
+  VFLOAT n_flt = __riscv_vfmul (r, -RVV_LN2_INV_D, vlen);
+  *n = __riscv_vfcvt_x (n_flt, vlen);
+  n_flt = __riscv_vfcvt_f (*n, vlen);
+  r = __riscv_vfnmacc (r, RVV_LN2_HI_D, n_flt, vlen);
+  delta_r = __riscv_vfnmacc (delta_r, RVV_LN2_LO_D, n_flt, vlen);
+
+  VINT r_fixed = __riscv_vfcvt_x
+    (__riscv_vfmul (r, RVV_Q63_SCALE_D, vlen), vlen);
+  VINT delta_r_fixed = __riscv_vfcvt_x
+    (__riscv_vfmul (delta_r, RVV_Q63_SCALE_D, vlen), vlen);
+  r_fixed = __riscv_vadd (r_fixed, delta_r_fixed, vlen);
+
+  VINT p_right = RVV_ERFC_PSTEP_I
+    (RVV_ERFC_EXP_P_RIGHT0_I, r_fixed,
+     RVV_ERFC_PSTEP_I
+       (RVV_ERFC_EXP_P_RIGHT1_I, r_fixed,
+        RVV_ERFC_PSTEP_I
+          (RVV_ERFC_EXP_P_RIGHT2_I, r_fixed,
+              RVV_ERFC_PSTEP_I
+               (RVV_ERFC_EXP_P_RIGHT3_I, r_fixed,
+               RVV_ERFC_PSTEP_I_SCALAR (RVV_ERFC_EXP_P_RIGHT4_I,
+                                       RVV_ERFC_EXP_P_RIGHT_BASE_I, r_fixed,
+                                       vlen),
+              vlen),
+           vlen),
+        vlen),
+     vlen);
+  VINT r_sq = __riscv_vsmul (r_fixed, r_fixed, 1, vlen);
+  VINT r_6 = __riscv_vsmul (r_sq, r_sq, 1, vlen);
+  r_6 = __riscv_vsmul (r_6, r_sq, 1, vlen);
+  VINT p_left = RVV_ERFC_PSTEP_I
+    (RVV_ERFC_EXP_P_LEFT0_I, r_fixed,
+     RVV_ERFC_PSTEP_I
+       (RVV_ERFC_EXP_P_LEFT1_I, r_fixed,
+        RVV_ERFC_PSTEP_I
+          (RVV_ERFC_EXP_P_LEFT2_I, r_fixed,
+             RVV_ERFC_PSTEP_I
+               (RVV_ERFC_EXP_P_LEFT3_I, r_fixed,
+               RVV_ERFC_PSTEP_I_SCALAR (RVV_ERFC_EXP_P_LEFT4_I,
+                                       RVV_ERFC_EXP_P_LEFT_BASE_I, r_fixed,
+                                       vlen),
+              vlen),
+           vlen),
+        vlen),
+     vlen);
+  p_right = __riscv_vsmul (p_right, r_6, 1, vlen);
+  p_right = __riscv_vadd (p_left, p_right, vlen);
+  *z = p_right;
+}
+
+static inline VINT
+RVV_ERFC_X_TRANSFORM (VFLOAT vx, size_t vlen)
+{
+  VFLOAT denom = __riscv_vfadd (vx, RVV_ERFC_B_FOR_TRANS_D, vlen);
+  VFLOAT delta_denom = __riscv_vfrsub (denom, RVV_ERFC_B_FOR_TRANS_D, vlen);
+  delta_denom = __riscv_vfadd (delta_denom, vx, vlen);
+  VFLOAT one = VFMV_VF (fp_posOne, vlen);
+  VFLOAT recip, delta_recip;
+  DIV_N1D2 (one, denom, delta_denom, recip, delta_recip, vlen);
+  VFLOAT numer = __riscv_vfmul (vx, RVV_Q63_SCALE_D, vlen);
+  numer = __riscv_vfadd (numer, RVV_ERFC_NEG_A_SCALED_D, vlen);
+  VFLOAT delta_numer = __riscv_vfrsub (numer, RVV_ERFC_NEG_A_SCALED_D, vlen);
+  delta_numer = __riscv_vfmacc (delta_numer, RVV_Q63_SCALE_D, vx, vlen);
+  VFLOAT q = __riscv_vfmul (numer, recip, vlen);
+  VFLOAT delta_q = __riscv_vfmsub (numer, recip, q, vlen);
+  delta_q = __riscv_vfmacc (delta_q, numer, delta_recip, vlen);
+  delta_q = __riscv_vfmacc (delta_q, delta_numer, recip, vlen);
+  VINT r = __riscv_vfcvt_x (q, vlen);
+  return __riscv_vadd (r, __riscv_vfcvt_x (delta_q, vlen), vlen);
+}
+
+static inline void
+RVV_ERFC_RECIP_SCALE (VFLOAT vx, VINT *b, VINT *m, size_t vlen)
+{
+  VFLOAT one = VFMV_VF (fp_posOne, vlen);
+  VFLOAT denom = __riscv_vfmadd (vx, RVV_TWO_D, one, vlen);
+  VFLOAT delta_denom = __riscv_vfsub (one, denom, vlen);
+  delta_denom = __riscv_vfmacc (delta_denom, RVV_TWO_D, vx, vlen);
+  VFLOAT recip, delta_recip;
+  DIV_N1D2 (one, denom, delta_denom, recip, delta_recip, vlen);
+  *m = __riscv_vsra (F_AS_I (vx), MAN_LEN, vlen);
+  *m = __riscv_vmax (*m, EXP_BIAS - 1, vlen);
+  *m = __riscv_vadd (*m, 63, vlen);
+  VFLOAT scale = I_AS_F (__riscv_vsll (*m, MAN_LEN, vlen));
+  *m = __riscv_vsub (*m, EXP_BIAS, vlen);
+  *b = __riscv_vfcvt_x (__riscv_vfmul (recip, scale, vlen), vlen);
+  delta_recip = __riscv_vfmul (delta_recip, scale, vlen);
+  *b = __riscv_vadd (*b, __riscv_vfcvt_x (delta_recip, vlen), vlen);
+}
+#endif
+
+#undef RVV_MATH_IS_ERFC
+#undef RVV_MATH_IS_ERFC_INNER
+#undef RVV_MATH_IS_ERFC_erfc

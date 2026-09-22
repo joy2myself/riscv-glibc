@@ -246,6 +246,17 @@ extern const struct v_cos_data
     }                                                                         \
   while (0)
 
+#define DIV_N1D2(numer, denom, delta_d, q_hi, q_lo, vlen)                     \
+  do                                                                          \
+    {                                                                         \
+      (q_hi) = __riscv_vfdiv ((numer), (denom), (vlen));                      \
+      (q_lo) = __riscv_vfnmsub ((q_hi), (denom), (numer), (vlen));            \
+      (q_lo) = __riscv_vfnmsac ((q_lo), (q_hi), (delta_d), (vlen));           \
+      (q_lo) = __riscv_vfmul ((q_lo), __riscv_vfrec7 ((denom), (vlen)),       \
+                              (vlen));                                         \
+    }                                                                         \
+  while (0)
+
 #define DIV_N2D2(numer, delta_n, denom, delta_d, q, vlen)                     \
   do                                                                          \
     {                                                                         \
