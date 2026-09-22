@@ -42,6 +42,7 @@ libmvec-float-funcs-bare = \
   expf \
   exp10m1f \
   log2f \
+  log2p1f \
 
 libmvec-float-funcs-with-data = \
 
@@ -163,6 +164,7 @@ libmvec-float-bench-funcs = \
   expf \
   exp10m1f \
   log2f \
+  log2p1f \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \

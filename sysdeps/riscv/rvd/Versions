@@ -748,5 +748,27 @@ libmvec {
     _ZGVr8N8v_log2p1;
     _ZGVr8N16v_log2p1;
     _ZGVr8N32v_log2p1;
+    _ZGVr1N4v_log2p1f;
+    _ZGVr1N8v_log2p1f;
+    _ZGVr2N4v_log2p1f;
+    _ZGVr2N8v_log2p1f;
+    _ZGVr2N16v_log2p1f;
+    _ZGVr4N8v_log2p1f;
+    _ZGVr4N16v_log2p1f;
+    _ZGVr4N32v_log2p1f;
+    _ZGVr8N16v_log2p1f;
+    _ZGVr8N32v_log2p1f;
+    _ZGVr8N64v_log2p1f;
+    _ZGVr1N4v_log2p1f_original;
+    _ZGVr1N8v_log2p1f_original;
+    _ZGVr2N4v_log2p1f_original;
+    _ZGVr2N8v_log2p1f_original;
+    _ZGVr2N16v_log2p1f_original;
+    _ZGVr4N8v_log2p1f_original;
+    _ZGVr4N16v_log2p1f_original;
+    _ZGVr4N32v_log2p1f_original;
+    _ZGVr8N16v_log2p1f_original;
+    _ZGVr8N32v_log2p1f_original;
+    _ZGVr8N64v_log2p1f_original;
   }
 }
