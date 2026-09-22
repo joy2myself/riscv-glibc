@@ -57,6 +57,35 @@ static const uint64_t class_negative = 0x7;
 static const uint64_t class_finite_neg = 0x6;
 static const uint64_t class_finite_pos = 0x60;
 
+/* Compile-time constants shared by the source-shaped single-precision
+   expm1-family graphs.  These values are scalar constants, rather than
+   indexed data, so keep them in the math header instead of a data TU.  */
+#define RVV_SLEEF_EXPM1F_R_LN2 0x1.715476p+0f
+#define RVV_SLEEF_EXPM1F_L2U 0x1.62e400p-1f
+#define RVV_SLEEF_EXPM1F_L2L 0x1.7f7d1cp-20f
+#define RVV_SLEEF_EXPM1F_UNDERFLOW -104.0f
+#define RVV_SLEEF_EXPM1F_POLY0 0.1980960224e-3f
+#define RVV_SLEEF_EXPM1F_POLY1 0.1394256484e-2f
+#define RVV_SLEEF_EXPM1F_POLY2 0.8333456703e-2f
+#define RVV_SLEEF_EXPM1F_POLY3 0.4166637361e-1f
+#define RVV_SLEEF_EXPM1F_TAYLOR_C \
+  0.166666659414234244790680580464e+0f
+#define RVV_SLEEF_EXPM1F_MAX_FINITE 0x1.fffffep+127f
+#define RVV_SLEEF_EXPM1F_HALF 0.5f
+#define RVV_SLEEF_EXPM1F_TWO 2.0f
+
+/* The expk2f large-input coshf path uses the source split multiplied by two.
+   Keep the already-rounded binary32 products as constants.  */
+#define RVV_SLEEF_COSHF_TWO_L2U 0x1.62e400p+0f
+#define RVV_SLEEF_COSHF_TWO_L2L 0x1.7f7d1cp-19f
+
+#define RVV_LIBMVEC_COSHF_LARGE_INPUT 88.0f
+#define RVV_LIBMVEC_COSHF_TINY_INPUT 0x1p-48f
+#define RVV_LIBMVEC_COSHF_OVERFLOW 89.415985f
+#define RVV_LIBMVEC_COSHF_LARGE_NEUTRAL_HI RVV_SLEEF_COSHF_TWO_L2U
+#define RVV_LIBMVEC_COSHF_LARGE_NEUTRAL_LO RVV_SLEEF_COSHF_TWO_L2L
+#define RVV_SLEEF_COSHF_SOURCE_THRESHOLD 89.0f
+
 /* Scalar constants shared by the SLEEF single-precision trigonometric
    reduction paths.  Keep the actual rempif lookup table in
    v_f_sleef_trig_data.c; these values are compile-time constants, not
@@ -938,6 +967,21 @@ static const scalar_t fp_posInf = __builtin_inff ();
     }                                                                         \
   while (0)
 
+/* Source dfrec_vf2_vf2 in the FMA branch: reciprocal correction retains the
+   source's nested negative-product sequence.  */
+#define RVV_SLEEF_ORIG_DFREC_VF2_VF2(x_hi, x_lo, r_hi, r_lo, vlen)            \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _x_hi = (x_hi);                                                  \
+      VFLOAT _x_lo = (x_lo);                                                  \
+      VFLOAT _t = VFDIV_VV (VFMV_VF (1.0f, (vlen)), _x_hi, (vlen));            \
+      VFLOAT _u = VFNMSUB_VV (_x_hi, _t, VFMV_VF (1.0f, (vlen)), (vlen));      \
+      _u = VFNMSAC_VV (_u, _x_lo, _t, (vlen));                                \
+      (r_hi) = _t;                                                            \
+      (r_lo) = VFMUL_VV (_t, _u, (vlen));                                     \
+    }                                                                         \
+  while (0)
+
 #define RVV_SLEEF_ORIG_DFDIV_VF2_VF2(n_hi, n_lo, d_hi, d_lo, r_hi, r_lo,     \
                                      vlen)                                    \
   do                                                                          \
@@ -1348,6 +1392,27 @@ static const scalar_t fp_posInf = __builtin_inff ();
 
 #endif /* RVV_COSF_CLEAN_DF_HELPERS */
 
+/* Float-float reciprocal used by the clean coshf kernel.  Keep this
+   importer-dependent operation in the common math header; the skeleton
+   itself should expose only the algorithm and its data accesses.  */
+#ifndef RVV_COSHF_CLEAN_DF_HELPERS
+# define RVV_COSHF_CLEAN_DF_HELPERS
+
+# define DFREC_VF2_VF2(d_hi, d_lo, r_hi, r_lo, vlen)                         \
+  do                                                                          \
+    {                                                                         \
+      VFLOAT _d_hi = (d_hi);                                                  \
+      VFLOAT _d_lo = (d_lo);                                                  \
+      VFLOAT _t = VFDIV_VV (VFMV_VF (1.0f, (vlen)), _d_hi, (vlen));           \
+      VFLOAT _u = VFNMSUB_VV (_t, _d_hi, VFMV_VF (1.0f, (vlen)), (vlen));      \
+      _u = VFNMSAC_VV (_u, _t, _d_lo, (vlen));                                \
+      (r_hi) = _t;                                                            \
+      (r_lo) = VFMUL_VV (_u, _t, (vlen));                                     \
+    }                                                                         \
+  while (0)
+
+#endif /* RVV_COSHF_CLEAN_DF_HELPERS */
+
 /* Fixed scalar coefficients and endpoint constants for the single-precision
    atan family.  */
 #ifndef RVV_ATANF_CONSTANTS
@@ -1410,6 +1475,28 @@ static const scalar_t fp_posInf = __builtin_inff ();
 # define RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG(name)                        \
   RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG_INNER (name)
 #endif
+
+/* Shared coshf importer names.  The clean source-shaped helper and the
+   source-original comparator use distinct function prefixes, but both need
+   the same per-LMUL naming discipline.  Keep these names here so neither
+   coshf skeleton carries a routine-local macro block.  */
+#undef RVV_COSHF_SOURCE_MANGLE
+#define RVV_COSHF_SOURCE_MANGLE(base) __PASTE3 (base, _m, LMUL)
+#undef RVV_COSHF_EXPK2F_VF2
+#define RVV_COSHF_EXPK2F_VF2 \
+  __PASTE4 (coshf_expk2f_vf2_, LMUL, _, SIMDLEN)
+#undef RVV_SLEEF_ORIG_COSHF_MANGLE
+#define RVV_SLEEF_ORIG_COSHF_MANGLE(base) \
+  RVV_SLEEF_ORIG_MANGLE (base, LMUL)
+#undef RVV_SLEEF_ORIG_COSHF_VPOW2I
+#define RVV_SLEEF_ORIG_COSHF_VPOW2I \
+  RVV_SLEEF_ORIG_COSHF_MANGLE (rvv_sleef_orig_coshf_vpow2i_m)
+#undef RVV_SLEEF_ORIG_COSHF_VLDEXP2
+#define RVV_SLEEF_ORIG_COSHF_VLDEXP2 \
+  RVV_SLEEF_ORIG_COSHF_MANGLE (rvv_sleef_orig_coshf_vldexp2_m)
+#undef RVV_SLEEF_ORIG_COSHF_EXPK2F
+#define RVV_SLEEF_ORIG_COSHF_EXPK2F \
+  RVV_SLEEF_ORIG_COSHF_MANGLE (rvv_sleef_orig_coshf_expk2f_m)
 
 #if defined(RVV_LIBMVEC_ATAN2F_HELPERS)                                        \
   || RVV_LIBMVEC_CLEAN_ATAN_HELPER_FUNC_FLAG (V_MATH_FUNC)
