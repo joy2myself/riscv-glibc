@@ -146,6 +146,22 @@ static const uint64_t class_finite_pos = 0x60;
   (-8.7422776573475857731e-08f * 2.0f)
 #define RVV_SLEEF_TRIG_REMPI_SMALL 0.7f
 
+#define RVV_SLEEF_SINF_NEG_PI_A2 -3.1414794921875f
+#define RVV_SLEEF_SINF_NEG_PI_B2 -0.00011315941810607910156f
+#define RVV_SLEEF_SINF_NEG_PI_C2 -1.9841872589410058936e-09f
+#define RVV_SLEEF_SINF_REMPI_HALF_PI_HI \
+  (3.1415927410125732422f * -0.5f)
+#define RVV_SLEEF_SINF_REMPI_HALF_PI_LO \
+  (-8.7422776573475857731e-08f * -0.5f)
+#define RVV_SLEEF_SINF_REMPI_EXPONENT_BIAS 25
+#define RVV_SLEEF_SINF_REMPI_SCALE_LIMIT (90 - 25)
+#define RVV_SLEEF_SINF_REMPI_SCALE -64
+#define RVV_SLEEF_SINF_REMPI_INDEX_SHIFT 4
+#define RVV_SLEEF_SINF_POLY0_F RVV_SLEEF_COSF_POLY_0
+#define RVV_SLEEF_SINF_POLY1_F RVV_SLEEF_COSF_POLY_1
+#define RVV_SLEEF_SINF_POLY2_F RVV_SLEEF_COSF_POLY_2
+#define RVV_SLEEF_SINF_POLY3_F RVV_SLEEF_COSF_POLY_3
+
 #define RVV_SLEEF_COSF_NEG_PI_A2_HALF \
   (-3.1414794921875f * 0.5f)
 #define RVV_SLEEF_COSF_NEG_PI_B2_HALF \
@@ -3560,3 +3576,363 @@ RVV_LIBMVEC_IMPL_NAME (rvv_erfinv_sqrtx, LMUL)
 #undef RVV_MATH_IS_ERFINV
 #undef RVV_MATH_IS_ERFINV_INNER
 #undef RVV_MATH_IS_ERFINV_erfinv
+
+/* Shared single-precision sinf helper selection.  The public clean and
+   source-original skeletons keep their EH/final-result policy separate, but
+   their per-LMUL source-shaped helpers belong in this common header.  */
+#ifndef RVV_LIBMVEC_SINF_HELPER_FUNC_FLAG_sinf
+# define RVV_LIBMVEC_SINF_HELPER_FUNC_FLAG_sinf 1
+# define RVV_LIBMVEC_SINF_HELPER_FUNC_FLAG_sinf_clean 1
+# define RVV_LIBMVEC_SINF_HELPER_FUNC_FLAG_rvv_libmvec_fastsinf_clean_sinf 1
+# define RVV_LIBMVEC_SINF_HELPER_FUNC_FLAG_INNER(name) \
+  RVV_LIBMVEC_SINF_HELPER_FUNC_FLAG_##name
+# define RVV_LIBMVEC_SINF_HELPER_FUNC_FLAG(name) \
+  RVV_LIBMVEC_SINF_HELPER_FUNC_FLAG_INNER (name)
+#endif
+
+#ifndef RVV_SLEEF_ORIG_SINF_HELPER_FUNC_FLAG_sinf_original
+# define RVV_SLEEF_ORIG_SINF_HELPER_FUNC_FLAG_sinf_original 1
+# define RVV_SLEEF_ORIG_SINF_HELPER_FUNC_FLAG_rvv_sleef_orig_fastsinf_sinf 1
+# define RVV_SLEEF_ORIG_SINF_HELPER_FUNC_FLAG_INNER(name) \
+  RVV_SLEEF_ORIG_SINF_HELPER_FUNC_FLAG_##name
+# define RVV_SLEEF_ORIG_SINF_HELPER_FUNC_FLAG(name) \
+  RVV_SLEEF_ORIG_SINF_HELPER_FUNC_FLAG_INNER (name)
+#endif
+
+/* Clean sinf finite helpers.  Keep the helper graph source-shaped; the
+   public sinf skeleton owns only classify/sanitize/merge and the finite call.  */
+#if (BIT_WIDTH == 32) \
+  && RVV_LIBMVEC_SINF_HELPER_FUNC_FLAG (V_MATH_FUNC)
+# if (LMUL == 1)
+#  ifndef RVV_LIBMVEC_SINF_HELPERS_M1
+#   define RVV_LIBMVEC_SINF_HELPERS_M1
+#   define RVV_LIBMVEC_SINF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_LIBMVEC_SINF_HELPERS_M2
+#   define RVV_LIBMVEC_SINF_HELPERS_M2
+#   define RVV_LIBMVEC_SINF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_LIBMVEC_SINF_HELPERS_M4
+#   define RVV_LIBMVEC_SINF_HELPERS_M4
+#   define RVV_LIBMVEC_SINF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_LIBMVEC_SINF_HELPERS_M8
+#   define RVV_LIBMVEC_SINF_HELPERS_M8
+#   define RVV_LIBMVEC_SINF_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_LIBMVEC_SINF_HELPERS_THIS_LMUL
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (rvv_sinf_vrint, LMUL) (VFLOAT value, size_t vlen)
+{
+  VINT rounded = RVV_VFCVT_X_F_RNE (value, vlen);
+  return __riscv_vfcvt_f (rounded, vlen);
+}
+
+static inline VINT
+RVV_LIBMVEC_IMPL_NAME (rvv_sinf_vilogb2k, LMUL) (VFLOAT a, size_t vlen)
+{
+  VUINT bits = F_AS_U_F (a);
+  VUINT exponent = __riscv_vsrl (bits, MAN_LEN_F, vlen);
+  exponent = __riscv_vand (exponent, 0xff, vlen);
+  return __riscv_vsub (U_AS_I_F (exponent), EXP_BIAS_F, vlen);
+}
+
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (rvv_sinf_vldexp3, LMUL)
+  (VFLOAT a, VINT q, size_t vlen)
+{
+  return I_AS_F_F (__riscv_vadd
+                   (F_AS_I_F (a), __riscv_vsll (q, MAN_LEN_F, vlen), vlen));
+}
+
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (rvv_sinf_vorsign, LMUL)
+  (VFLOAT x, VFLOAT y, size_t vlen)
+{
+  VUINT sign = __riscv_vand (F_AS_U_F (y), 0x80000000u, vlen);
+  return U_AS_F_F (__riscv_vor (F_AS_U_F (x), sign, vlen));
+}
+
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (rvv_sinf_rempisubf, LMUL)
+  (VFLOAT x, VINT *q_out, size_t vlen)
+{
+  VFLOAT c = __riscv_vfsgnjx
+    (VFMV_VF_F (RVV_SLEEF_TRIG_REMPI_TWO23, vlen), x, vlen);
+  VFLOAT x4 = VFMUL_VF (x, RVV_SLEEF_TRIG_REMPI_FOUR, vlen);
+  VFLOAT abs_x4 = __riscv_vfabs (x4, vlen);
+  VFLOAT abs_x = __riscv_vfabs (x, vlen);
+  VBOOL x4_large = __riscv_vmfgt
+    (abs_x4, RVV_SLEEF_TRIG_REMPI_TWO23, vlen);
+  VBOOL x_large = __riscv_vmfgt
+    (abs_x, RVV_SLEEF_TRIG_REMPI_TWO23, vlen);
+
+  VFLOAT rint4x = VFMADD_VV
+    (VFMV_VF_F (RVV_SLEEF_TRIG_REMPI_FOUR, vlen), x, c, vlen);
+  rint4x = VFSUB_VV (rint4x, c, vlen);
+  rint4x = RVV_LIBMVEC_IMPL_NAME
+    (rvv_sinf_vorsign, LMUL) (rint4x, x, vlen);
+  rint4x = VMERGE_VVM_F (rint4x, x4, x4_large, vlen);
+
+  VFLOAT rintx = VFADD_VV (x, c, vlen);
+  rintx = VFSUB_VV (rintx, c, vlen);
+  rintx = RVV_LIBMVEC_IMPL_NAME
+    (rvv_sinf_vorsign, LMUL) (rintx, x, vlen);
+  rintx = VMERGE_VVM_F (rintx, x, x_large, vlen);
+
+  VFLOAT rem = VFMADD_VV
+    (VFMV_VF_F (RVV_SLEEF_TRIG_REMPI_NEG_QUARTER, vlen), rint4x, x,
+                vlen);
+  *q_out = __riscv_vfcvt_rtz_x
+    (VFMADD_VV (VFMV_VF_F (RVV_SLEEF_TRIG_REMPI_NEG_FOUR, vlen), rintx,
+                rint4x,
+                vlen), vlen);
+  return rem;
+}
+
+static inline void
+RVV_LIBMVEC_IMPL_NAME (rvv_sinf_rempif, LMUL)
+  (VFLOAT a, VFLOAT *out_hi, VFLOAT *out_lo, VINT *out_q, size_t vlen)
+{
+  const struct v_sleef_trig_data *trig_data =
+    ptr_barrier (&__v_sleef_trig_data);
+
+  VINT ex = RVV_LIBMVEC_IMPL_NAME
+    (rvv_sinf_vilogb2k, LMUL) (a, vlen);
+  ex = __riscv_vsub (ex, RVV_SLEEF_SINF_REMPI_EXPONENT_BIAS, vlen);
+
+  VBOOL scale_mask = __riscv_vmsgt
+    (ex, RVV_SLEEF_SINF_REMPI_SCALE_LIMIT, vlen);
+  VINT scale = VMERGE_VXM_I
+    (VMVI_VX_F (0, vlen), RVV_SLEEF_SINF_REMPI_SCALE, scale_mask, vlen);
+  a = RVV_LIBMVEC_IMPL_NAME
+    (rvv_sinf_vldexp3, LMUL) (a, scale, vlen);
+
+  VBOOL ex_negative = __riscv_vmslt (ex, 0, vlen);
+  ex = VMERGE_VXM_I (ex, 0, ex_negative, vlen);
+  ex = __riscv_vsll (ex, RVV_SLEEF_SINF_REMPI_INDEX_SHIFT, vlen);
+  VUINT ex_u = I_AS_U_F (ex);
+
+  VFLOAT tab0 = RVV_VLUXEI32_F (trig_data->rempitabsp, ex_u, vlen);
+  VFLOAT tab1 = RVV_VLUXEI32_F (trig_data->rempitabsp + 1, ex_u, vlen);
+  VFLOAT tab2 = RVV_VLUXEI32_F (trig_data->rempitabsp + 2, ex_u, vlen);
+  VFLOAT tab3 = RVV_VLUXEI32_F (trig_data->rempitabsp + 3, ex_u, vlen);
+
+  VFLOAT x_hi, x_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF_VF (a, tab0, x_hi, x_lo, vlen);
+  VINT q;
+  x_hi = RVV_LIBMVEC_IMPL_NAME
+    (rvv_sinf_rempisubf, LMUL) (x_hi, &q, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2 (x_hi, x_lo, x_hi, x_lo, vlen);
+
+  VFLOAT y_hi, y_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF_VF (a, tab1, y_hi, y_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (x_hi, x_lo, y_hi, y_lo, x_hi, x_lo, vlen);
+  VINT q_part;
+  x_hi = RVV_LIBMVEC_IMPL_NAME
+    (rvv_sinf_rempisubf, LMUL) (x_hi, &q_part, vlen);
+  q = __riscv_vadd (q, q_part, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2 (x_hi, x_lo, x_hi, x_lo, vlen);
+
+  y_hi = tab2;
+  y_lo = tab3;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF (y_hi, y_lo, a, y_hi, y_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (x_hi, x_lo, y_hi, y_lo, x_hi, x_lo, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2 (x_hi, x_lo, x_hi, x_lo, vlen);
+
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (x_hi, x_lo,
+     VFMV_VF_F (RVV_SLEEF_TRIG_REMPI_TWO_PI_HI, vlen),
+     VFMV_VF_F (RVV_SLEEF_TRIG_REMPI_TWO_PI_LO, vlen),
+     x_hi, x_lo, vlen);
+
+  VBOOL a_small = __riscv_vmflt
+    (__riscv_vfabs (a, vlen), RVV_SLEEF_TRIG_REMPI_SMALL, vlen);
+  x_hi = VMERGE_VVM_F (x_hi, a, a_small, vlen);
+  x_lo = VFMERGE_VFM (x_lo, fp_posZero_f, a_small, vlen);
+
+  *out_hi = x_hi;
+  *out_lo = x_lo;
+  *out_q = q;
+}
+
+#  undef RVV_LIBMVEC_SINF_HELPERS_THIS_LMUL
+# endif
+#endif
+
+/* Source-original SLEEF sinf finite helpers.  This graph intentionally keeps
+   the source comparator's names and late special-value behavior independent
+   from the clean public entry.  */
+#if (BIT_WIDTH == 32) \
+  && RVV_SLEEF_ORIG_SINF_HELPER_FUNC_FLAG (V_MATH_FUNC)
+# if (LMUL == 1)
+#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M1
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_M1
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M2
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_M2
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M4
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_M4
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M8
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_M8
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+static inline VFLOAT
+RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_sinf_vrint, LMUL)
+  (VFLOAT value, size_t vlen)
+{
+  VINT rounded = RVV_VFCVT_X_F_RNE (value, vlen);
+  return __riscv_vfcvt_f (rounded, vlen);
+}
+
+static inline VINT
+RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_sinf_vilogb2k, LMUL)
+  (VFLOAT a, size_t vlen)
+{
+  VUINT bits = F_AS_U (a);
+  VUINT exponent = __riscv_vsrl (bits, MAN_LEN_F, vlen);
+  exponent = __riscv_vand (exponent, 0xff, vlen);
+  return __riscv_vsub (U_AS_I (exponent), EXP_BIAS_F, vlen);
+}
+
+static inline VFLOAT
+RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_sinf_vldexp3, LMUL)
+  (VFLOAT a, VINT q, size_t vlen)
+{
+  return I_AS_F (__riscv_vadd
+                 (F_AS_I (a), __riscv_vsll (q, MAN_LEN_F, vlen), vlen));
+}
+
+static inline VFLOAT
+RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_sinf_vorsign, LMUL)
+  (VFLOAT x, VFLOAT y, size_t vlen)
+{
+  VUINT sign = __riscv_vand (F_AS_U (y), 0x80000000u, vlen);
+  return U_AS_F (__riscv_vor (F_AS_U (x), sign, vlen));
+}
+
+static inline VFLOAT
+RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_sinf_rempisubf, LMUL)
+  (VFLOAT x, VINT *q_out, size_t vlen)
+{
+  VFLOAT c = __riscv_vfsgnjx
+    (VFMV_VF (RVV_SLEEF_TRIG_REMPI_TWO23, vlen), x, vlen);
+  VFLOAT x4 = VFMUL_VF (x, RVV_SLEEF_TRIG_REMPI_FOUR, vlen);
+  VFLOAT abs_x4 = __riscv_vfabs (x4, vlen);
+  VFLOAT abs_x = __riscv_vfabs (x, vlen);
+  VBOOL x4_large = __riscv_vmfgt
+    (abs_x4, RVV_SLEEF_TRIG_REMPI_TWO23, vlen);
+  VBOOL x_large = __riscv_vmfgt
+    (abs_x, RVV_SLEEF_TRIG_REMPI_TWO23, vlen);
+
+  VFLOAT rint4x = VFMADD_VV
+    (VFMV_VF (RVV_SLEEF_TRIG_REMPI_FOUR, vlen), x, c, vlen);
+  rint4x = VFSUB_VV (rint4x, c, vlen);
+  rint4x = RVV_SLEEF_ORIG_MANGLE
+    (rvv_sleef_orig_sinf_vorsign, LMUL) (rint4x, x, vlen);
+  rint4x = VMERGE_VVM_F (rint4x, x4, x4_large, vlen);
+
+  VFLOAT rintx = VFADD_VV (x, c, vlen);
+  rintx = VFSUB_VV (rintx, c, vlen);
+  rintx = RVV_SLEEF_ORIG_MANGLE
+    (rvv_sleef_orig_sinf_vorsign, LMUL) (rintx, x, vlen);
+  rintx = VMERGE_VVM_F (rintx, x, x_large, vlen);
+
+  VFLOAT rem = VFMADD_VV
+    (VFMV_VF (RVV_SLEEF_TRIG_REMPI_NEG_QUARTER, vlen), rint4x, x,
+              vlen);
+  *q_out = __riscv_vfcvt_rtz_x
+    (VFMADD_VV (VFMV_VF (RVV_SLEEF_TRIG_REMPI_NEG_FOUR, vlen), rintx,
+                rint4x,
+                vlen), vlen);
+  return rem;
+}
+
+static inline void
+RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_sinf_rempif, LMUL)
+  (VFLOAT a, VFLOAT *out_hi, VFLOAT *out_lo, VINT *out_q, size_t vlen)
+{
+  const struct v_sleef_trig_data *trig_data =
+    ptr_barrier (&__v_sleef_trig_data);
+
+  VINT ex = RVV_SLEEF_ORIG_MANGLE
+    (rvv_sleef_orig_sinf_vilogb2k, LMUL) (a, vlen);
+  ex = __riscv_vsub (ex, RVV_SLEEF_SINF_REMPI_EXPONENT_BIAS, vlen);
+
+  VBOOL scale_mask = __riscv_vmsgt
+    (ex, RVV_SLEEF_SINF_REMPI_SCALE_LIMIT, vlen);
+  VINT scale = VMERGE_VXM_I
+    (VMVI_VX (0, vlen), RVV_SLEEF_SINF_REMPI_SCALE, scale_mask, vlen);
+  a = RVV_SLEEF_ORIG_MANGLE
+    (rvv_sleef_orig_sinf_vldexp3, LMUL) (a, scale, vlen);
+
+  VBOOL ex_negative = __riscv_vmslt (ex, 0, vlen);
+  ex = VMERGE_VXM_I (ex, 0, ex_negative, vlen);
+  ex = __riscv_vsll (ex, RVV_SLEEF_SINF_REMPI_INDEX_SHIFT, vlen);
+  VUINT ex_u = I_AS_U (ex);
+
+  VFLOAT tab0 = RVV_VLUXEI32_F (trig_data->rempitabsp, ex_u, vlen);
+  VFLOAT tab1 = RVV_VLUXEI32_F (trig_data->rempitabsp + 1, ex_u, vlen);
+  VFLOAT tab2 = RVV_VLUXEI32_F (trig_data->rempitabsp + 2, ex_u, vlen);
+  VFLOAT tab3 = RVV_VLUXEI32_F (trig_data->rempitabsp + 3, ex_u, vlen);
+
+  VFLOAT x_hi, x_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF_VF (a, tab0, x_hi, x_lo, vlen);
+  VINT q;
+  x_hi = RVV_SLEEF_ORIG_MANGLE
+    (rvv_sleef_orig_sinf_rempisubf, LMUL) (x_hi, &q, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2 (x_hi, x_lo, x_hi, x_lo, vlen);
+
+  VFLOAT y_hi, y_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF_VF (a, tab1, y_hi, y_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (x_hi, x_lo, y_hi, y_lo, x_hi, x_lo, vlen);
+  VINT q_part;
+  x_hi = RVV_SLEEF_ORIG_MANGLE
+    (rvv_sleef_orig_sinf_rempisubf, LMUL) (x_hi, &q_part, vlen);
+  q = __riscv_vadd (q, q_part, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2 (x_hi, x_lo, x_hi, x_lo, vlen);
+
+  y_hi = tab2;
+  y_lo = tab3;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF
+    (y_hi, y_lo, a, y_hi, y_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (x_hi, x_lo, y_hi, y_lo, x_hi, x_lo, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2 (x_hi, x_lo, x_hi, x_lo, vlen);
+
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (x_hi, x_lo,
+     VFMV_VF (RVV_SLEEF_TRIG_REMPI_TWO_PI_HI, vlen),
+     VFMV_VF (RVV_SLEEF_TRIG_REMPI_TWO_PI_LO, vlen),
+     x_hi, x_lo, vlen);
+
+  VBOOL a_small = __riscv_vmflt
+    (__riscv_vfabs (a, vlen), RVV_SLEEF_TRIG_REMPI_SMALL, vlen);
+  x_hi = VMERGE_VVM_F (x_hi, a, a_small, vlen);
+  x_lo = VFMERGE_VFM (x_lo, fp_posZero_f, a_small, vlen);
+
+  *out_hi = x_hi;
+  *out_lo = x_lo;
+  *out_q = q;
+}
+
+#  undef RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+# endif
+#endif
