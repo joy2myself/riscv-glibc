@@ -49,6 +49,7 @@ libmvec-float-funcs-bare = \
   fastcosf \
   fastpowf \
   fastsinf \
+  hypotf \
 
 libmvec-float-funcs-with-data = \
 
@@ -191,6 +192,7 @@ libmvec-float-bench-funcs = \
   fastcosf \
   fastpowf \
   fastsinf \
+  hypotf \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \

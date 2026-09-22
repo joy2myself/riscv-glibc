@@ -979,5 +979,27 @@ libmvec {
     _ZGVr8N8vv_hypot_original;
     _ZGVr8N16vv_hypot_original;
     _ZGVr8N32vv_hypot_original;
+    _ZGVr1N4vv_hypotf;
+    _ZGVr1N8vv_hypotf;
+    _ZGVr2N4vv_hypotf;
+    _ZGVr2N8vv_hypotf;
+    _ZGVr2N16vv_hypotf;
+    _ZGVr4N8vv_hypotf;
+    _ZGVr4N16vv_hypotf;
+    _ZGVr4N32vv_hypotf;
+    _ZGVr8N16vv_hypotf;
+    _ZGVr8N32vv_hypotf;
+    _ZGVr8N64vv_hypotf;
+    _ZGVr1N4vv_hypotf_original;
+    _ZGVr1N8vv_hypotf_original;
+    _ZGVr2N4vv_hypotf_original;
+    _ZGVr2N8vv_hypotf_original;
+    _ZGVr2N16vv_hypotf_original;
+    _ZGVr4N8vv_hypotf_original;
+    _ZGVr4N16vv_hypotf_original;
+    _ZGVr4N32vv_hypotf_original;
+    _ZGVr8N16vv_hypotf_original;
+    _ZGVr8N32vv_hypotf_original;
+    _ZGVr8N64vv_hypotf_original;
   }
 }
