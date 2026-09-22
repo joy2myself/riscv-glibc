@@ -39,6 +39,7 @@ libmvec-float-funcs-bare = \
   erfcf \
   erff \
   exp10f \
+  expf \
 
 libmvec-float-funcs-with-data = \
 
@@ -151,6 +152,7 @@ libmvec-float-bench-funcs = \
   erfcf \
   erff \
   exp10f \
+  expf \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \
