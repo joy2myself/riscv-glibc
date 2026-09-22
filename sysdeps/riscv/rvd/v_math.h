@@ -828,6 +828,8 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_EXP_POLY_LEFT2_D 0x1.11111111309a4p-7
 #define RVV_EXP_POLY_FINAL_D 0x1.0000000000007p-1
 #define RVV_HALF_D 0x1.0p-1
+#define RVV_EXPM1_X_MIN_D -0x1.5p+5
+#define RVV_EXPM1_TINY_BOUND_D 0x1.0p-54
 #define RVV_EXP10M1_TABLE_BOUND_D 0x1.a308a4198c9d7p-4
 #define RVV_EXP10M1_SPECIAL_BOUND_D 306.0
 #define RVV_EXP10M1_SCALE_BOUND_D 163840.0
