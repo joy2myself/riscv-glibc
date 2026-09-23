@@ -65,6 +65,7 @@ libmvec-double-funcs-bare = \
   acosh \
   sin \
   sincos \
+  sincospi \
   tan \
   acospi \
   asin \
@@ -162,6 +163,7 @@ libmvec-double-bench-funcs = \
   cosh \
   cbrt \
   sincos \
+  sincospi \
   cospi \
   erf \
   erfc \
