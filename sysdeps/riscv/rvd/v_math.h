@@ -106,6 +106,16 @@ static const uint64_t class_finite_pos = 0x60;
    expm1-family graphs.  These values are scalar constants, rather than
    indexed data, so keep them in the math header instead of a data TU.  */
 #define RVV_SLEEF_EXPM1F_R_LN2 0x1.715476p+0f
+#define RVV_LN2_INV_F 0x1.715476p+0f
+#define RVV_LN2_SPLIT_HI_F 0x1.62e400p-1f
+#define RVV_LN2_SPLIT_LO_F 0x1.7f7d1cp-20f
+#define RVV_HALF_F 0.5f
+#define RVV_FLT_MAX_F 0x1.fffffep+127f
+#define RVV_EXPF_MIN_INPUT_F -104.0f
+#define RVV_LIBMVEC_HYPERBOLIC_LARGE_INPUT 88.0f
+#define RVV_LIBMVEC_HYPERBOLIC_OVERFLOW 89.415985f
+#define RVV_SLEEF_HYPERBOLIC_SOURCE_THRESHOLD 89.0f
+#define RVV_LIBMVEC_HYPERBOLIC_TINY_CORRECTION_F 0x1.0p-60f
 #define RVV_SLEEF_EXPM1F_L2U 0x1.62e400p-1f
 #define RVV_SLEEF_EXPM1F_L2L 0x1.7f7d1cp-20f
 #define RVV_SLEEF_EXPM1F_MAX 88.72283172607421875f
@@ -5873,5 +5883,229 @@ RVV_LIBMVEC_IMPL_NAME (sinf_original_reduce_large, LMUL)
 }
 
 #  undef RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_THIS_LMUL
+# endif
+#endif
+
+/* Power-of-two construction shared by the clean and source sinhf graphs.  */
+#if (BIT_WIDTH == 32) \
+  && (defined (RVV_NEED_CLEAN_F32_HYPERBOLIC_EXP) \
+      || defined (RVV_NEED_SLEEF_F32_EXP))
+# if (LMUL == 1)
+#  ifndef RVV_SINHF_POWER_HELPERS_M1
+#   define RVV_SINHF_POWER_HELPERS_M1
+#   define RVV_SINHF_POWER_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_SINHF_POWER_HELPERS_M2
+#   define RVV_SINHF_POWER_HELPERS_M2
+#   define RVV_SINHF_POWER_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_SINHF_POWER_HELPERS_M4
+#   define RVV_SINHF_POWER_HELPERS_M4
+#   define RVV_SINHF_POWER_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_SINHF_POWER_HELPERS_M8
+#   define RVV_SINHF_POWER_HELPERS_M8
+#   define RVV_SINHF_POWER_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_SINHF_POWER_HELPERS_THIS_LMUL
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (sleef_f32_power_of_two, LMUL) (VINT q, size_t vlen)
+{
+  VINT biased = __riscv_vadd (q, EXP_BIAS_F, vlen);
+  return I_AS_F (__riscv_vsll (biased, MAN_LEN_F, vlen));
+}
+#  undef RVV_SINHF_POWER_HELPERS_THIS_LMUL
+# endif
+#endif
+
+/* Clean sinhf's compensated exp reconstruction.  */
+#if (BIT_WIDTH == 32) \
+  && defined (RVV_NEED_CLEAN_F32_HYPERBOLIC_EXP)
+# if (LMUL == 1)
+#  ifndef RVV_SINHF_CLEAN_EXP_HELPERS_M1
+#   define RVV_SINHF_CLEAN_EXP_HELPERS_M1
+#   define RVV_SINHF_CLEAN_EXP_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_SINHF_CLEAN_EXP_HELPERS_M2
+#   define RVV_SINHF_CLEAN_EXP_HELPERS_M2
+#   define RVV_SINHF_CLEAN_EXP_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_SINHF_CLEAN_EXP_HELPERS_M4
+#   define RVV_SINHF_CLEAN_EXP_HELPERS_M4
+#   define RVV_SINHF_CLEAN_EXP_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_SINHF_CLEAN_EXP_HELPERS_M8
+#   define RVV_SINHF_CLEAN_EXP_HELPERS_M8
+#   define RVV_SINHF_CLEAN_EXP_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_SINHF_CLEAN_EXP_HELPERS_THIS_LMUL
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (sinhf_scale_split, LMUL)
+  (VFLOAT d, VINT e, size_t vlen)
+{
+  VINT e_half = __riscv_vsra (e, 1, vlen);
+  VINT e_rest = __riscv_vsub (e, e_half, vlen);
+  VFLOAT p_half = RVV_LIBMVEC_IMPL_NAME
+    (sleef_f32_power_of_two, LMUL) (e_half, vlen);
+  VFLOAT p_rest = RVV_LIBMVEC_IMPL_NAME
+    (sleef_f32_power_of_two, LMUL) (e_rest, vlen);
+  return VFMUL_VV (VFMUL_VV (d, p_half, vlen), p_rest, vlen);
+}
+
+static inline void
+RVV_LIBMVEC_IMPL_NAME (sinhf_exp_pair, LMUL)
+  (VFLOAT d_hi, VFLOAT d_lo, VFLOAT *r_hi, VFLOAT *r_lo, size_t vlen)
+{
+  VFLOAT u = __riscv_vfmul
+    (__riscv_vfadd (d_hi, d_lo, vlen), RVV_LN2_INV_F, vlen);
+  VINT q = RVV_VFCVT_X_F_RNE (u, vlen);
+  VFLOAT q_flt = __riscv_vfcvt_f (q, vlen);
+
+  VFLOAT s_hi, s_lo;
+  VFLOAT tmp = __riscv_vfmul (q_flt, -RVV_LN2_SPLIT_HI_F, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF
+    (d_hi, d_lo, tmp, s_hi, s_lo, vlen);
+  tmp = __riscv_vfmul (q_flt, -RVV_LN2_SPLIT_LO_F, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF
+    (s_hi, s_lo, tmp, s_hi, s_lo, vlen);
+
+  u = VFMV_VF (RVV_SLEEF_EXPM1F_POLY0, vlen);
+  u = VFMADD_VV (u, s_hi, VFMV_VF (RVV_SLEEF_EXPM1F_POLY1, vlen), vlen);
+  u = VFMADD_VV (u, s_hi, VFMV_VF (RVV_SLEEF_EXPM1F_POLY2, vlen), vlen);
+  u = VFMADD_VV (u, s_hi, VFMV_VF (RVV_SLEEF_EXPM1F_POLY3, vlen), vlen);
+
+  VFLOAT t_hi, t_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF (s_hi, s_lo, u, t_hi, t_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (t_hi, t_lo, RVV_SLEEF_EXPM1F_TAYLOR_C, t_hi, t_lo, vlen);
+
+  VFLOAT tmp_hi, tmp_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (s_hi, s_lo, t_hi, t_lo, tmp_hi, tmp_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (tmp_hi, tmp_lo, RVV_HALF_F, t_hi, t_lo, vlen);
+
+  VFLOAT s2_hi, s2_lo;
+  RVV_SLEEF_ORIG_DFSQU_VF2
+    (s_hi, s_lo, s2_hi, s2_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (s2_hi, s2_lo, t_hi, t_lo, tmp_hi, tmp_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (s_hi, s_lo, tmp_hi, tmp_lo, t_hi, t_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD_VF_VF2
+    (VFMV_VF (1.0f, vlen), t_hi, t_lo, t_hi, t_lo, vlen);
+
+  t_hi = RVV_LIBMVEC_IMPL_NAME (sinhf_scale_split, LMUL) (t_hi, q, vlen);
+  t_lo = RVV_LIBMVEC_IMPL_NAME (sinhf_scale_split, LMUL) (t_lo, q, vlen);
+
+  VBOOL underflow = __riscv_vmflt (d_hi, RVV_EXPF_MIN_INPUT_F, vlen);
+  t_hi = VFMERGE_VFM (t_hi, fp_posZero_f, underflow, vlen);
+  t_lo = VFMERGE_VFM (t_lo, fp_posZero_f, underflow, vlen);
+  *r_hi = t_hi;
+  *r_lo = t_lo;
+}
+#  undef RVV_SINHF_CLEAN_EXP_HELPERS_THIS_LMUL
+# endif
+#endif
+
+/* Source-original SLEEF expf reconstruction used by sinhf_original.  */
+#if (BIT_WIDTH == 32) && defined (RVV_NEED_SLEEF_F32_EXP)
+# if (LMUL == 1)
+#  ifndef RVV_SINHF_SOURCE_EXP_HELPERS_M1
+#   define RVV_SINHF_SOURCE_EXP_HELPERS_M1
+#   define RVV_SINHF_SOURCE_EXP_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_SINHF_SOURCE_EXP_HELPERS_M2
+#   define RVV_SINHF_SOURCE_EXP_HELPERS_M2
+#   define RVV_SINHF_SOURCE_EXP_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_SINHF_SOURCE_EXP_HELPERS_M4
+#   define RVV_SINHF_SOURCE_EXP_HELPERS_M4
+#   define RVV_SINHF_SOURCE_EXP_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_SINHF_SOURCE_EXP_HELPERS_M8
+#   define RVV_SINHF_SOURCE_EXP_HELPERS_M8
+#   define RVV_SINHF_SOURCE_EXP_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_SINHF_SOURCE_EXP_HELPERS_THIS_LMUL
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (sleef_f32_scale_two_steps, LMUL)
+  (VFLOAT d, VINT q, size_t vlen)
+{
+  VINT q_half = __riscv_vsra (q, 1, vlen);
+  VINT q_rest = __riscv_vsub (q, q_half, vlen);
+  VFLOAT p_half = RVV_LIBMVEC_IMPL_NAME
+    (sleef_f32_power_of_two, LMUL) (q_half, vlen);
+  VFLOAT p_rest = RVV_LIBMVEC_IMPL_NAME
+    (sleef_f32_power_of_two, LMUL) (q_rest, vlen);
+  return VFMUL_VV (VFMUL_VV (d, p_half, vlen), p_rest, vlen);
+}
+
+static inline void
+RVV_LIBMVEC_IMPL_NAME (sleef_f32_exp_pair, LMUL)
+  (VFLOAT d_hi, VFLOAT d_lo, VFLOAT *r_hi, VFLOAT *r_lo, size_t vlen)
+{
+  VFLOAT d = VFADD_VV (d_hi, d_lo, vlen);
+  VFLOAT u = VFMUL_VF (d, RVV_LN2_INV_F, vlen);
+  VINT q = RVV_VFCVT_X_F_RNE (u, vlen);
+  VFLOAT q_f = __riscv_vfcvt_f (q, vlen);
+
+  VFLOAT s_hi, s_lo;
+  VFLOAT q_l2u = VFMUL_VF (q_f, -RVV_LN2_SPLIT_HI_F, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF
+    (d_hi, d_lo, q_l2u, s_hi, s_lo, vlen);
+  VFLOAT q_l2l = VFMUL_VF (q_f, -RVV_LN2_SPLIT_LO_F, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF
+    (s_hi, s_lo, q_l2l, s_hi, s_lo, vlen);
+
+  u = VFMV_VF (RVV_SLEEF_EXPM1F_POLY0, vlen);
+  u = VFMADD_VV (u, s_hi, VFMV_VF (RVV_SLEEF_EXPM1F_POLY1, vlen), vlen);
+  u = VFMADD_VV (u, s_hi, VFMV_VF (RVV_SLEEF_EXPM1F_POLY2, vlen), vlen);
+  u = VFMADD_VV (u, s_hi, VFMV_VF (RVV_SLEEF_EXPM1F_POLY3, vlen), vlen);
+
+  VFLOAT t_hi, t_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF (s_hi, s_lo, u, t_hi, t_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (t_hi, t_lo, RVV_SLEEF_EXPM1F_TAYLOR_C, t_hi, t_lo, vlen);
+
+  VFLOAT tmp_hi, tmp_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (s_hi, s_lo, t_hi, t_lo, tmp_hi, tmp_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (tmp_hi, tmp_lo, RVV_HALF_F, t_hi, t_lo, vlen);
+
+  VFLOAT s2_hi, s2_lo;
+  RVV_SLEEF_ORIG_DFSQU_VF2 (s_hi, s_lo, s2_hi, s2_lo, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (s2_hi, s2_lo, t_hi, t_lo, tmp_hi, tmp_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (s_hi, s_lo, tmp_hi, tmp_lo, t_hi, t_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD_VF_VF2
+    (VFMV_VF (1.0f, vlen), t_hi, t_lo, t_hi, t_lo, vlen);
+
+  t_hi = RVV_LIBMVEC_IMPL_NAME
+    (sleef_f32_scale_two_steps, LMUL) (t_hi, q, vlen);
+  t_lo = RVV_LIBMVEC_IMPL_NAME
+    (sleef_f32_scale_two_steps, LMUL) (t_lo, q, vlen);
+
+  VBOOL underflow = __riscv_vmflt (d_hi, RVV_EXPF_MIN_INPUT_F, vlen);
+  t_hi = VFMERGE_VFM (t_hi, fp_posZero_f, underflow, vlen);
+  t_lo = VFMERGE_VFM (t_lo, fp_posZero_f, underflow, vlen);
+  *r_hi = t_hi;
+  *r_lo = t_lo;
+}
+#  undef RVV_SINHF_SOURCE_EXP_HELPERS_THIS_LMUL
 # endif
 #endif
