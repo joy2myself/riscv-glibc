@@ -48,7 +48,8 @@ libmvec-source-original-routines = \
   v_f_sincosf_original \
   v_f_sincospif_original \
   v_f_sinf_original \
-  v_f_sinhf_original
+  v_f_sinhf_original \
+  v_f_sinpif_original
 
 libmvec-sysdep_routines += $(libmvec-source-original-routines)
 libmvec-routines += $(libmvec-sysdep_routines)

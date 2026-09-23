@@ -1214,6 +1214,27 @@ static const scalar_t fp_posInf = __builtin_inff ();
 #define RVV_COSPIF_DF_SECOND_COS_LO_F -2.1857338617566484855e-08f
 #define RVV_COSPIF_DF_SECOND_SIN_HI_F -0.30842512845993041992f
 #define RVV_COSPIF_DF_SECOND_SIN_LO_F -9.0728339030733922277e-09f
+
+/* The sine/cosine reconstruction is shared by the SLEEF trig-pi graphs.
+   Keep their common coefficients separate from routine EH boundaries.  */
+#define RVV_LIBMVEC_TRIGPI_TINY_EXPONENT 99u
+#define RVV_SLEEF_TRIGPI_RANGE_MAX4_F 8.0e6f
+#define RVV_SLEEF_TRIGPI_RANGE_MAX_F 1.0e+7f
+#define RVV_SLEEF_TRIGPI_POLY_COS0_F 0.3093842054e-6f
+#define RVV_SLEEF_TRIGPI_POLY_SIN0_F -0.2430611801e-7f
+#define RVV_SLEEF_TRIGPI_POLY_COS1_F -0.3657307388e-4f
+#define RVV_SLEEF_TRIGPI_POLY_SIN1_F 0.3590577080e-5f
+#define RVV_SLEEF_TRIGPI_POLY_COS2_F 0.2490393585e-2f
+#define RVV_SLEEF_TRIGPI_POLY_SIN2_F -0.3259917721e-3f
+#define RVV_SLEEF_TRIGPI_DF_FIRST_COS_HI_F -0.080745510756969451904f
+#define RVV_SLEEF_TRIGPI_DF_FIRST_COS_LO_F -1.3373665339076936258e-09f
+#define RVV_SLEEF_TRIGPI_DF_FIRST_SIN_HI_F 0.015854343771934509277f
+#define RVV_SLEEF_TRIGPI_DF_FIRST_SIN_LO_F 4.4940051354032242811e-10f
+#define RVV_SLEEF_TRIGPI_DF_SECOND_COS_HI_F 0.78539818525314331055f
+#define RVV_SLEEF_TRIGPI_DF_SECOND_COS_LO_F -2.1857338617566484855e-08f
+#define RVV_SLEEF_TRIGPI_DF_SECOND_SIN_HI_F -0.30842512845993041992f
+#define RVV_SLEEF_TRIGPI_DF_SECOND_SIN_LO_F -9.0728339030733922277e-09f
+
 #define RVV_LGAMMA_OVERFLOW_X_D 0x1.754d9278b51a7p+1014
 #define RVV_LGAMMA_NEG_BND_TO_2_SC_D 0x1p+3
 #define RVV_LGAMMA_NEG_3_TO_BND_SC_D 0x1p+4
@@ -6107,5 +6128,146 @@ RVV_LIBMVEC_IMPL_NAME (sleef_f32_exp_pair, LMUL)
   *r_lo = t_lo;
 }
 #  undef RVV_SINHF_SOURCE_EXP_HELPERS_THIS_LMUL
+# endif
+#endif
+
+/* Source sinpif kernel shared by sinpif_original and tanpif_original.  */
+#if (BIT_WIDTH == 32) \
+  && defined (RVV_NEED_SLEEF_F32_SINPI)
+# if (LMUL == 1)
+#  ifndef RVV_SLEEF_ORIG_SINPIF_HELPERS_M1
+#   define RVV_SLEEF_ORIG_SINPIF_HELPERS_M1
+#   define RVV_SLEEF_ORIG_SINPIF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_SLEEF_ORIG_SINPIF_HELPERS_M2
+#   define RVV_SLEEF_ORIG_SINPIF_HELPERS_M2
+#   define RVV_SLEEF_ORIG_SINPIF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_SLEEF_ORIG_SINPIF_HELPERS_M4
+#   define RVV_SLEEF_ORIG_SINPIF_HELPERS_M4
+#   define RVV_SLEEF_ORIG_SINPIF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_SLEEF_ORIG_SINPIF_HELPERS_M8
+#   define RVV_SLEEF_ORIG_SINPIF_HELPERS_M8
+#   define RVV_SLEEF_ORIG_SINPIF_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_SLEEF_ORIG_SINPIF_HELPERS_THIS_LMUL
+static VFLOAT
+RVV_LIBMVEC_IMPL_NAME (sinpif_original_kernel, LMUL)
+  (VFLOAT d, size_t vlen)
+{
+  VFLOAT u = VFMUL_VF (d, RVV_SLEEF_TRIG_REMPI_FOUR, vlen);
+
+  /* Source sinpifk: q = truncate(u), then apply the signed correction and
+     the even-quotient reduction.  The logical shift is intentional.  */
+  VINT q = __riscv_vfcvt_rtz_x (u, vlen);
+  VUINT q_u = I_AS_U (q);
+  VUINT q_sign = __riscv_vsrl (q_u, 31, vlen);
+  VUINT q_correction = VXOR_VV (q_sign, VMVU_VX (1, vlen), vlen);
+  q = __riscv_vadd (q, U_AS_I (q_correction), vlen);
+  q = __riscv_vand (q, VMVI_VX (~1, vlen), vlen);
+
+  VBOOL use_cos = __riscv_vmseq (__riscv_vand (q, 2, vlen), 2, vlen);
+  VFLOAT q_f = __riscv_vfcvt_f (q, vlen);
+  VFLOAT s = VFSUB_VV (u, q_f, vlen);
+  VFLOAT t = s;
+  s = VFMUL_VV (s, s, vlen);
+
+  VFLOAT s2_hi, s2_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF_VF (t, t, s2_hi, s2_lo, vlen);
+
+  VFLOAT p = VFMERGE_VFM
+    (VFMV_VF (RVV_SLEEF_TRIGPI_POLY_COS0_F, vlen),
+     RVV_SLEEF_TRIGPI_POLY_SIN0_F,
+     use_cos, vlen);
+  p = VFMADD_VV
+    (p, s,
+     VFMERGE_VFM (VFMV_VF (RVV_SLEEF_TRIGPI_POLY_COS1_F, vlen),
+                  RVV_SLEEF_TRIGPI_POLY_SIN1_F, use_cos, vlen),
+     vlen);
+  p = VFMADD_VV
+    (p, s,
+     VFMERGE_VFM (VFMV_VF (RVV_SLEEF_TRIGPI_POLY_COS2_F, vlen),
+                  RVV_SLEEF_TRIGPI_POLY_SIN2_F, use_cos, vlen),
+     vlen);
+
+  VFLOAT x_hi, x_lo;
+  VFLOAT c_hi = VFMERGE_VFM
+    (VFMV_VF (RVV_SLEEF_TRIGPI_DF_FIRST_COS_HI_F, vlen),
+     RVV_SLEEF_TRIGPI_DF_FIRST_SIN_HI_F,
+     use_cos, vlen);
+  VFLOAT c_lo = VFMERGE_VFM
+    (VFMV_VF (RVV_SLEEF_TRIGPI_DF_FIRST_COS_LO_F, vlen),
+     RVV_SLEEF_TRIGPI_DF_FIRST_SIN_LO_F,
+     use_cos, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF_VF2
+    (VFMUL_VV (p, s, vlen), c_hi, c_lo, x_hi, x_lo, vlen);
+
+  VFLOAT tmp_hi, tmp_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (s2_hi, s2_lo, x_hi, x_lo, tmp_hi, tmp_lo, vlen);
+
+  c_hi = VFMERGE_VFM
+    (VFMV_VF (RVV_SLEEF_TRIGPI_DF_SECOND_COS_HI_F, vlen),
+     RVV_SLEEF_TRIGPI_DF_SECOND_SIN_HI_F,
+     use_cos, vlen);
+  c_lo = VFMERGE_VFM
+    (VFMV_VF (RVV_SLEEF_TRIGPI_DF_SECOND_COS_LO_F, vlen),
+     RVV_SLEEF_TRIGPI_DF_SECOND_SIN_LO_F,
+     use_cos, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (tmp_hi, tmp_lo, c_hi, c_lo, x_hi, x_lo, vlen);
+
+  VFLOAT mul_hi = VMERGE_VVM_F
+    (t, s2_hi, use_cos, vlen);
+  VFLOAT mul_lo = VMERGE_VVM_F
+    (VFMV_VF (fp_posZero_f, vlen), s2_lo, use_cos, vlen);
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (x_hi, x_lo, mul_hi, mul_lo, tmp_hi, tmp_lo, vlen);
+  x_hi = tmp_hi;
+  x_lo = tmp_lo;
+
+  VFLOAT one_hi, one_lo;
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF_S
+    (x_hi, x_lo, 1.0f, one_hi, one_lo, vlen);
+  x_hi = VMERGE_VVM_F (x_hi, one_hi, use_cos, vlen);
+  x_lo = VMERGE_VVM_F (x_lo, one_lo, use_cos, vlen);
+
+  /* Source flips both double-float components when q&4 is set.  */
+  VBOOL flip = __riscv_vmseq (__riscv_vand (q, 4, vlen), 4, vlen);
+  VUINT sign_bit = VMVU_VX (0x80000000u, vlen);
+  VUINT flip_bits = __riscv_vmerge
+    (VMVU_VX (0, vlen), sign_bit, flip, vlen);
+  x_hi = U_AS_F (__riscv_vxor (F_AS_U (x_hi), flip_bits, vlen));
+  x_lo = U_AS_F (__riscv_vxor (F_AS_U (x_lo), flip_bits, vlen));
+
+  VFLOAT r = VFADD_VV (x_hi, x_lo, vlen);
+
+  /* SLEEF xsinpif_u05 late fixup: preserve only raw negative zero.  */
+  VBOOL negative_zero_input = __riscv_vmseq
+    (F_AS_U (d), 0x80000000u, vlen);
+  r = VFMERGE_VFM (r, fp_negZero_f, negative_zero_input, vlen);
+
+  /* The source range operation is bitwise and-not, not a numerical select.  */
+  VBOOL out_of_range = __riscv_vmfgt
+    (__riscv_vfabs (d, vlen), RVV_SLEEF_TRIGPI_RANGE_MAX4_F, vlen);
+  VUINT keep_bits = __riscv_vmerge
+    (VMVU_VX (~0u, vlen), VMVU_VX (0, vlen), out_of_range, vlen);
+  VUINT r_bits = __riscv_vand (F_AS_U (r), keep_bits, vlen);
+
+  /* Source ORs an all-one mask into the result for either infinity.  */
+  VBOOL input_inf = __riscv_vmfeq
+    (__riscv_vfabs (d, vlen), fp_posInf_f, vlen);
+  VUINT inf_bits = __riscv_vmerge
+    (VMVU_VX (0, vlen), VMVU_VX (~0u, vlen), input_inf, vlen);
+  r_bits = __riscv_vor (r_bits, inf_bits, vlen);
+
+  return U_AS_F (r_bits);
+}
+#  undef RVV_SLEEF_ORIG_SINPIF_HELPERS_THIS_LMUL
 # endif
 #endif
