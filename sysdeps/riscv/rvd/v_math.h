@@ -1373,6 +1373,16 @@ static const scalar_t fp_posInf = __builtin_inff ();
 # define RVV_POWF_YLOGX_OVER_D 0x1.fffffffd1d571p+6
 #endif
 
+/* Scalar constants shared by the clean and source-original double sqrt
+   kernels.  */
+#ifndef RVV_SQRT_CONSTANTS
+# define RVV_SQRT_CONSTANTS
+# define RVV_SQRT_TINY 8.636168555094445e-78
+# define RVV_SQRT_SCALE 1.157920892373162e77
+# define RVV_SQRT_TINY_Q 2.9387358770557188e-39
+# define RVV_SQRT_MAGIC UINT64_C (0x5fe6ec85e7de30da)
+#endif
+
 #define EXCEPTION_HANDLING_TRIG(vx, expo_x, special_args, vy_special, vlen)  \
   do                                                                          \
     {                                                                         \
