@@ -103,6 +103,7 @@ libmvec-double-funcs-bare = \
   logp1 \
   log1p \
   sinh \
+  tanh \
   sinpi \
   sqrt \
 
@@ -158,6 +159,7 @@ libmvec-double-bench-funcs = \
   acosh \
   sin \
   tan \
+  tanh \
   acospi \
   cos \
   asin \
