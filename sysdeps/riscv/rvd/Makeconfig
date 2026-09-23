@@ -62,6 +62,7 @@ libmvec-float-funcs-bare = \
   sinpif \
   sincospif \
   tanf \
+  tanhf \
 
 libmvec-float-funcs-with-data = \
   powf \
@@ -242,6 +243,7 @@ libmvec-float-bench-funcs = \
   sinpif \
   sqrtf \
   tanf \
+  tanhf \
   sinhf \
 
 bench-libmvec-double = \

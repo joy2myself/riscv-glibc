@@ -49,6 +49,7 @@ libmvec-source-original-routines = \
   v_f_sincospif_original \
   v_f_sinf_original \
   v_f_sinhf_original \
+  v_f_tanhf_original \
   v_f_sinpif_original \
   v_d_sqrt_original \
   v_f_sqrtf_original \
