@@ -100,6 +100,7 @@ libmvec-double-funcs-bare = \
   logp1 \
   log1p \
   sinh \
+  sinpi \
 
 libmvec-double-funcs-with-data = \
   log \
@@ -190,6 +191,7 @@ libmvec-double-bench-funcs = \
   log1p \
   pow \
   sinh \
+  sinpi \
 
 libmvec-float-bench-funcs = \
   logf \
