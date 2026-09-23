@@ -118,6 +118,9 @@ PRECISION_TABLE = {
 Variant = Dict[str, Union[str, int]]
 
 FUNC_CONFIGS: Dict[str, Dict[str, object]] = {
+    "sqrtf": {
+        "input_alias": "rsqrtf",
+    },
     "sincos": {
         "abi": "ret2",
         "input_alias": "sin",

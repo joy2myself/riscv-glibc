@@ -45,6 +45,7 @@ libmvec-float-funcs-bare = \
   log2f \
   log2p1f \
   rsqrtf \
+  sqrtf \
   exp2m1f \
   expm1f \
   fastcosf \
@@ -236,6 +237,7 @@ libmvec-float-bench-funcs = \
   sincospif \
   sinf \
   sinpif \
+  sqrtf \
   sinhf \
 
 bench-libmvec-double = \
