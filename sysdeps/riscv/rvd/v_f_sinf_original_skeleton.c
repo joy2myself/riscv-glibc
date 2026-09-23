@@ -1,6 +1,6 @@
 /* Single-precision source-original SLEEF sinf skeleton.
 
-   This is a target-owned translation of SLEEF xsinf, which is exported as
+   This is a target-owned translation of SLEEF xsinf_u1, which is exported as
    Sleef_sinf_u10 by the pinned source rename table.  The direct source
    reduction, rempif large-argument path, scalar sine polynomial, sign
    reconstruction, and late special-value behavior remain source-shaped.
@@ -9,7 +9,21 @@
    compiled, or linked.
 
    Copyright (C) 2026 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.  */
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
 
 #include <vecmath_config.h>
 #include <v_math.h>
@@ -28,19 +42,19 @@ RVV_LIBMVEC_IMPL_NAME (V_MATH_FUNC, LMUL) (VFLOAT d, size_t vlen)
 
   /* Source xsinf_u1 starts with vrint(d * M_1_PI), followed by the source
      integer quotient conversion and an integer-to-float cast.  */
-  VFLOAT rounded_product = RVV_SLEEF_ORIG_MANGLE
-    (rvv_sleef_orig_sinf_vrint, LMUL)
-    (VFMUL_VF (d, RVV_SLEEF_TRIG_ONE_OVER_PI, vlen), vlen);
+  VFLOAT rounded_product = RVV_LIBMVEC_IMPL_NAME
+    (rvv_vrint_f32, LMUL)
+    (VFMUL_VF (d, RVV_ONE_OVER_PI_F, vlen), vlen);
   VINT q = RVV_VFCVT_X_F_RNE (rounded_product, vlen);
   VFLOAT u = __riscv_vfcvt_f (q, vlen);
 
   VFLOAT v = VFMADD_VV
-    (u, VFMV_VF (RVV_SLEEF_SINF_NEG_PI_A2, vlen), d, vlen);
+    (u, VFMV_VF (RVV_SLEEF_TRIG_NEG_PI_A2_F, vlen), d, vlen);
   VFLOAT s_hi, s_lo;
   RVV_SLEEF_ORIG_DFADD2_VF_VF
-    (v, VFMUL_VF (u, RVV_SLEEF_SINF_NEG_PI_B2, vlen), s_hi, s_lo, vlen);
+    (v, VFMUL_VF (u, RVV_SLEEF_TRIG_NEG_PI_B2_F, vlen), s_hi, s_lo, vlen);
   RVV_SLEEF_ORIG_DFADD_VF2_VF2_VF
-    (s_hi, s_lo, VFMUL_VF (u, RVV_SLEEF_SINF_NEG_PI_C2, vlen),
+    (s_hi, s_lo, VFMUL_VF (u, RVV_SLEEF_TRIG_NEG_PI_C2_F, vlen),
      s_hi, s_lo, vlen);
   VBOOL g = __riscv_vmflt
     (__riscv_vfabs (input, vlen), RVV_SLEEF_TRIG_RANGE_MAX2, vlen);
@@ -49,7 +63,7 @@ RVV_LIBMVEC_IMPL_NAME (V_MATH_FUNC, LMUL) (VFLOAT d, size_t vlen)
     {
       VFLOAT rem_hi, rem_lo;
       VINT rem_q;
-      RVV_SLEEF_ORIG_MANGLE (rvv_sleef_orig_sinf_rempif, LMUL)
+      RVV_LIBMVEC_IMPL_NAME (sinf_original_reduce_large, LMUL)
         (input, &rem_hi, &rem_lo, &rem_q, vlen);
 
       VINT q2 = __riscv_vand (rem_q, 3, vlen);
@@ -63,9 +77,9 @@ RVV_LIBMVEC_IMPL_NAME (V_MATH_FUNC, LMUL) (VFLOAT d, size_t vlen)
       VBOOL rem_q_odd = __riscv_vmseq
         (__riscv_vand (rem_q, 1, vlen), 1, vlen);
       VFLOAT corr_hi = __riscv_vfsgnjx
-        (VFMV_VF (RVV_SLEEF_SINF_REMPI_HALF_PI_HI, vlen), rem_hi, vlen);
+        (VFMV_VF ((-RVV_PIBY2_F), vlen), rem_hi, vlen);
       VFLOAT corr_lo = __riscv_vfsgnjx
-        (VFMV_VF (RVV_SLEEF_SINF_REMPI_HALF_PI_LO, vlen), rem_hi, vlen);
+        (VFMV_VF ((-RVV_PIBY2_LO_F), vlen), rem_hi, vlen);
       VFLOAT alt_hi, alt_lo;
       RVV_SLEEF_ORIG_DFADD2_VF2_VF2
         (rem_hi, rem_lo, corr_hi, corr_lo, alt_hi, alt_lo, vlen);
@@ -101,15 +115,15 @@ RVV_LIBMVEC_IMPL_NAME (V_MATH_FUNC, LMUL) (VFLOAT d, size_t vlen)
     (s_hi, s_lo, s2_hi, s2_lo, vlen);
 
   /* This is the source's scalar polynomial on the high part of s^2.  */
-  u = VFMV_VF (RVV_SLEEF_SINF_POLY0_F, vlen);
+  u = VFMV_VF (RVV_SLEEF_TRIG_SIN_POLY0_F, vlen);
   u = VFMADD_VV
-    (u, s2_hi, VFMV_VF (RVV_SLEEF_SINF_POLY1_F, vlen), vlen);
+    (u, s2_hi, VFMV_VF (RVV_SLEEF_TRIG_SIN_POLY1_F, vlen), vlen);
   u = VFMADD_VV
-    (u, s2_hi, VFMV_VF (RVV_SLEEF_SINF_POLY2_F, vlen), vlen);
+    (u, s2_hi, VFMV_VF (RVV_SLEEF_TRIG_SIN_POLY2_F, vlen), vlen);
 
   VFLOAT inner_hi, inner_lo;
   RVV_SLEEF_ORIG_DFADD_VF_VF
-    (VFMV_VF (RVV_SLEEF_SINF_POLY3_F, vlen),
+    (VFMV_VF (RVV_SLEEF_TRIG_SIN_POLY3_F, vlen),
      VFMUL_VV (u, s2_hi, vlen), inner_hi, inner_lo, vlen);
   VFLOAT prod_hi, prod_lo;
   RVV_SLEEF_ORIG_DFMUL_VF2_VF2

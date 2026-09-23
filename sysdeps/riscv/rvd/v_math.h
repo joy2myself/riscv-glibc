@@ -148,6 +148,12 @@ static const uint64_t class_finite_pos = 0x60;
 #define RVV_SLEEF_TRIG_PI_F 0x1.921fb6p+1f
 #define RVV_PI_F 0x1.921fb6p+1f
 #define RVV_PI_LO_F -0x1.777a5cp-24f
+#define RVV_ONE_OVER_PI_F RVV_SLEEF_TRIG_ONE_OVER_PI
+#define RVV_ONE_OVER_PI_LO_F 0x1.b93910p-27f
+#define RVV_PIBY2_F 0x1.921fb6p+0f
+#define RVV_PIBY2_LO_F -0x1.777a5cp-25f
+#define RVV_PIBY4_F 0x1.921fb6p-1f
+#define RVV_PIBY4_LO_F -0x1.777a5cp-26f
 #define RVV_SLEEF_TRIG_RANGE_MAX2 125.0f
 #define RVV_SLEEF_TRIG_TWO_OVER_PI 0x1.45f306p-1f
 #define RVV_SLEEF_TRIG_NEG_PIBY2_A2_F \
@@ -187,10 +193,17 @@ static const uint64_t class_finite_pos = 0x60;
 #define RVV_SLEEF_SINF_REMPI_SCALE_LIMIT (90 - 25)
 #define RVV_SLEEF_SINF_REMPI_SCALE -64
 #define RVV_SLEEF_SINF_REMPI_INDEX_SHIFT 4
+#define RVV_SLEEF_TRIG_NEG_PI_A2_F RVV_SLEEF_SINF_NEG_PI_A2
+#define RVV_SLEEF_TRIG_NEG_PI_B2_F RVV_SLEEF_SINF_NEG_PI_B2
+#define RVV_SLEEF_TRIG_NEG_PI_C2_F RVV_SLEEF_SINF_NEG_PI_C2
 #define RVV_SLEEF_SINF_POLY0_F RVV_SLEEF_COSF_POLY_0
 #define RVV_SLEEF_SINF_POLY1_F RVV_SLEEF_COSF_POLY_1
 #define RVV_SLEEF_SINF_POLY2_F RVV_SLEEF_COSF_POLY_2
 #define RVV_SLEEF_SINF_POLY3_F RVV_SLEEF_COSF_POLY_3
+#define RVV_SLEEF_TRIG_SIN_POLY0_F RVV_SLEEF_COSF_POLY_0
+#define RVV_SLEEF_TRIG_SIN_POLY1_F RVV_SLEEF_COSF_POLY_1
+#define RVV_SLEEF_TRIG_SIN_POLY2_F RVV_SLEEF_COSF_POLY_2
+#define RVV_SLEEF_TRIG_SIN_POLY3_F RVV_SLEEF_COSF_POLY_3
 
 #define RVV_SLEEF_COSF_NEG_PI_A2_HALF \
   (-3.1414794921875f * 0.5f)
@@ -5597,33 +5610,146 @@ RVV_LIBMVEC_IMPL_NAME (lgamma_zero_apply, LMUL)
 #endif
 #endif
 
+/* Exact small binary32 operations shared by clean and source kernels.  */
+#if BIT_WIDTH == 32
+# if (LMUL == 1)
+#  ifndef RVV_F32_COMMON_HELPERS_M1
+#   define RVV_F32_COMMON_HELPERS_M1
+#   define RVV_F32_COMMON_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_F32_COMMON_HELPERS_M2
+#   define RVV_F32_COMMON_HELPERS_M2
+#   define RVV_F32_COMMON_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_F32_COMMON_HELPERS_M4
+#   define RVV_F32_COMMON_HELPERS_M4
+#   define RVV_F32_COMMON_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_F32_COMMON_HELPERS_M8
+#   define RVV_F32_COMMON_HELPERS_M8
+#   define RVV_F32_COMMON_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_F32_COMMON_HELPERS_THIS_LMUL
+static inline VINT
+RVV_LIBMVEC_IMPL_NAME (rvv_select_i_lt_f32, LMUL)
+  (VFLOAT f0, VFLOAT f1, VINT x, VINT y, size_t vlen)
+{
+  VBOOL m = __riscv_vmflt (f0, f1, vlen);
+  return __riscv_vmerge (y, x, m, vlen);
+}
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (rvv_vrint_f32, LMUL)
+  (VFLOAT value, size_t vlen)
+{
+  VINT rounded = RVV_VFCVT_X_F_RNE (value, vlen);
+  return __riscv_vfcvt_f (rounded, vlen);
+}
+
+#  undef RVV_F32_COMMON_HELPERS_THIS_LMUL
+# endif
+#endif
+
+/* Quarter-period reduction shared by clean sinf, fastsinf and tanf.  */
+#if (BIT_WIDTH == 32) \
+  && defined (RVV_NEED_CLEAN_F32_TRIG_REDUCTION)
+# if (LMUL == 1)
+#  ifndef RVV_LIBMVEC_TRIG_HELPERS_M1
+#   define RVV_LIBMVEC_TRIG_HELPERS_M1
+#   define RVV_LIBMVEC_TRIG_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_LIBMVEC_TRIG_HELPERS_M2
+#   define RVV_LIBMVEC_TRIG_HELPERS_M2
+#   define RVV_LIBMVEC_TRIG_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_LIBMVEC_TRIG_HELPERS_M4
+#   define RVV_LIBMVEC_TRIG_HELPERS_M4
+#   define RVV_LIBMVEC_TRIG_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_LIBMVEC_TRIG_HELPERS_M8
+#   define RVV_LIBMVEC_TRIG_HELPERS_M8
+#   define RVV_LIBMVEC_TRIG_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_LIBMVEC_TRIG_HELPERS_THIS_LMUL
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (sinf_or_sign, LMUL)
+  (VFLOAT x, VFLOAT y, size_t vlen)
+{
+  VUINT sign = __riscv_vand (F_AS_U_F (y), 0x80000000u, vlen);
+  return U_AS_F_F (__riscv_vor (F_AS_U_F (x), sign, vlen));
+}
+
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (sinf_reduce_quarter, LMUL)
+  (VFLOAT x, VINT *q_out, size_t vlen)
+{
+  VFLOAT c = __riscv_vfsgnjx
+    (VFMV_VF_F (RVV_SLEEF_TRIG_REMPI_TWO23, vlen), x, vlen);
+  VFLOAT x4 = VFMUL_VF (x, RVV_SLEEF_TRIG_REMPI_FOUR, vlen);
+  VFLOAT abs_x4 = __riscv_vfabs (x4, vlen);
+  VFLOAT abs_x = __riscv_vfabs (x, vlen);
+  VBOOL x4_large = __riscv_vmfgt
+    (abs_x4, RVV_SLEEF_TRIG_REMPI_TWO23, vlen);
+  VBOOL x_large = __riscv_vmfgt
+    (abs_x, RVV_SLEEF_TRIG_REMPI_TWO23, vlen);
+
+  VFLOAT rint4x = VFMADD_VV
+    (VFMV_VF_F (RVV_SLEEF_TRIG_REMPI_FOUR, vlen), x, c, vlen);
+  rint4x = VFSUB_VV (rint4x, c, vlen);
+  rint4x = RVV_LIBMVEC_IMPL_NAME (sinf_or_sign, LMUL) (rint4x, x, vlen);
+  rint4x = VMERGE_VVM_F (rint4x, x4, x4_large, vlen);
+
+  VFLOAT rintx = VFADD_VV (x, c, vlen);
+  rintx = VFSUB_VV (rintx, c, vlen);
+  rintx = RVV_LIBMVEC_IMPL_NAME (sinf_or_sign, LMUL) (rintx, x, vlen);
+  rintx = VMERGE_VVM_F (rintx, x, x_large, vlen);
+
+  VFLOAT rem = VFMADD_VV
+    (VFMV_VF_F (RVV_SLEEF_TRIG_REMPI_NEG_QUARTER, vlen), rint4x, x,
+     vlen);
+  *q_out = __riscv_vfcvt_rtz_x
+    (VFMADD_VV (VFMV_VF_F (RVV_SLEEF_TRIG_REMPI_NEG_FOUR, vlen), rintx,
+                rint4x, vlen), vlen);
+  return rem;
+}
+#  undef RVV_LIBMVEC_TRIG_HELPERS_THIS_LMUL
+# endif
+#endif
+
 /* Shared source-original SLEEF single-precision trig reduction helpers.
    The source comparator's conversion points, bitwise sign insertion, table
    reduction, and late special-value behavior remain unchanged.  */
 #if (BIT_WIDTH == 32) \
   && defined (RVV_NEED_SLEEF_F32_TRIG_REDUCTION)
 # if (LMUL == 1)
-#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M1
-#   define RVV_SLEEF_ORIG_SINF_HELPERS_M1
-#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  ifndef RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_M1
+#   define RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_M1
+#   define RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_THIS_LMUL
 #  endif
 # elif (LMUL == 2)
-#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M2
-#   define RVV_SLEEF_ORIG_SINF_HELPERS_M2
-#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  ifndef RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_M2
+#   define RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_M2
+#   define RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_THIS_LMUL
 #  endif
 # elif (LMUL == 4)
-#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M4
-#   define RVV_SLEEF_ORIG_SINF_HELPERS_M4
-#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  ifndef RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_M4
+#   define RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_M4
+#   define RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_THIS_LMUL
 #  endif
 # elif (LMUL == 8)
-#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M8
-#   define RVV_SLEEF_ORIG_SINF_HELPERS_M8
-#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  ifndef RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_M8
+#   define RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_M8
+#   define RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_THIS_LMUL
 #  endif
 # endif
-# ifdef RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+# ifdef RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_THIS_LMUL
 
 static inline VFLOAT
 RVV_LIBMVEC_IMPL_NAME (sinf_original_or_sign, LMUL)
@@ -5746,6 +5872,6 @@ RVV_LIBMVEC_IMPL_NAME (sinf_original_reduce_large, LMUL)
   *out_q = q;
 }
 
-#  undef RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  undef RVV_SLEEF_ORIG_SINF_REDUCTION_ADAPTERS_THIS_LMUL
 # endif
 #endif

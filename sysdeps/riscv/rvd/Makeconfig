@@ -56,6 +56,7 @@ libmvec-float-funcs-bare = \
   log10p1f \
   logp1f \
   log1pf \
+  sinf \
   sincospif \
 
 libmvec-float-funcs-with-data = \
@@ -225,6 +226,7 @@ libmvec-float-bench-funcs = \
   sincosf \
   powf \
   sincospif \
+  sinf \
 
 bench-libmvec-double = \
   $(addprefix double-, $(libmvec-double-bench-funcs)) \

@@ -46,7 +46,8 @@ libmvec-source-original-routines = \
   v_f_log10p1f_original \
   v_f_log1pf_original \
   v_f_sincosf_original \
-  v_f_sincospif_original
+  v_f_sincospif_original \
+  v_f_sinf_original
 
 libmvec-sysdep_routines += $(libmvec-source-original-routines)
 libmvec-routines += $(libmvec-sysdep_routines)

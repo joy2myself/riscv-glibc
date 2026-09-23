@@ -19,4 +19,6 @@
 #define LIBMVEC_TYPE float
 #define LIBMVEC_FUNC fastsinf
 #define LIBMVEC_IMPL "v_f_fastsinf_skeleton.c"
+/* Shared components for this translation unit and all LMUL instances.  */
+#define RVV_NEED_CLEAN_F32_TRIG_REDUCTION 1
 #include "v_math_importer.h"
