@@ -77,6 +77,17 @@ libmvec {
     _ZGVr8N8v_sin;
     _ZGVr8N16v_sin;
     _ZGVr8N32v_sin;
+    _ZGVr1N2vl8l8_sincos;
+    _ZGVr1N4vl8l8_sincos;
+    _ZGVr2N2vl8l8_sincos;
+    _ZGVr2N4vl8l8_sincos;
+    _ZGVr2N8vl8l8_sincos;
+    _ZGVr4N4vl8l8_sincos;
+    _ZGVr4N8vl8l8_sincos;
+    _ZGVr4N16vl8l8_sincos;
+    _ZGVr8N8vl8l8_sincos;
+    _ZGVr8N16vl8l8_sincos;
+    _ZGVr8N32vl8l8_sincos;
     _ZGVr1N2v_tan;
     _ZGVr1N4v_tan;
     _ZGVr2N2v_tan;

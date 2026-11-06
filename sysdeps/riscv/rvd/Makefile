@@ -47,6 +47,7 @@ libmvec-source-original-routines = \
   v_f_log1pf_original
 
 libmvec-sysdep_routines += $(libmvec-source-original-routines)
+libmvec-routines += $(libmvec-sysdep_routines)
 
 $(foreach f,$(libmvec-source-original-routines), \
   $(eval CFLAGS-$(f).c += -ffp-contract=off))

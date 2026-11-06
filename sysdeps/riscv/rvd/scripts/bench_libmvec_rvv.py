@@ -117,12 +117,30 @@ PRECISION_TABLE = {
 
 Variant = Dict[str, Union[str, int]]
 
+FUNC_CONFIGS: Dict[str, Dict[str, object]] = {
+    "sincos": {
+        "abi": "ret2",
+        "input_alias": "sin",
+        "scalar_impl": "sincos",
+    },
+}
+
+
+def _func_config(func: str) -> Dict[str, object]:
+    config: Dict[str, object] = {
+        "abi": "ret1",
+        "input_alias": func,
+        "scalar_impl": "direct",
+    }
+    config.update(FUNC_CONFIGS.get(func, {}))
+    return config
+
 
 def _make_vector_variants(
     func: str,
     elem_width: int,
     variants: Iterable[Tuple[int, int]],
-    arity: int,
+    config: Dict[str, object],
 ) -> Iterator[Variant]:
     """Yield vector variant metadata for the given function."""
     vtype_prefix = f"vfloat{elem_width}"
@@ -131,7 +149,13 @@ def _make_vector_variants(
         m_suffix = f"m{lmul}"
         vtype = f"{vtype_prefix}{m_suffix}_t"
         setvl_suffix = f"{setvl_prefix}{m_suffix}"
-        abi_suffix = "vv" if arity == 2 else "v"
+        abi = str(config["abi"])
+        if abi == "ret2":
+            abi_suffix = "vl8l8" if elem_width == 64 else "vl4l4"
+        elif abi == "arg2":
+            abi_suffix = "vv"
+        else:
+            abi_suffix = "v"
         asm_sym = f"_ZGVr{lmul}N{simdlen}{abi_suffix}_{func}"
         yield {
             "name": asm_sym,
@@ -140,6 +164,8 @@ def _make_vector_variants(
             "simdlen": simdlen,
             "asm_sym": asm_sym,
             "kind": "vector",
+            "abi": abi,
+            "lmul": lmul,
         }
 
 
@@ -159,13 +185,20 @@ def _parse_bench_name(name: str) -> Tuple[str, str]:
     return prec, func
 
 
-def _load_input_data(func: str) -> Tuple[str, int, int]:
+def _load_input_data(
+    func: str, config: Dict[str, object]
+) -> Tuple[str, int, int]:
     """Load inputs for FUNC, returning initializer, count, and arity."""
-    input_filename = f"{func}-inputs"
-    with open(
-        f"../benchtests/libmvec/{input_filename}",
-        encoding="utf-8",
-    ) as f:
+    input_filename = f"{config['input_alias']}-inputs"
+    source_root = Path(__file__).resolve().parents[4]
+    input_paths = (
+        source_root / "benchtests" / "libmvec" / input_filename,
+        source_root / "benchtests" / input_filename,
+    )
+    input_path = next((path for path in input_paths if path.is_file()), None)
+    if input_path is None:
+        raise SystemExit(f"cannot find benchmark input file for {func}")
+    with input_path.open(encoding="utf-8") as f:
         input_file = f.readlines()
 
     arity_line = next(
@@ -203,6 +236,7 @@ def _vector_variant_snippets(
     simdlen = variant["simdlen"]
     asm_sym = variant["asm_sym"]
     name_sym = variant["name"]
+    abi = str(variant["abi"])
 
     if "float64" in vtype:
         elem_width = "64"
@@ -215,31 +249,51 @@ def _vector_variant_snippets(
 
     m_suffix = vtype.replace(f"vfloat{elem_width}", "").replace("_t", "")
 
-    call_args = ", ".join([vtype] * arity)
-    proto = (
-        f"extern {vtype} {name_sym}({call_args}) "
-        f"__asm__(\"{asm_sym}\");"
-    )
+    if abi == "ret2":
+        proto = (
+            f"extern void {name_sym}({vtype}, {vtype} *, {vtype} *) "
+            f"__asm__(\"{asm_sym}\");"
+        )
+    else:
+        call_args = ", ".join([vtype] * arity)
+        proto = (
+            f"extern {vtype} {name_sym}({call_args}) "
+            f"__asm__(\"{asm_sym}\");"
+        )
     vector_args = [
         f"  {vtype} arg{i} = "
         f"__riscv_vle{elem_width}_v_{elem_type}{m_suffix} "
         f"(&in->arg{i}[idx], vl);"
         for i in range(arity)
     ]
-    call_expr = f"{name_sym} (" + ", ".join(
-        f"arg{i}" for i in range(arity)
-    ) + ")"
-    caller = (
-        f"static double\n"
-        f"call_{idx} (const struct {args_type} *in, size_t idx)\n"
-        f"{{\n"
-        f"  size_t vl = __riscv_vsetvl_{setvl_suffix} ({simdlen});\n"
-        f"{chr(10).join(vector_args)}\n"
-        f"  {vtype} r = {call_expr};\n"
-        f"  return __riscv_vfmv_f_s_{elem_type}{m_suffix}_{elem_type} "
-        f"(r);\n"
-        f"}}\n"
-    )
+    if abi == "ret2":
+        caller = (
+            f"static double\n"
+            f"call_{idx} (const struct {args_type} *in, size_t idx)\n"
+            f"{{\n"
+            f"  size_t vl = __riscv_vsetvl_{setvl_suffix} ({simdlen});\n"
+            f"{chr(10).join(vector_args)}\n"
+            f"  {vtype} r0, r1;\n"
+            f"  {name_sym} (arg0, &r0, &r1);\n"
+            f"  return __riscv_vfmv_f_s_{elem_type}{m_suffix}_{elem_type} "
+            f"(r0) + __riscv_vfmv_f_s_{elem_type}{m_suffix}_{elem_type} (r1);\n"
+            f"}}\n"
+        )
+    else:
+        call_expr = f"{name_sym} (" + ", ".join(
+            f"arg{i}" for i in range(arity)
+        ) + ")"
+        caller = (
+            f"static double\n"
+            f"call_{idx} (const struct {args_type} *in, size_t idx)\n"
+            f"{{\n"
+            f"  size_t vl = __riscv_vsetvl_{setvl_suffix} ({simdlen});\n"
+            f"{chr(10).join(vector_args)}\n"
+            f"  {vtype} r = {call_expr};\n"
+            f"  return __riscv_vfmv_f_s_{elem_type}{m_suffix}_{elem_type} "
+            f"(r);\n"
+            f"}}\n"
+        )
     entry = f'  {{"{asm_sym}", {simdlen}, call_{idx}, &in0}}'
     return proto, caller, entry
 
@@ -248,6 +302,7 @@ def _build_variants(
     func: str,
     elem_width: int,
     variants: Iterable[Tuple[int, int]],
+    config: Dict[str, object],
     arity: int,
     args_type: str,
 ) -> Tuple[List[str], List[str], List[str]]:
@@ -257,14 +312,18 @@ def _build_variants(
     variant_entries: List[str] = []
 
     variants_list = list(
-        _make_vector_variants(func, elem_width, variants, arity)
+        _make_vector_variants(func, elem_width, variants, config)
     )
     prefix = "v_d_" if elem_width == 64 else "v_f_"
     original = Path(__file__).resolve().parent.parent / (
         prefix + func + "_original.c"
     )
     if original.is_file():
-        variants_list.extend(_make_vector_variants(func + "_original", elem_width, variants, arity))
+        variants_list.extend(
+            _make_vector_variants(
+                func + "_original", elem_width, variants, config
+            )
+        )
 
     variants_list.append(
         {
@@ -277,15 +336,29 @@ def _build_variants(
 
     for idx, variant in enumerate(variants_list):
         if variant["kind"] == "scalar":
-            callers.append(
-                f"static double\n"
-                f"call_{idx} (const struct {args_type} *in, size_t idx)\n"
-                f"{{\n"
-                f"  return {func} (" + ", ".join(
-                    f"in->arg{i}[idx]" for i in range(arity)
-                ) + ");\n"
-                f"}}\n"
-            )
+            scalar_impl = str(config["scalar_impl"])
+            if scalar_impl == "sincos":
+                caller = (
+                    f"static double\n"
+                    f"call_{idx} (const struct {args_type} *in, size_t idx)\n"
+                    f"{{\n"
+                    f"  double s, c;\n"
+                    f"  sincos (in->arg0[idx], &s, &c);\n"
+                    f"  return s + c;\n"
+                    f"}}\n"
+                )
+            else:
+                scalar_func = func if scalar_impl == "direct" else scalar_impl
+                caller = (
+                    f"static double\n"
+                    f"call_{idx} (const struct {args_type} *in, size_t idx)\n"
+                    f"{{\n"
+                    f"  return {scalar_func} (" + ", ".join(
+                        f"in->arg{i}[idx]" for i in range(arity)
+                    ) + ");\n"
+                    f"}}\n"
+                )
+            callers.append(caller)
             variant_entries.append(
                 f'  {{"{variant["asm_sym"]}", 1, call_{idx}, &in0}}'
             )
@@ -309,7 +382,8 @@ def main(name: str):
 
     stype = config["stype"]
     elem_width = config["elem_width"]
-    in_data, nelems, arity = _load_input_data(func)
+    func_config = _func_config(func)
+    in_data, nelems, arity = _load_input_data(func, func_config)
     args_type = f"args_{arity}"
     arg_fields = "\n".join(
         f"  {stype} arg{i}[{nelems}];" for i in range(arity)
@@ -318,6 +392,7 @@ def main(name: str):
         func,
         elem_width,
         config["variants"],
+        func_config,
         arity,
         args_type,
     )
