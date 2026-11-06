@@ -146,7 +146,16 @@ static const uint64_t class_finite_pos = 0x60;
    indexed data.  */
 #define RVV_SLEEF_TRIG_ONE_OVER_PI 0x1.45f306p-2f
 #define RVV_SLEEF_TRIG_PI_F 0x1.921fb6p+1f
+#define RVV_PI_F 0x1.921fb6p+1f
+#define RVV_PI_LO_F -0x1.777a5cp-24f
 #define RVV_SLEEF_TRIG_RANGE_MAX2 125.0f
+#define RVV_SLEEF_TRIG_TWO_OVER_PI 0x1.45f306p-1f
+#define RVV_SLEEF_TRIG_NEG_PIBY2_A2_F \
+  (-3.1414794921875f * 0.5f)
+#define RVV_SLEEF_TRIG_NEG_PIBY2_B2_F \
+  (-0.00011315941810607910156f * 0.5f)
+#define RVV_SLEEF_TRIG_NEG_PIBY2_C2_F \
+  (-1.9841872589410058936e-09f * 0.5f)
 #define RVV_SLEEF_TRIG_REMPI_TWO23 8388608.0f
 #define RVV_SLEEF_TRIG_REMPI_FOUR 4.0f
 #define RVV_SLEEF_TRIG_REMPI_NEG_QUARTER -0.25f
@@ -156,6 +165,16 @@ static const uint64_t class_finite_pos = 0x60;
 #define RVV_SLEEF_TRIG_REMPI_TWO_PI_LO \
   (-8.7422776573475857731e-08f * 2.0f)
 #define RVV_SLEEF_TRIG_REMPI_SMALL 0.7f
+
+/* SLEEF sincosf's paired approximation coefficients.  */
+#define RVV_SINCOSF_SIN_POLY0_F -0.000195169282960705459117889f
+#define RVV_SINCOSF_SIN_POLY1_F 0.00833215750753879547119141f
+#define RVV_SINCOSF_SIN_POLY2_F -0.166666537523269653320312f
+#define RVV_SINCOSF_COS_POLY0_F -2.71811842367242206819355e-07f
+#define RVV_SINCOSF_COS_POLY1_F 2.47990446951007470488548e-05f
+#define RVV_SINCOSF_COS_POLY2_F -0.00138888787478208541870117f
+#define RVV_SINCOSF_COS_POLY3_F 0.0416666641831398010253906f
+#define RVV_SINCOSF_COS_POLY4_F -0.5f
 
 #define RVV_SLEEF_SINF_NEG_PI_A2 -3.1414794921875f
 #define RVV_SLEEF_SINF_NEG_PI_B2 -0.00011315941810607910156f
@@ -5574,4 +5593,157 @@ RVV_LIBMVEC_IMPL_NAME (lgamma_zero_apply, LMUL)
 }
 # undef RVV_LIBMVEC_LGAMMA_HELPERS_THIS_LMUL
 #endif
+#endif
+
+/* Shared source-original SLEEF single-precision trig reduction helpers.
+   The source comparator's conversion points, bitwise sign insertion, table
+   reduction, and late special-value behavior remain unchanged.  */
+#if (BIT_WIDTH == 32) \
+  && defined (RVV_NEED_SLEEF_F32_TRIG_REDUCTION)
+# if (LMUL == 1)
+#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M1
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_M1
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 2)
+#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M2
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_M2
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 4)
+#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M4
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_M4
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  endif
+# elif (LMUL == 8)
+#  ifndef RVV_SLEEF_ORIG_SINF_HELPERS_M8
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_M8
+#   define RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+#  endif
+# endif
+# ifdef RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (sinf_original_or_sign, LMUL)
+  (VFLOAT x, VFLOAT y, size_t vlen)
+{
+  VUINT sign = __riscv_vand (F_AS_U (y), 0x80000000u, vlen);
+  return U_AS_F (__riscv_vor (F_AS_U (x), sign, vlen));
+}
+
+static inline VFLOAT
+RVV_LIBMVEC_IMPL_NAME (sinf_original_reduce_quarter, LMUL)
+  (VFLOAT x, VINT *q_out, size_t vlen)
+{
+  VFLOAT c = __riscv_vfsgnjx
+    (VFMV_VF (RVV_SLEEF_TRIG_REMPI_TWO23, vlen), x, vlen);
+  VFLOAT x4 = VFMUL_VF (x, RVV_SLEEF_TRIG_REMPI_FOUR, vlen);
+  VFLOAT abs_x4 = __riscv_vfabs (x4, vlen);
+  VFLOAT abs_x = __riscv_vfabs (x, vlen);
+  VBOOL x4_large = __riscv_vmfgt
+    (abs_x4, RVV_SLEEF_TRIG_REMPI_TWO23, vlen);
+  VBOOL x_large = __riscv_vmfgt
+    (abs_x, RVV_SLEEF_TRIG_REMPI_TWO23, vlen);
+
+  VFLOAT rint4x = VFMADD_VV
+    (VFMV_VF (RVV_SLEEF_TRIG_REMPI_FOUR, vlen), x, c, vlen);
+  rint4x = VFSUB_VV (rint4x, c, vlen);
+  rint4x = RVV_LIBMVEC_IMPL_NAME (sinf_original_or_sign, LMUL)
+    (rint4x, x, vlen);
+  rint4x = VMERGE_VVM_F (rint4x, x4, x4_large, vlen);
+
+  VFLOAT rintx = VFADD_VV (x, c, vlen);
+  rintx = VFSUB_VV (rintx, c, vlen);
+  rintx = RVV_LIBMVEC_IMPL_NAME (sinf_original_or_sign, LMUL)
+    (rintx, x, vlen);
+  rintx = VMERGE_VVM_F (rintx, x, x_large, vlen);
+
+  VFLOAT rem = VFMADD_VV
+    (VFMV_VF (RVV_SLEEF_TRIG_REMPI_NEG_QUARTER, vlen), rint4x, x,
+              vlen);
+  *q_out = __riscv_vfcvt_rtz_x
+    (VFMADD_VV (VFMV_VF (RVV_SLEEF_TRIG_REMPI_NEG_FOUR, vlen), rintx,
+                rint4x,
+                vlen), vlen);
+  return rem;
+}
+
+static inline void
+RVV_LIBMVEC_IMPL_NAME (sinf_original_reduce_large, LMUL)
+  (VFLOAT a, VFLOAT *out_hi, VFLOAT *out_lo, VINT *out_q, size_t vlen)
+{
+  const struct v_sleef_trig_data *trig_data =
+    ptr_barrier (&__v_sleef_trig_data);
+
+  /* Exact exponent-field adapter for the source reduction.  */
+  VINT ex;
+  {
+    VUINT bits = F_AS_U (a);
+    VUINT exponent = __riscv_vsrl (bits, MAN_LEN_F, vlen);
+    exponent = __riscv_vand (exponent, 0xff, vlen);
+    ex = __riscv_vsub (U_AS_I (exponent), EXP_BIAS_F, vlen);
+  }
+  ex = __riscv_vsub (ex, RVV_SLEEF_SINF_REMPI_EXPONENT_BIAS, vlen);
+
+  VBOOL scale_mask = __riscv_vmsgt
+    (ex, RVV_SLEEF_SINF_REMPI_SCALE_LIMIT, vlen);
+  VINT scale = VMERGE_VXM_I
+    (VMVI_VX (0, vlen), RVV_SLEEF_SINF_REMPI_SCALE, scale_mask, vlen);
+  /* Apply the exact exponent-field scaling.  */
+  a = I_AS_F (__riscv_vadd
+    (F_AS_I (a), __riscv_vsll (scale, MAN_LEN_F, vlen), vlen));
+
+  VBOOL ex_negative = __riscv_vmslt (ex, 0, vlen);
+  ex = VMERGE_VXM_I (ex, 0, ex_negative, vlen);
+  ex = __riscv_vsll (ex, RVV_SLEEF_SINF_REMPI_INDEX_SHIFT, vlen);
+  VUINT ex_u = I_AS_U (ex);
+
+  VFLOAT tab0 = RVV_VLUXEI32_F (trig_data->rempitabsp, ex_u, vlen);
+  VFLOAT tab1 = RVV_VLUXEI32_F (trig_data->rempitabsp + 1, ex_u, vlen);
+  VFLOAT tab2 = RVV_VLUXEI32_F (trig_data->rempitabsp + 2, ex_u, vlen);
+  VFLOAT tab3 = RVV_VLUXEI32_F (trig_data->rempitabsp + 3, ex_u, vlen);
+
+  VFLOAT x_hi, x_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF_VF (a, tab0, x_hi, x_lo, vlen);
+  VINT q;
+  x_hi = RVV_LIBMVEC_IMPL_NAME (sinf_original_reduce_quarter, LMUL)
+    (x_hi, &q, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2 (x_hi, x_lo, x_hi, x_lo, vlen);
+
+  VFLOAT y_hi, y_lo;
+  RVV_SLEEF_ORIG_DFMUL_VF_VF (a, tab1, y_hi, y_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (x_hi, x_lo, y_hi, y_lo, x_hi, x_lo, vlen);
+  VINT q_part;
+  x_hi = RVV_LIBMVEC_IMPL_NAME (sinf_original_reduce_quarter, LMUL)
+    (x_hi, &q_part, vlen);
+  q = __riscv_vadd (q, q_part, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2 (x_hi, x_lo, x_hi, x_lo, vlen);
+
+  y_hi = tab2;
+  y_lo = tab3;
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF
+    (y_hi, y_lo, a, y_hi, y_lo, vlen);
+  RVV_SLEEF_ORIG_DFADD2_VF2_VF2
+    (x_hi, x_lo, y_hi, y_lo, x_hi, x_lo, vlen);
+  RVV_SLEEF_ORIG_DFNORMALIZE_VF2 (x_hi, x_lo, x_hi, x_lo, vlen);
+
+  RVV_SLEEF_ORIG_DFMUL_VF2_VF2
+    (x_hi, x_lo,
+     VFMV_VF ((RVV_PI_F * 2.0f), vlen),
+     VFMV_VF ((RVV_PI_LO_F * 2.0f), vlen),
+     x_hi, x_lo, vlen);
+
+  VBOOL a_small = __riscv_vmflt
+    (__riscv_vfabs (a, vlen), RVV_SLEEF_TRIG_REMPI_SMALL, vlen);
+  x_hi = VMERGE_VVM_F (x_hi, a, a_small, vlen);
+  x_lo = VFMERGE_VFM (x_lo, fp_posZero_f, a_small, vlen);
+
+  *out_hi = x_hi;
+  *out_lo = x_lo;
+  *out_q = q;
+}
+
+#  undef RVV_SLEEF_ORIG_SINF_HELPERS_THIS_LMUL
+# endif
 #endif

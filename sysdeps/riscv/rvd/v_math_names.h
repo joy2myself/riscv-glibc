@@ -46,4 +46,11 @@
   V_NAME_D1_D1_INNER (lmul, simdlen, fun)
 #endif
 
+#ifndef V_NAME_F1_F1
+# define V_NAME_F1_F1_INNER(lmul, simdlen, fun)                              \
+  _ZGVr##lmul##N##simdlen##vl4l4_##fun
+# define V_NAME_F1_F1(lmul, simdlen, fun)                                    \
+  V_NAME_F1_F1_INNER (lmul, simdlen, fun)
+#endif
+
 #endif

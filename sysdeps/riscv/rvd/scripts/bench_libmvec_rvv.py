@@ -123,6 +123,11 @@ FUNC_CONFIGS: Dict[str, Dict[str, object]] = {
         "input_alias": "sin",
         "scalar_impl": "sincos",
     },
+    "sincosf": {
+        "abi": "ret2",
+        "input_alias": "sinf",
+        "scalar_impl": "sincosf",
+    },
 }
 
 
@@ -345,6 +350,16 @@ def _build_variants(
                     f"  double s, c;\n"
                     f"  sincos (in->arg0[idx], &s, &c);\n"
                     f"  return s + c;\n"
+                    f"}}\n"
+                )
+            elif scalar_impl == "sincosf":
+                caller = (
+                    f"static double\n"
+                    f"call_{idx} (const struct {args_type} *in, size_t idx)\n"
+                    f"{{\n"
+                    f"  float s, c;\n"
+                    f"  sincosf (in->arg0[idx], &s, &c);\n"
+                    f"  return (double) s + (double) c;\n"
                     f"}}\n"
                 )
             else:

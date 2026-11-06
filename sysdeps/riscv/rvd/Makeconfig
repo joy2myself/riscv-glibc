@@ -22,6 +22,7 @@ postclean-generated += libmvec.mk
 
 libmvec-float-funcs-bare = \
   logf \
+  sincosf \
   acosf \
   asinf \
   asinhf \
@@ -218,6 +219,7 @@ libmvec-float-bench-funcs = \
   log10p1f \
   logp1f \
   log1pf \
+  sincosf \
   powf \
 
 bench-libmvec-double = \
