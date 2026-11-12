@@ -30,13 +30,15 @@
 #define cur_vl a2
 #define end_offset a3
 
-#define ELEM_LMUL_SETTING m2
+#define ELEM_LMUL_SETTING m4
 #define vstr v0
-#define vmask_end v2
+#define vmask_end v4
 
 ENTRY (STRLEN)
 .option push
 .option arch, +v
+    lbu t0, 0(str)
+    beqz t0, .Lempty
     mv copy_str, str
 L(loop):
     vsetvli ivl, zero, e8, ELEM_LMUL_SETTING, ta, ma
@@ -51,6 +53,9 @@ L(loop):
     add copy_str, copy_str, end_offset
     sub result, copy_str, result
 
+    ret
+.Lempty:
+    li a0, 0
     ret
 .option pop
 END (STRLEN)

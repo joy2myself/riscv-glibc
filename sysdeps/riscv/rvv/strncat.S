@@ -30,7 +30,7 @@
 #define cur_vl a4
 #define activate_elem_pos a5
 
-#define ELEM_LMUL_SETTING m1
+#define ELEM_LMUL_SETTING m4
 #define vmask1 v0
 #define vmask2 v1
 #define vstr1 v8

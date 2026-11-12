@@ -40,27 +40,29 @@
 ENTRY (STRCHRNUL)
 .option push
 .option arch, +v
-L(strchrnul_loop):
-	vsetvli	ivl, zero, e8, ELEM_LMUL_SETTING, ta, ma
-	vle8ff.v	vstr, (str)
-	vmseq.vi	vmask_end, vstr, 0
-	vmseq.vx	vmask_ch, vstr, ch
-	vfirst.m	end_offset, vmask_end
-	vfirst.m	ch_offset, vmask_ch
-	sltz	temp1, ch_offset
-	sltu	temp2, end_offset, ch_offset
-	or	temp1, temp1, temp2
-	beqz	temp1, L(found_ch)
-	bltz	end_offset, L(advance)
-	add	str, str, end_offset
-	ret
-L(advance):
-	csrr	cur_vl, vl
-	add	str, str, cur_vl
-	j	L(strchrnul_loop)
-L(found_ch):
-	add	str, str, ch_offset
-	ret
+    andi a1, a1, 255
+    lbu t1, 0(a0)
+    beq t1, a1, .Lscan_return
+    beqz t1, .Lscan_end
+.Lscan_loop:
+    vsetvli t0, zero, e8, m4, ta, ma
+    vle8ff.v v0, (a0)
+    vmseq.vi v8, v0, 0
+    vmseq.vx v9, v0, a1
+    vmor.mm v8, v8, v9
+    vfirst.m a2, v8
+    bgez a2, .Lscan_found
+    csrr a6, vl
+    add a0, a0, a6
+    j .Lscan_loop
+.Lscan_found:
+    add a0, a0, a2
+    lbu t1, 0(a0)
+    beq t1, a1, .Lscan_return
+.Lscan_end:
+
+.Lscan_return:
+    ret
 .option pop
 END (STRCHRNUL)
 

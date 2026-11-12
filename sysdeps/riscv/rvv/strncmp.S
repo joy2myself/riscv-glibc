@@ -33,7 +33,7 @@
 #define temp1 a4
 #define temp2 a5
 
-#define ELEM_LMUL_SETTING m1
+#define ELEM_LMUL_SETTING m4
 #define vstr1 v0
 #define vstr2 v4
 #define vmask1 v8
@@ -70,6 +70,8 @@ L(loop):
     add str1, str1, ivl
     add str2, str2, ivl
     bnez length, L(loop)
+    li result, 0
+    ret
 
 L(end_loop):
     add str1, str1, temp1

@@ -40,53 +40,36 @@
 ENTRY (STRCMP)
 .option push
 .option arch, +v
-    /* lmul=1 */
-L(Loop):
-    vsetvli ivl, zero, e8, m1, ta, ma
-    vle8ff.v vstr1, (str1)
-    /* Check if vstr1[i] == 0 */
-    vmseq.vx vmask1, vstr1, zero
-
-    vle8ff.v vstr2, (str2)
-    /* Check if vstr1[i] != vstr2[i] */
-    vmsne.vv vmask2, vstr1, vstr2
-
-    /* Find the index x for vstr1[x] == 0 */
-    vfirst.m temp1, vmask1
-    /* Find the index x for vstr1[x] != vstr2[x] */
-    vfirst.m temp2, vmask2
-
-    bgez temp1, L(check1)
-    bgez temp2, L(check2)
-
-    /* Get the current vl updated by vle8ff. */
-    csrr ivl, vl
-    add str1, str1, ivl
-    add str2, str2, ivl
-    j L(Loop)
-
-    /* temp1 >= 0 */
-L(check1):
-    bltz temp2, L(return_at_nul)
-    blt temp2, temp1, L(check2)
-L(return_at_nul):
-    /* temp2 < 0 */
-    /* temp2 >= 0 && temp1 < temp2 */
-    add str1, str1, temp1
-    add str2, str2, temp1
-    lbu temp1, 0(str1)
-    lbu temp2, 0(str2)
-    sub result, temp1, temp2
-    ret
-
-    /* temp1 < 0 */
-    /* temp2 >= 0 */
-L(check2):
-    add str1, str1, temp2
-    add str2, str2, temp2
-    lbu temp1, 0(str1)
-    lbu temp2, 0(str2)
-    sub result, temp1, temp2
+    li t2, 16
+.Lcmp_scalar_prefix:
+    lbu t0, 0(a0)
+    lbu t1, 0(a1)
+    bne t0, t1, .Lcmp_first
+    beqz t0, .Lcmp_first
+    addi a0, a0, 1
+    addi a1, a1, 1
+    addi t2, t2, -1
+    bnez t2, .Lcmp_scalar_prefix
+.Lcmp_loop:
+    vsetvli a2, zero, e8, m4, ta, ma
+    vle8ff.v v0, (a0)
+    vle8ff.v v8, (a1)
+    vmseq.vi v16, v0, 0
+    vmsne.vv v17, v0, v8
+    vmor.mm v16, v16, v17
+    vfirst.m a3, v16
+    bgez a3, .Lcmp_found
+    csrr a2, vl
+    add a0, a0, a2
+    add a1, a1, a2
+    j .Lcmp_loop
+.Lcmp_found:
+    add a0, a0, a3
+    add a1, a1, a3
+    lbu t0, 0(a0)
+    lbu t1, 0(a1)
+.Lcmp_first:
+    sub a0, t0, t1
     ret
 .option pop
 END (STRCMP)

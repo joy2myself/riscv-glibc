@@ -45,7 +45,7 @@ weak_alias (__stpncpy, stpncpy)
 #define ivl a6
 #define temp a1
 
-#define ELEM_LMUL_SETTING m1
+#define ELEM_LMUL_SETTING m4
 #define vmask1 v0
 #define vmask2 v1
 #define ZERO_FILL_ELEM_LMUL_SETTING m8

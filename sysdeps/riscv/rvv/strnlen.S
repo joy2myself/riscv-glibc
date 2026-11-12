@@ -30,7 +30,7 @@
 #define cur_vl a3
 #define end_offset a4
 
-#define ELEM_LMUL_SETTING m1
+#define ELEM_LMUL_SETTING m4
 #define vstr v0
 #define vmask_end v8
 
